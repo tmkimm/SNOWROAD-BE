@@ -5,12 +5,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Getter
 @NoArgsConstructor
 @Schema(description = "팝업, 전시 상세 조회 DTO")
-public class EventsResponseDto {
+public class EventsListResponseDto {
     @Schema(description = "이벤트ID")
     private String eventId;
     @Schema(description = "이벤트명")
@@ -32,10 +30,9 @@ public class EventsResponseDto {
     @Schema(description = "팝업, 전시 구분 코드")
     private String ppstEnbnTypeCd;
 
-    @Schema(description = "메인 이미지 정보")
-    private FileInfoDTO mainImage;
+    @Schema(description = "메인 이미지 URL")
+    private String imageUrl;
 
-    @Schema(description = "내용 이미지 정보(배열)")
-    private List<FileInfoDTO> contentImages;
-
+    @Schema(description = "모바일 이미지 URL")
+    private String smallImageUrl;
 }

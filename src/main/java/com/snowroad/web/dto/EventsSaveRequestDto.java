@@ -25,18 +25,11 @@ public class EventsSaveRequestDto {
     private String ctgyId;
     @Schema(description = "팝업, 전시 구분 코드")
     private String ppstEnbnTypeCd;
+    @Schema(description = "위도", example = "126.9780")
+    private double addrLttd;
+    @Schema(description = "경도", example = "37.5665")
+    private double addrLotd;
 
-    @Builder
-    public EventsSaveRequestDto(String eventNm, String eventCntn, String eventAddr, String operStatDt, String operEndDt, String operDttmCntn, String ctgyId, String ppstEnbnTypeCd) {
-        this.eventNm = eventNm;
-        this.eventCntn = eventCntn;
-        this.eventAddr = eventAddr;
-        this.operStatDt = operStatDt;
-        this.operEndDt = operEndDt;
-        this.operDttmCntn = operDttmCntn;
-        this.ctgyId = ctgyId;
-        this.ppstEnbnTypeCd = ppstEnbnTypeCd;
-    }
 
 
 //    public Posts toEntity() {

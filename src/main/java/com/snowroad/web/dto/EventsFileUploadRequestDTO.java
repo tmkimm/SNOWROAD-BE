@@ -10,19 +10,19 @@ import org.springframework.web.multipart.MultipartFile;
 @Schema(description = "이벤트 파일 업로드 DTO")
 public class EventsFileUploadRequestDTO {
 
-    @Schema(description = "업로드할 파일들", required = true)
-    private MultipartFile[] files;
+    @Schema(description = "내용 이미지(배열)", required = true)
+    private MultipartFile[] contentImages;
 
-    @Schema(description = "대표 이미지 (선택 사항)", required = true)
+    @Schema(description = "대표 이미지 ", required = true)
     private MultipartFile mainImage;
 
     // Getters and Setters
     public MultipartFile[] getFiles() {
-        return files;
+        return contentImages;
     }
 
     public void setFiles(MultipartFile[] files) {
-        this.files = files;
+        this.contentImages = files;
     }
 
     public MultipartFile getMainImage() {

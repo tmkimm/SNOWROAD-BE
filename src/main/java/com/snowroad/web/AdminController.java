@@ -1,7 +1,6 @@
 package com.snowroad.web;
 
-import com.snowroad.web.dto.EventsFileUploadRequestDTO;
-import com.snowroad.web.dto.EventsSaveRequestDto;
+import com.snowroad.web.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -13,12 +12,31 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @RestController
-@Tag(name = "팝업, 전시 API", description = "팝업, 전시 관련 API")
-public class EventsController {
+@Tag(name = "어드민 API", description = "어드민에서 사용하는 API")
+public class AdminController {
+    @Operation(summary="어드민 로그인", description = "(관리자) 어드민 페이지에 로그인합니다.\n로그인 성공 시 쿠키에 Refresh token, Access token이 저장됩니다.")
+    //@ApiResponse(responseCode = "200", description = "수신함 조회 성공", content = @Content(schema = @Schema(implementation = AlarmReceiveDto.class)))
+    @PostMapping("/api/admin/login")
+    public void login(@RequestBody AdminLoginRequestDTO requestDto) {
+
+    }
+
+    @Operation(summary="팝업, 전시 리스트 조회", description = "(관리자) 등록된 팝업, 전시 리스트를 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = EventsListResponseDto.class)))
+    @GetMapping("/api/admin/events")
+    public void getList() {
+
+    }
+    @Operation(summary="팝업, 전시 상세 조회", description = "(관리자) 상세 정보를 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "상세 조회 성공", content = @Content(schema = @Schema(implementation = EventsResponseDto.class)))
+    @GetMapping("/api/admin//events/{eventId}")
+    public void get() {
+
+    }
 
     @Operation(summary="팝업, 전시 등록", description = "(관리자) 이벤트를 등록합니다.")
     //@ApiResponse(responseCode = "200", description = "수신함 조회 성공", content = @Content(schema = @Schema(implementation = AlarmReceiveDto.class)))
-    @PostMapping("/api/events")
+    @PostMapping("/api/admin/events")
     public void save(@RequestBody EventsSaveRequestDto requestDto) {
 
     }
@@ -36,7 +54,7 @@ public class EventsController {
                     @ApiResponse(responseCode = "400", description = "잘못된 요청")
             }
     )
-    @PostMapping("events/{eventId}/files")
+    @PostMapping("/api/admin/events/{eventId}/files")
     public void uploadFiles(
             @PathVariable String eventId,
             @RequestParam("files") MultipartFile[] files,
@@ -51,7 +69,7 @@ public class EventsController {
     }
 
     @Operation(summary="팝업, 전시 삭제", description = "(관리자) 이벤트를 삭제합니다.")
-    @DeleteMapping("/api/events/{eventId}")
+    @DeleteMapping("/api/admin/events/{eventId}")
     public void delete(@PathVariable String eventId) {
 
     }
