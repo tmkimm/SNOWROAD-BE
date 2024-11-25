@@ -1,12 +1,17 @@
 package com.snowroad.web;
 
+import com.snowroad.service.AdminService;
 import com.snowroad.web.dto.*;
+import com.snowroad.web.util.CookieUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,11 +19,17 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @Tag(name = "어드민 API", description = "어드민에서 사용하는 API")
 public class AdminController {
+    private final AdminService adminService;
     @Operation(summary="어드민 로그인", description = "(관리자) 어드민 페이지에 로그인합니다.\n로그인 성공 시 쿠키에 Refresh token, Access token이 저장됩니다.")
     //@ApiResponse(responseCode = "200", description = "수신함 조회 성공", content = @Content(schema = @Schema(implementation = AlarmReceiveDto.class)))
     @PostMapping("/api/admin/login")
-    public void login(@RequestBody AdminLoginRequestDTO requestDto) {
+    public ResponseEntity<String> login(@RequestBody AdminLoginRequestDTO requestDto, HttpServletResponse response) {
+        AdminLoginResponseDTO loginRes = adminService.login(requestDto.getId(), requestDto.getPassword());
+        // CookieUtils를 사용하여 쿠키에 토큰 추가
+        CookieUtils.addAccessTokenToCookies(response, loginRes.getAccessToken());
+        CookieUtils.addRefreshTokenToCookies(response, loginRes.getRefreshToken());
 
+        return new ResponseEntity<>("Login success", HttpStatus.OK);
     }
 
     @Operation(summary="팝업, 전시 리스트 조회", description = "(관리자) 등록된 팝업, 전시 리스트를 조회합니다.")
