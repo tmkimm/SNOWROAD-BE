@@ -38,18 +38,11 @@ public class AdminController {
     public void getList() {
 
     }
-    @Operation(summary="팝업, 전시 상세 조회", description = "(관리자) 상세 정보를 조회합니다.")
-    @ApiResponse(responseCode = "200", description = "상세 조회 성공", content = @Content(schema = @Schema(implementation = EventsResponseDto.class)))
-    @GetMapping("/api/admin//events/{eventId}")
-    public void get() {
-
-    }
-
     @Operation(summary="팝업, 전시 등록", description = "(관리자) 이벤트를 등록합니다.")
     //@ApiResponse(responseCode = "200", description = "수신함 조회 성공", content = @Content(schema = @Schema(implementation = AlarmReceiveDto.class)))
     @PostMapping("/api/admin/events")
-    public void save(@RequestBody EventsSaveRequestDto requestDto) {
-
+    public Long save(@RequestBody EventsSaveRequestDto requestDto) {
+        return adminService.save(requestDto);
     }
     @Operation(
             summary = "팝업, 전시 이미지 등록",
@@ -77,6 +70,18 @@ public class AdminController {
         for (MultipartFile file : files) {
             System.out.println("업로드된 파일: " + file.getOriginalFilename());
         }
+    }
+    @Operation(summary="팝업, 전시 수정", description = "(관리자) 이벤트를 수정합니다.")
+    @PutMapping("/api/admin/events/{id}")
+    public Long update(@PathVariable Long id,
+            @RequestBody EventsSaveRequestDto requestDto) {
+        return adminService.update(id, requestDto);
+    }
+    @Operation(summary="팝업, 전시 상세 조회", description = "(관리자) 상세 정보를 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "상세 조회 성공", content = @Content(schema = @Schema(implementation = EventsResponseDto.class)))
+    @GetMapping("/api/admin/events/{id}")
+    public EventsResponseDto findById(@PathVariable Long id) {
+        return adminService.findById(id);
     }
 
     @Operation(summary="팝업, 전시 삭제", description = "(관리자) 이벤트를 삭제합니다.")
