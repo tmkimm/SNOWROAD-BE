@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -39,6 +41,7 @@ public class EventsRepositoryTest {
         String ppstEnbnTypeCd = "POPUP";
         Double addrLttd = 34.0522;  // 위도 (예: LA)
         Double addrLotd = -118.2437;  // 경도 (예: LA)
+        LocalDateTime now = LocalDateTime.of(2024, 12 ,9, 0, 0, 0);
         eventsRepository.save(Events.builder()
                 .eventNm(eventNm)
                         .eventCntn(eventCntn)
@@ -56,7 +59,10 @@ public class EventsRepositoryTest {
 
         // then
         Events events = eventsList.get(0);
+        System.out.println(">>> createdDate : " + events.getCreatedDate());
         assertThat(events.getEventNm()).isEqualTo(eventNm);
         assertThat(events.getEventAddr()).isEqualTo(eventAddr);
+        assertThat(events.getCreatedDate()).isAfter(now);
+        assertThat(events.getModifiedDate()).isAfter(now);
     }
 }
