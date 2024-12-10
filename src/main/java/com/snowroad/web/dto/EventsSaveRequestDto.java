@@ -1,5 +1,6 @@
 package com.snowroad.web.dto;
 
+import com.snowroad.domain.events.Events;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
@@ -30,16 +31,33 @@ public class EventsSaveRequestDto {
     @Schema(description = "경도", example = "37.5665")
     private double addrLotd;
 
+    @Builder
+    public EventsSaveRequestDto(String eventNm, String eventCntn, String eventAddr, String operStatDt, String operEndDt, String operDttmCntn, String ctgyId, String ppstEnbnTypeCd, double addrLttd, double addrLotd) {
+        this.eventNm = eventNm;
+        this.eventCntn = eventCntn;
+        this.eventAddr = eventAddr;
+        this.operStatDt = operStatDt;
+        this.operEndDt = operEndDt;
+        this.operDttmCntn = operDttmCntn;
+        this.ctgyId = ctgyId;
+        this.ppstEnbnTypeCd = ppstEnbnTypeCd;
+        this.addrLttd = addrLttd;
+        this.addrLotd = addrLotd;
+    }
 
 
-//    public Posts toEntity() {
-//        return Posts.builder().title(title).content(content).author(author).build();
-//    }
+    public Events toEntity() {
+        return Events.builder()
+                .eventNm(eventNm)
+                .eventCntn(eventCntn)
+                .eventAddr(eventAddr)
+                .operStatDt(operStatDt)
+                .operEndDt(operEndDt)
+                .operDttmCntn(operDttmCntn)
+                .ctgyId(ctgyId)
+                .ppstEnbnTypeCd(ppstEnbnTypeCd)
+                .addrLttd(addrLttd)
+                .addrLotd(addrLotd)
+                .build();
+    }
 }
-
-
-//curl -X POST "http://localhost:8080/api/event/12345/files" \
-//        -F "files=@/path/to/image1.jpg" \
-//        -F "files=@/path/to/image2.jpg" \
-//        -F "mainImage=@/path/to/mainImage.jpg"
-

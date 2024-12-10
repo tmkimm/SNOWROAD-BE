@@ -1,5 +1,6 @@
 package com.snowroad.web.dto;
 
+import com.snowroad.domain.events.Events;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,7 +13,7 @@ import java.util.List;
 @Schema(description = "팝업, 전시 상세 조회 DTO")
 public class EventsResponseDto {
     @Schema(description = "이벤트ID")
-    private String eventId;
+    private Long eventId;
     @Schema(description = "이벤트명")
     private String eventNm;
     @Schema(description = "이벤트내용")
@@ -27,15 +28,28 @@ public class EventsResponseDto {
     private String operDttmCntn;
     @Schema(description = "카테고리 ID")
     private String ctgyId;
-    @Schema(description = "카테고리 명")
-    private String ctgyNm;
     @Schema(description = "팝업, 전시 구분 코드")
     private String ppstEnbnTypeCd;
 
+    @Schema(description = "카테고리 명")
+    private String ctgyNm;
     @Schema(description = "메인 이미지 정보")
     private FileInfoDTO mainImage;
 
     @Schema(description = "내용 이미지 정보(배열)")
     private List<FileInfoDTO> contentImages;
+
+    public EventsResponseDto(Events entity) {
+        this.eventId = entity.getEventId();
+        this.eventNm = entity.getEventNm();
+        this.eventCntn = entity.getEventCntn();
+        this.eventAddr = entity.getEventAddr();
+        this.operStatDt = entity.getOperStatDt();
+        this.operEndDt = entity.getOperEndDt();
+        this.operDttmCntn = entity.getOperDttmCntn();
+        this.ctgyId = entity.getCtgyId();
+
+        this.ppstEnbnTypeCd = entity.getPpstEnbnTypeCd();
+    }
 
 }

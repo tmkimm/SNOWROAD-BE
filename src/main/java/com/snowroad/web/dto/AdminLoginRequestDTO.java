@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-@Schema(description = "파일 정보(이미지) DTO")
+@Schema(description = "어드민 로그인 DTO")
 public class AdminLoginRequestDTO {
     @Schema(description = "아이디")
     private String id;
