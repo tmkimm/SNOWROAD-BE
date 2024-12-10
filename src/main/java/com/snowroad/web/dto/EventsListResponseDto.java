@@ -25,29 +25,33 @@ public class EventsListResponseDto {
     private String operDttmCntn;
     @Schema(description = "카테고리 ID")
     private String ctgyId;
-//    @Schema(description = "카테고리 명")
-//    private String ctgyNm;
+    @Schema(description = "카테고리 명")
+    private String ctgyNm;
     @Schema(description = "팝업, 전시 구분 코드")
     private String ppstEnbnTypeCd;
+    @Schema(description = "팝업, 전시 구분 명")
+    private String ppstEnbnTypeNm;
 
-//    @Schema(description = "메인 이미지 URL")
-//    private String imageUrl;
-//
-//    @Schema(description = "모바일 이미지 URL")
-//    private String smallImageUrl;
+    @Schema(description = "메인 이미지 URL")
+    private String imageUrl;
 
-    public EventsListResponseDto(Events entity) {
-        this.eventId = entity.getEventId();
-        this.eventNm = entity.getEventNm();
-        this.eventCntn = entity.getEventCntn();
-        this.eventAddr = entity.getEventAddr();
-        this.operStatDt = entity.getOperStatDt();
-        this.operEndDt = entity.getOperEndDt();
-        this.operDttmCntn = entity.getOperDttmCntn();
-        this.ctgyId = entity.getCtgyId();
-//        this.ctgyNm = entity.getC;
-//        this.imageUrl = entity.get;
-//        this.smallImageUrl = smallImageUrl;
-        this.ppstEnbnTypeCd = entity.getPpstEnbnTypeCd() ;
+    @Schema(description = "모바일 이미지 URL")
+    private String smallImageUrl;
+
+
+    public EventsListResponseDto(Long eventId, String eventNm, String eventCntn, String eventAddr, String operStatDt, String operEndDt, String operDttmCntn, String ctgyId, String ctgyNm, String ppstEnbnTypeCd, String ppstEnbnTypeNm, String imageUrl, String smallImageUrl) {
+        this.eventId = eventId;
+        this.eventNm = eventNm;
+        this.eventCntn = eventCntn;
+        this.eventAddr = eventAddr;
+        this.operStatDt = operStatDt;
+        this.operEndDt = operEndDt;
+        this.operDttmCntn = operDttmCntn;
+        this.ctgyId = ctgyId;
+        this.ctgyNm = ctgyNm;
+        this.ppstEnbnTypeCd = ppstEnbnTypeCd;
+        this.ppstEnbnTypeNm = ppstEnbnTypeNm;
+        this.imageUrl = imageUrl;
+        this.smallImageUrl = smallImageUrl;
     }
 }

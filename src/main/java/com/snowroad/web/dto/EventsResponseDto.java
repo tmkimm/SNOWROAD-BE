@@ -33,23 +33,46 @@ public class EventsResponseDto {
 
     @Schema(description = "카테고리 명")
     private String ctgyNm;
-    @Schema(description = "메인 이미지 정보")
-    private FileInfoDTO mainImage;
 
-    @Schema(description = "내용 이미지 정보(배열)")
-    private List<FileInfoDTO> contentImages;
 
-    public EventsResponseDto(Events entity) {
-        this.eventId = entity.getEventId();
-        this.eventNm = entity.getEventNm();
-        this.eventCntn = entity.getEventCntn();
-        this.eventAddr = entity.getEventAddr();
-        this.operStatDt = entity.getOperStatDt();
-        this.operEndDt = entity.getOperEndDt();
-        this.operDttmCntn = entity.getOperDttmCntn();
-        this.ctgyId = entity.getCtgyId();
+    @Schema(description = "위도")
+    private Double addrLttd;
 
-        this.ppstEnbnTypeCd = entity.getPpstEnbnTypeCd();
+    @Schema(description = "경도")
+    private Double addrLotd;
+
+
+    public EventsResponseDto(Long eventId, String eventNm, String eventCntn, String eventAddr, String operStatDt, String operEndDt, String operDttmCntn, String ctgyId, String ppstEnbnTypeCd, String ctgyNm, Double addrLttd, Double addrLotd) {
+        this.eventId = eventId;
+        this.eventNm = eventNm;
+        this.eventCntn = eventCntn;
+        this.eventAddr = eventAddr;
+        this.operStatDt = operStatDt;
+        this.operEndDt = operEndDt;
+        this.operDttmCntn = operDttmCntn;
+        this.ctgyId = ctgyId;
+        this.ppstEnbnTypeCd = ppstEnbnTypeCd;
+        this.ctgyNm = ctgyNm;
+        this.addrLttd = addrLttd;
+        this.addrLotd = addrLotd;
     }
+//    @Schema(description = "메인 이미지 정보")
+//    private FileInfoDTO mainImage;
+//
+//    @Schema(description = "내용 이미지 정보(배열)")
+//    private List<FileInfoDTO> contentImages;
+//
+//    public EventsResponseDto(Events entity) {
+//        this.eventId = entity.getEventId();
+//        this.eventNm = entity.getEventNm();
+//        this.eventCntn = entity.getEventCntn();
+//        this.eventAddr = entity.getEventAddr();
+//        this.operStatDt = entity.getOperStatDt();
+//        this.operEndDt = entity.getOperEndDt();
+//        this.operDttmCntn = entity.getOperDttmCntn();
+//        this.ctgyId = entity.getCtgyId();
+//
+//        this.ppstEnbnTypeCd = entity.getPpstEnbnTypeCd();
+//    }
 
 }
