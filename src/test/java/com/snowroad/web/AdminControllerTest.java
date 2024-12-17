@@ -68,13 +68,13 @@ class AdminControllerTest {
         ResponseEntity<Long> responseEntity = restTemplate.postForEntity(url, requestDto, Long.class);
 
         // then
-//        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-//        assertThat(responseEntity.getBody()).isGreaterThan(0L);
-//
-//        List<Events> all = eventsRepository.findAll();
-//        Events events = all.get(0);
-//        assertThat(events.getEventNm()).isEqualTo(eventNm);
-//        assertThat(events.getEventAddr()).isEqualTo(eventAddr);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseEntity.getBody()).isGreaterThan(0L);
+
+        List<Events> all = eventsRepository.findAll();
+        Events events = all.get(0);
+        assertThat(events.getEventNm()).isEqualTo(eventNm);
+        assertThat(events.getEventAddr()).isEqualTo(eventAddr);
     }
     @Test
     void Events_수정된다() {
@@ -125,12 +125,12 @@ class AdminControllerTest {
         ResponseEntity<Long> responseEntity = restTemplate.exchange(url, HttpMethod.PUT, requestEntity, Long.class);
 
         // then
-//        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-//        assertThat(responseEntity.getBody()).isGreaterThan(0L);
-//
-//        List<Events> all = eventsRepository.findAll();
-//        Events events = all.get(0);
-//        assertThat(events.getEventNm()).isEqualTo(expectedEventNm);
-//        assertThat(events.getEventCntn()).isEqualTo(expectedEventCntn);
+        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(responseEntity.getBody()).isGreaterThan(0L);
+
+        List<Events> all = eventsRepository.findAll();
+        Events events = all.get(0);
+        assertThat(events.getEventNm()).isEqualTo(expectedEventNm);
+        assertThat(events.getEventCntn()).isEqualTo(expectedEventCntn);
     }
 }

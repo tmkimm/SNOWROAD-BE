@@ -1,10 +1,13 @@
 package com.snowroad.config.auth;
 
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+@Configuration
 public class WebMvcConfig  implements WebMvcConfigurer {
     private static final String[] CLASSPATH_RESOURCE_LOCATIONS = { "classpath:/static/", "classpath:/public/", "classpath:/",
             "classpath:/resources/", "classpath:/META-INF/resources/", "classpath:/META-INF/resources/webjars/" };
@@ -25,5 +28,15 @@ public class WebMvcConfig  implements WebMvcConfigurer {
         // /로 시작하는 모든 요청에 대해 정적 자원을 처리하는 핸들러를 추가한다.
         // addResourceLocations는 정적 자원을 어디에서 찾을지 설정한다.
         registry.addResourceHandler("/**").addResourceLocations(CLASSPATH_RESOURCE_LOCATIONS);
+    }
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        // 모든 요청에 대해 CORS 허용
+        registry.addMapping("/**")
+                .allowedOrigins("http://localhost:3000", "http://localhost:3000/", "http://127.0.0.1:3000") // 모든 출처 허용
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // 허용할 HTTP 메서드
+                .allowedHeaders("*") // 모든 헤더 허용
+                .allowCredentials(true) // 자격 증명(쿠키 등) 허용
+                .maxAge(3600); // CORS preflight 요청을 위한 캐시 시간 (초)
     }
 }
