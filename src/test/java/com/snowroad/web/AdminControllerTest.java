@@ -1,10 +1,10 @@
 package com.snowroad.web;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.snowroad.domain.events.Events;
 import com.snowroad.domain.events.EventsRepository;
 import com.snowroad.web.dto.EventsSaveRequestDto;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,23 +14,45 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import org.springframework.http.MediaType;
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class AdminControllerTest {
     @LocalServerPort
     private int port;
 
-    @Autowired
-    private TestRestTemplate restTemplate;
 
     @Autowired
     private EventsRepository eventsRepository;
+
+    @Autowired
+    private WebApplicationContext context;
+
+    private MockMvc mvc;
+
+    @BeforeEach
+    public void setup() {
+        mvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .apply(springSecurity())
+                .build();
+    }
 
     @AfterEach
     public void tearDown() throws Exception {
@@ -38,7 +60,8 @@ class AdminControllerTest {
     }
 
     @Test
-    void Events_등록된다() {
+    @WithMockUser(roles="USER")
+    void Events_등록된다() throws Exception{
         //given
         String eventNm = "Summer Sale";
         String eventCntn = "Discounts on all summer items.";
@@ -65,19 +88,20 @@ class AdminControllerTest {
         String url = "http://localhost:"+port+"/api/admin/events";
 
         // when
-        ResponseEntity<Long> responseEntity = restTemplate.postForEntity(url, requestDto, Long.class);
+        mvc.perform(post(url)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString((requestDto)))
+        ).andExpect(status().isOk());
 
         // then
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(responseEntity.getBody()).isGreaterThan(0L);
-
         List<Events> all = eventsRepository.findAll();
         Events events = all.get(0);
         assertThat(events.getEventNm()).isEqualTo(eventNm);
         assertThat(events.getEventAddr()).isEqualTo(eventAddr);
     }
     @Test
-    void Events_수정된다() {
+    @WithMockUser(roles="USER")
+    void Events_수정된다() throws Exception{
         //given
         String eventNm = "Summer Sale";
         String eventCntn = "Discounts on all summer items.";
@@ -122,11 +146,12 @@ class AdminControllerTest {
         HttpEntity<EventsSaveRequestDto> requestEntity = new HttpEntity<>(requestDto);
 
         // when
-        ResponseEntity<Long> responseEntity = restTemplate.exchange(url, HttpMethod.PUT, requestEntity, Long.class);
+        mvc.perform(put(url)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(new ObjectMapper().writeValueAsString((requestDto)))
+        ).andExpect(status().isOk());
 
         // then
-        assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(responseEntity.getBody()).isGreaterThan(0L);
 
         List<Events> all = eventsRepository.findAll();
         Events events = all.get(0);

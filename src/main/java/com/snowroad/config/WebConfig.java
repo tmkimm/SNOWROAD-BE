@@ -1,14 +1,21 @@
-package com.snowroad.config.auth;
+package com.snowroad.config;
 
+import com.snowroad.config.auth.LoginUserArgumentResolver;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.util.List;
+
+@RequiredArgsConstructor
 @Configuration
-public class WebMvcConfig  implements WebMvcConfigurer {
+public class WebConfig  implements WebMvcConfigurer {
+    private final LoginUserArgumentResolver loginUserArgumentResolver;
     private static final String[] CLASSPATH_RESOURCE_LOCATIONS = { "classpath:/static/", "classpath:/public/", "classpath:/",
             "classpath:/resources/", "classpath:/META-INF/resources/", "classpath:/META-INF/resources/webjars/" };
 
@@ -38,5 +45,10 @@ public class WebMvcConfig  implements WebMvcConfigurer {
                 .allowedHeaders("*") // 모든 헤더 허용
                 .allowCredentials(true) // 자격 증명(쿠키 등) 허용
                 .maxAge(3600); // CORS preflight 요청을 위한 캐시 시간 (초)
+    }
+
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolver) {
+        argumentResolver.add(loginUserArgumentResolver);
     }
 }
