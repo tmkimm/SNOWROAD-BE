@@ -39,9 +39,8 @@ public class AdminController {
     }
 
     @Operation(summary="팝업, 전시 리스트 조회", description = "(관리자) 등록된 팝업, 전시 리스트를 조회합니다.")
-    @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = EventsListResponseDto.class)))
     @GetMapping("/api/admin/events")
-    public List<EventsListResponseDto> getList(@RequestParam(defaultValue = "0") int page) {
+    public PagedResponseDto<EventsListResponseDto> getList(@RequestParam(defaultValue = "0") int page) {
         // 10개의 더미 이벤트 데이터 생성
         List<EventsListResponseDto> events = IntStream.range(0, 10)
                 .mapToObj(i -> new EventsListResponseDto(
@@ -61,9 +60,8 @@ public class AdminController {
                 ))
                 .collect(Collectors.toList());
 
-        return events;
-
-        //return eventService.findAllDesc();
+        // PagedResponseDto로 반환
+        return new PagedResponseDto<>(events, 11);
     }
 
 
