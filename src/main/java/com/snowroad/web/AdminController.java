@@ -2,6 +2,7 @@ package com.snowroad.web;
 
 import com.snowroad.service.AdminService;
 import com.snowroad.service.EventService;
+import com.snowroad.service.file.FileUploadService;
 import com.snowroad.web.dto.*;
 import com.snowroad.web.util.CookieUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -26,6 +28,7 @@ import java.util.stream.IntStream;
 public class AdminController {
     private final AdminService adminService;
     private final EventService eventService;
+    private final FileUploadService fileUploadService;
     @Operation(summary="어드민 로그인", description = "(관리자) 어드민 페이지에 로그인합니다.\n로그인 성공 시 쿠키에 Refresh token, Access token이 저장됩니다.")
     //@ApiResponse(responseCode = "200", description = "수신함 조회 성공", content = @Content(schema = @Schema(implementation = AlarmReceiveDto.class)))
     @PostMapping("/api/admin/login")
@@ -110,8 +113,8 @@ public class AdminController {
             }
     )
     @PostMapping("/api/admin/events/{eventId}/files")
-    public void uploadFiles(
-            @PathVariable String eventId,
+    public ResponseEntity<String> uploadFiles(
+            @PathVariable Long eventId,
             @RequestParam("files") MultipartFile[] files,
             @RequestParam("mainImage") MultipartFile mainImage) {
         // 업로드 처리 로직
@@ -119,7 +122,14 @@ public class AdminController {
             System.out.println("대표 이미지: " + mainImage.getOriginalFilename());
         }
         for (MultipartFile file : files) {
-            System.out.println("업로드된 파일: " + file.getOriginalFilename());
+            System.out.println("업로드할 파일: " + file.getOriginalFilename());
+        }
+        try {
+            fileUploadService.uploadFiles(eventId, files, mainImage);
+            return ResponseEntity.ok("파일 업로드 성공");
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("파일 업로드 실패: " + e.getMessage());
         }
     }
     @Operation(summary="팝업, 전시 수정", description = "(관리자) 이벤트를 수정합니다.")

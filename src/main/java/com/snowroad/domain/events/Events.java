@@ -1,6 +1,7 @@
 package com.snowroad.domain.events;
 
 import com.snowroad.domain.BaseTimeEntity;
+import com.snowroad.domain.eventFilesMst.EventFilesMst;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -57,6 +58,10 @@ public class Events extends BaseTimeEntity {
     @Column(name = "ADDR_LOTD", nullable = false)
     private Double addrLotd;
 
+    @OneToOne
+    @JoinColumn(name = "FILE_MST_ID")
+    private EventFilesMst eventFilesMst; // EventFilesMst와 1:1 관계 설정
+
     @Builder
     public Events(Long eventId, String eventNm, String eventCntn, String eventAddr, String operStatDt, String operEndDt, String operDttmCntn, String ctgyId, String ppstEnbnTypeCd, Double addrLttd, Double addrLotd) {
         this.eventId = eventId;
@@ -83,5 +88,9 @@ public class Events extends BaseTimeEntity {
         this.ppstEnbnTypeCd = ppstEnbnTypeCd;
         this.addrLttd = addrLttd;
         this.addrLotd = addrLotd;
+    }
+
+    public void updateFileMst(EventFilesMst eventFilesMst) {
+        this.eventFilesMst = eventFilesMst;
     }
 }
