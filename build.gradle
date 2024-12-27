@@ -42,8 +42,14 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-api:0.12.6'	//JWT
 	runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.12.6'		//JWT
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'	//JWT
+	implementation 'org.springframework.boot:spring-boot-starter-mustache'
+	implementation 'org.springframework.session:spring-session-jdbc'
 }
 
 tasks.named('test') {
+	useJUnitPlatform()
+}
+
+test {
 	useJUnitPlatform()
 }
