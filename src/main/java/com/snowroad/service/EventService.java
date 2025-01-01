@@ -35,11 +35,11 @@ public class EventService {
         return id;
     }
 
-    public void findById(Long id) {
-//        Events entity = eventsRepository.findById(id)
-//                .orElseThrow(() -> new
-//                        IllegalArgumentException("이벤트가 존재하지 않습니다. id" + id));
-//        return new EventsResponseDto(entity);
+    public EventsResponseDto findById(Long id) {
+        Events entity = eventsRepository.findById(id)
+                .orElseThrow(() -> new
+                        IllegalArgumentException("이벤트가 존재하지 않습니다. id" + id));
+        return new EventsResponseDto(entity);
     }
 
     @Transactional(readOnly = true)

@@ -2,7 +2,7 @@ package com.snowroad.web;
 
 import com.snowroad.service.AdminService;
 import com.snowroad.service.EventService;
-import com.snowroad.service.file.FileUploadService;
+import com.snowroad.service.FileUploadService;
 import com.snowroad.web.dto.*;
 import com.snowroad.web.util.CookieUtils;
 import io.swagger.v3.oas.annotations.Operation;
@@ -72,23 +72,7 @@ public class AdminController {
     @ApiResponse(responseCode = "200", description = "상세 조회 성공", content = @Content(schema = @Schema(implementation = EventsResponseDto.class)))
     @GetMapping("/api/admin/events/{id}")
     public EventsResponseDto findById(@PathVariable Long id) {
-        EventsResponseDto dto = new EventsResponseDto(
-                id,                               // eventId
-                "이벤트 " + (id),                         // eventNm
-                "이벤트 " + (id) + "에 대한 설명",        // eventCntn
-                "서울시 강남구 테헤란로 123",                // eventAddr
-                "20240101",                                 // operStatDt
-                "20240131",                                 // operEndDt
-                "10:00 ~ 18:00",                            // operDttmCntn
-                "CTG",                        // ctgyId (CTG1, CTG2, CTG3)
-                "ppst",                         // ppstEnbnTypeCd (PPS1, PPS2)
-                "패션",                        // ctgyId (CTG1, CTG2, CTG3)
-                37.5665,
-                126.9780
-        );
-        return dto;
-
-        //return eventService.findById(id);
+        return eventService.findById(id);
     }
 
 

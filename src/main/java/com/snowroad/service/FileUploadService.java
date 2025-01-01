@@ -1,21 +1,18 @@
-package com.snowroad.service.file;
+package com.snowroad.service;
 
-import com.snowroad.domain.eventFilesDtl.EventFilesDtl;
-import com.snowroad.domain.eventFilesDtl.EventFilesDtlRepository;
 import com.snowroad.domain.eventFilesMst.EventFilesMst;
-import com.snowroad.domain.eventFilesMst.EventFilesMstRepository;
 import com.snowroad.domain.events.Events;
 import com.snowroad.domain.events.EventsRepository;
+import com.snowroad.service.file.FileDatabaseService;
+import com.snowroad.service.file.FileLocalUploader;
+import com.snowroad.service.file.FileS3Uploader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 @RequiredArgsConstructor
 @Service
@@ -23,28 +20,27 @@ public class FileUploadService {        // TODO 리팩토링 필요(전략패턴
 
     @Autowired
     private FileDatabaseService fileDatabaseService;
-
     @Autowired
-    private FileStorageService fileStorageService;
-
+    private FileS3Uploader fileS3Uploader;
     @Autowired
     private EventsRepository eventsRepository;
 
 
 
+    @Transactional
     public void uploadFiles(Long eventId, MultipartFile[] files, MultipartFile mainImage) throws IOException {
-        String filePath = fileStorageService.saveFile(files[0]);  // 첫 번째 파일을 대표 파일로 가정
+        String filePath = fileS3Uploader.upload(files[0], "event-images");  // 첫 번째 파일을 대표 파일로 가정
         EventFilesMst fileMst = fileDatabaseService.saveEventFilesMst(filePath);
 
         // 대표 이미지 업로드 처리
         if (mainImage != null) {
-            String mainImagePath = fileStorageService.saveFile(mainImage);
+            String mainImagePath = fileS3Uploader.upload(mainImage, "event-images");
             fileDatabaseService.saveEventFilesDtl(fileMst, mainImagePath, mainImage);
         }
 
         // 추가 파일들 업로드 처리
         for (MultipartFile file : files) {
-            String filePathForAdditional = fileStorageService.saveFile(file);
+            String filePathForAdditional = fileS3Uploader.upload(file, "event-images");
             fileDatabaseService.saveEventFilesDtl(fileMst, filePathForAdditional, file);
         }
 

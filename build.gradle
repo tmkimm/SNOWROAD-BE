@@ -44,6 +44,8 @@ dependencies {
 	runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.12.6'	//JWT
 	implementation 'org.springframework.boot:spring-boot-starter-mustache'
 	implementation 'org.springframework.session:spring-session-jdbc'
+	implementation 'org.mariadb.jdbc:mariadb-java-client'
+	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 }
 
 tasks.named('test') {

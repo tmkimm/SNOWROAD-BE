@@ -62,17 +62,17 @@ public class EventsResponseDto {
 //    @Schema(description = "내용 이미지 정보(배열)")
 //    private List<FileInfoDTO> contentImages;
 //
-//    public EventsResponseDto(Events entity) {
-//        this.eventId = entity.getEventId();
-//        this.eventNm = entity.getEventNm();
-//        this.eventCntn = entity.getEventCntn();
-//        this.eventAddr = entity.getEventAddr();
-//        this.operStatDt = entity.getOperStatDt();
-//        this.operEndDt = entity.getOperEndDt();
-//        this.operDttmCntn = entity.getOperDttmCntn();
-//        this.ctgyId = entity.getCtgyId();
-//
-//        this.ppstEnbnTypeCd = entity.getPpstEnbnTypeCd();
-//    }
+    public EventsResponseDto(Events entity) {
+        this.eventId = entity.getEventId();
+        this.eventNm = entity.getEventNm();
+        this.eventCntn = entity.getEventCntn();
+        this.eventAddr = entity.getEventAddr();
+        this.operStatDt = entity.getOperStatDt();
+        this.operEndDt = entity.getOperEndDt();
+        this.operDttmCntn = entity.getOperDttmCntn();
+        this.ctgyId = entity.getCtgyId();
+
+        this.ppstEnbnTypeCd = entity.getPpstEnbnTypeCd();
+    }
 
 }

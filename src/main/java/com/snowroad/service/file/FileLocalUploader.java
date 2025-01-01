@@ -12,12 +12,12 @@ import java.nio.file.Paths;
 
 @NoArgsConstructor
 @Service
-public class FileStorageService {
+public class FileLocalUploader {
 
     @Value("${file.upload-dir}")
     private String uploadDir;
 
-    String saveFile(MultipartFile file) throws IOException {
+    public String upload(MultipartFile file) throws IOException {
         // 파일의 원본 이름을 가져옴
         String originalFileName = file.getOriginalFilename();
 
