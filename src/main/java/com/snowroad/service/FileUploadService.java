@@ -25,6 +25,7 @@ public class FileUploadService {        // TODO 리팩토링 필요(전략패턴
     @Autowired
     private EventsRepository eventsRepository;
 
+    private String filePath = "event-images";
 
 
     @Transactional
@@ -34,14 +35,14 @@ public class FileUploadService {        // TODO 리팩토링 필요(전략패턴
 
         // 대표 이미지 업로드 처리
         if (mainImage != null) {
-            String mainImagePath = fileS3Uploader.upload(mainImage, "event-images");
-            fileDatabaseService.saveEventFilesDtl(fileMst, mainImagePath, mainImage);
+            String mainImagePath = fileS3Uploader.upload(mainImage, filePath);
+            fileDatabaseService.saveEventFilesDtl(fileMst, filePath, mainImagePath, mainImage);
         }
 
         // 추가 파일들 업로드 처리
         for (MultipartFile file : files) {
-            String filePathForAdditional = fileS3Uploader.upload(file, "event-images");
-            fileDatabaseService.saveEventFilesDtl(fileMst, filePathForAdditional, file);
+            String filePathForAdditional = fileS3Uploader.upload(file, filePath);
+            fileDatabaseService.saveEventFilesDtl(fileMst, filePath, filePathForAdditional, file);
         }
 
         // Event 객체를 가져와서 FILE_MST_ID를 설정

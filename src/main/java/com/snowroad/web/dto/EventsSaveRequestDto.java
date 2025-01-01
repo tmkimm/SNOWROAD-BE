@@ -31,8 +31,11 @@ public class EventsSaveRequestDto {
     @Schema(description = "경도", example = "37.5665")
     private double addrLotd;
 
+    @Schema(description = "법정동코드", example = "111000050")
+    private String ldcd;
+
     @Builder
-    public EventsSaveRequestDto(String eventNm, String eventCntn, String eventAddr, String operStatDt, String operEndDt, String operDttmCntn, String ctgyId, String ppstEnbnTypeCd, double addrLttd, double addrLotd) {
+    public EventsSaveRequestDto(String eventNm, String eventCntn, String eventAddr, String operStatDt, String operEndDt, String operDttmCntn, String ctgyId, String ppstEnbnTypeCd, double addrLttd, double addrLotd, String ldcd) {
         this.eventNm = eventNm;
         this.eventCntn = eventCntn;
         this.eventAddr = eventAddr;
@@ -43,6 +46,7 @@ public class EventsSaveRequestDto {
         this.ppstEnbnTypeCd = ppstEnbnTypeCd;
         this.addrLttd = addrLttd;
         this.addrLotd = addrLotd;
+        this.ldcd = ldcd;
     }
 
 

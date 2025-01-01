@@ -16,12 +16,9 @@ public class EventFilesMst extends BaseTimeEntity {
     @Column(name = "FILE_MST_ID")
     private Long fileMstId;
 
-    @Column(name = "FILE_PATH")
-    private String filePath;
 
     @Builder
-    public EventFilesMst(Long fileMstId, String filePath) {
+    public EventFilesMst(Long fileMstId) {
         this.fileMstId = fileMstId;
-        this.filePath = filePath;
     }
 }

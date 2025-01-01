@@ -17,38 +17,39 @@ public class Events extends BaseTimeEntity {
     @Schema(description = "이벤트ID")
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "EVNT_ID")
     private Long eventId;
 
     @Schema(description = "이벤트명")
-    @Column(length = 300, nullable = false)
+    @Column(name = "EVNT_NM", length = 300, nullable = false)
     private String eventNm;
 
     @Schema(description = "이벤트내용")
-    @Column(columnDefinition = "TEXT", nullable = false)
+    @Column(name = "EVNT_CNTN", columnDefinition = "TEXT", nullable = false)
     private String eventCntn;
 
     @Schema(description = "이벤트주소")
-    @Column(length = 500, nullable = false)
+    @Column(name = "EVNT_ADDR", length = 500, nullable = false)
     private String eventAddr;
 
     @Schema(description = "운영시작일자")
-    @Column(length = 8, nullable = false)
+    @Column(name = "OPEN_STAT_DT", length = 8, nullable = false)
     private String operStatDt;
 
     @Schema(description = "운영종료일자")
-    @Column(length = 8, nullable = false)
+    @Column(name = "OPEN_END_DT", length = 8, nullable = false)
     private String operEndDt;
 
     @Schema(description = "운영시간내용")
-    @Column(length = 200)
+    @Column(name = "OPEN_DTTM_CNTN", length = 200)
     private String operDttmCntn;
 
     @Schema(description = "카테고리 ID")
-    @Column(length = 20, nullable = false)
+    @Column(name = "CTGY_ID", length = 20, nullable = false)
     private String ctgyId;
 
     @Schema(description = "팝업, 전시 구분 코드")
-    @Column(length = 10, nullable = false)
+    @Column(name = "PPST_ENBN_TYPE_CD", length = 10, nullable = false)
     private String ppstEnbnTypeCd;
 
     @Schema(description = "위도")
@@ -59,12 +60,19 @@ public class Events extends BaseTimeEntity {
     @Column(name = "ADDR_LOTD", nullable = false)
     private Double addrLotd;
 
+    @Schema(description = "삭제유무")
+    @Column(name = "DELT_YN", length = 10, nullable = false)
+    private String deleteYn = "N";
+
+    @Schema(description = "법정동코드")
+    @Column(name = "LDCD", length = 30)
+    private String ldcd;
     @OneToOne
     @JoinColumn(name = "FILE_MST_ID")
     private EventFilesMst eventFilesMst; // EventFilesMst와 1:1 관계 설정
 
     @Builder
-    public Events(Long eventId, String eventNm, String eventCntn, String eventAddr, String operStatDt, String operEndDt, String operDttmCntn, String ctgyId, String ppstEnbnTypeCd, Double addrLttd, Double addrLotd) {
+    public Events(Long eventId, String eventNm, String eventCntn, String eventAddr, String operStatDt, String operEndDt, String operDttmCntn, String ctgyId, String ppstEnbnTypeCd, Double addrLttd, Double addrLotd, String ldcd) {
         this.eventId = eventId;
         this.eventNm = eventNm;
         this.eventCntn = eventCntn;
@@ -76,6 +84,7 @@ public class Events extends BaseTimeEntity {
         this.ppstEnbnTypeCd = ppstEnbnTypeCd;
         this.addrLttd = addrLttd;
         this.addrLotd = addrLotd;
+        this.ldcd = ldcd;
     }
 
     public void update(String eventNm, String eventCntn, String eventAddr, String operStatDt, String operEndDt, String operDttmCntn, String ctgyId, String ppstEnbnTypeCd, Double addrLttd, Double addrLotd) {

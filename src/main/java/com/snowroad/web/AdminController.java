@@ -1,5 +1,6 @@
 package com.snowroad.web;
 
+import com.snowroad.domain.eventFilesDtl.EventFilesDtl;
 import com.snowroad.service.AdminService;
 import com.snowroad.service.EventService;
 import com.snowroad.service.FileUploadService;
@@ -73,6 +74,13 @@ public class AdminController {
     @GetMapping("/api/admin/events/{id}")
     public EventsResponseDto findById(@PathVariable Long id) {
         return eventService.findById(id);
+    }
+
+    @Operation(summary="이벤트에 등록된 상세 이미지 조회", description = "(관리자) 이벤트에 등록된 상세 이미지를 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "상세 조회 성공", content = @Content(schema = @Schema(implementation = EventsFileDetailResponseDTO.class)))
+    @GetMapping("/api/admin/events/{id}/files")
+    public List<EventsFileDetailResponseDTO> getEventFilesDtlList(@PathVariable Long id) {
+        return eventService.getEventFilesDtlList(id);
     }
 
 

@@ -20,12 +20,11 @@ public class FileDatabaseService {
 
     public EventFilesMst saveEventFilesMst(String filePath) {
         EventFilesMst fileMst = EventFilesMst.builder()
-                .filePath(filePath)
                 .build();
         return filesMstRepository.save(fileMst);
     }
 
-    public EventFilesDtl saveEventFilesDtl(EventFilesMst fileMst, String filePath, MultipartFile file) {
+    public EventFilesDtl saveEventFilesDtl(EventFilesMst fileMst, String filePath, String fileUrl, MultipartFile file) {
         EventFilesDtl fileDtl = EventFilesDtl.builder()
                 .fileMst(fileMst)
                 .filePath(filePath)
