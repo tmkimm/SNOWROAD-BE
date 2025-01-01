@@ -18,7 +18,7 @@ public class FileDatabaseService {
     @Autowired
     private EventFilesDtlRepository filesDtlRepository;
 
-    public EventFilesMst saveEventFilesMst(String filePath) {
+    public EventFilesMst saveEventFilesMst() {
         EventFilesMst fileMst = EventFilesMst.builder()
                 .build();
         return filesMstRepository.save(fileMst);
@@ -32,7 +32,7 @@ public class FileDatabaseService {
                 .origFileNm(file.getOriginalFilename())
                 .fileSize(file.getSize())
                 .fileType(file.getContentType())
-                .fileUrl(filePath)
+                .fileUrl(fileUrl)
                 .build();
         return filesDtlRepository.save(fileDtl);
     }

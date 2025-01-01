@@ -68,8 +68,12 @@ public class Events extends BaseTimeEntity {
     @Column(name = "LDCD", length = 30)
     private String ldcd;
     @OneToOne
-    @JoinColumn(name = "FILE_MST_ID")
-    private EventFilesMst eventFilesMst; // EventFilesMst와 1:1 관계 설정
+    @JoinColumn(name = "TUMB_FILE_ID")
+    private EventFilesMst eventTumbfile; // EventFilesMst와 1:1 관계 설정
+
+    @OneToOne
+    @JoinColumn(name = "EVNT_FILE_ID")
+    private EventFilesMst eventFiles; // EventFilesMst와 1:1 관계 설정
 
     @Builder
     public Events(Long eventId, String eventNm, String eventCntn, String eventAddr, String operStatDt, String operEndDt, String operDttmCntn, String ctgyId, String ppstEnbnTypeCd, Double addrLttd, Double addrLotd, String ldcd) {
@@ -100,7 +104,11 @@ public class Events extends BaseTimeEntity {
         this.addrLotd = addrLotd;
     }
 
-    public void updateFileMst(EventFilesMst eventFilesMst) {
-        this.eventFilesMst = eventFilesMst;
+    public void updateTumbFile(EventFilesMst eventFilesMst) {
+        this.eventTumbfile = eventFilesMst;
+    }
+
+    public void updateEventFile(EventFilesMst eventFilesMst) {
+        this.eventFiles = eventFilesMst;
     }
 }

@@ -41,10 +41,10 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
-    public void findAllDesc() {
-//        eventsRepository.findAllDesc().stream()
-//                .map(EventsListResponseDto::new)
-//                .collect(Collectors.toList());
+    public List<AdminEventsListResponseDto> findAllDesc() {
+        return eventsRepository.findAllDesc().stream()
+                .map(AdminEventsListResponseDto::new)
+                .collect(Collectors.toList());
 
     }
 
@@ -55,10 +55,28 @@ public class EventService {
         eventsRepository.delete(events);
     }
 
-    // Event와 관련된 EventFilesDtl을 조회하는 서비스 메서드
+    // 이벤트 상세 이미지 조회
     public List<EventsFileDetailResponseDTO> getEventFilesDtlList(Long eventId) {
         // Native Query 호출
         List<Object[]> result =  eventsRepository.findEventFilesDtlByEventId(eventId);
+        // Object[]에서 데이터를 추출하여 필요한 형태로 가공
+        List<EventsFileDetailResponseDTO> eventFiles = result.stream()
+                .map(row -> {
+                    EventsFileDetailResponseDTO fileDtl = new EventsFileDetailResponseDTO();
+                    fileDtl.setFileDtlId((Long) row[0]);
+                    fileDtl.setFileUrl((String) row[1]);
+                    fileDtl.setOrigFileNm((String) row[2]);
+                    return fileDtl;
+                })
+                .collect(Collectors.toList());
+
+        return eventFiles;
+    }
+
+    // 썸네일 이미지 정보 조회
+    public List<EventsFileDetailResponseDTO> getTumbFilesDtlList(Long eventId) {
+        // Native Query 호출
+        List<Object[]> result =  eventsRepository.findTumbFilesDtlByEventId(eventId);
         // Object[]에서 데이터를 추출하여 필요한 형태로 가공
         List<EventsFileDetailResponseDTO> eventFiles = result.stream()
                 .map(row -> {
