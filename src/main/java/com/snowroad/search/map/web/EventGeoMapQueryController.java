@@ -23,7 +23,7 @@ public class EventGeoMapQueryController {
 
     private final EventGeoMapQueryInterface eventGeoMapQueryInterface;
 
-    @Operation(summary="이벤트 커스텀 마커 조회", description = "등록된 이벤트를 조회합니다")
+    @Operation(summary="지도에서 이벤트 커스텀 마커 조회", description = "가까운 이벤트를 조회합니다")
     @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = EventsGeoMapDto.class)))
     @PostMapping("/api/search/events")
     List<EventsGeoMapDto> getEventsGeoMapList(@RequestParam(defaultValue = "37.5540219315164") double addrLttd
