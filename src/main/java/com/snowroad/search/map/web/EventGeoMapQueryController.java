@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,7 +25,7 @@ public class EventGeoMapQueryController {
 
     @Operation(summary="이벤트 커스텀 마커 조회", description = "등록된 이벤트를 조회합니다")
     @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = EventsGeoMapDto.class)))
-    @GetMapping("/api/search/events")
+    @PostMapping("/api/search/events")
     List<EventsGeoMapDto> getEventsGeoMapList(@RequestParam(defaultValue = "37.5540219315164") double addrLttd
             , @RequestParam(defaultValue = "126.922884921727") double addrLotd) {
         List<EventsGeoMapDto> list = eventGeoMapQueryInterface.getMapList(addrLttd, addrLotd);
