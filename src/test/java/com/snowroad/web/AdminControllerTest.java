@@ -1,19 +1,15 @@
 package com.snowroad.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.snowroad.domain.events.Events;
-import com.snowroad.domain.events.EventsRepository;
-import com.snowroad.web.dto.EventsSaveRequestDto;
+import com.snowroad.event.domain.Events;
+import com.snowroad.event.domain.EventsRepository;
+import com.snowroad.event.web.dto.EventsSaveRequestDto;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -22,7 +18,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 

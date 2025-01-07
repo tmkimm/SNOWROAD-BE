@@ -2,8 +2,8 @@ package com.snowroad.config.auth;
 
 import com.snowroad.config.auth.dto.OAuthAttributes;
 import com.snowroad.config.auth.dto.SessionUser;
-import com.snowroad.domain.user.User;
-import com.snowroad.domain.user.UserRepository;
+import com.snowroad.user.domain.User;
+import com.snowroad.user.domain.UserRepository;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -16,7 +16,6 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
-import java.util.stream.Collectors;
 
 // 소셜 로그인 이후 가져온 사용자의 정보들을 기반으로 가입 및 정보수정, 세션 저장 등의 기능을 지원
 @RequiredArgsConstructor
