@@ -1,8 +1,8 @@
-package com.snowroad.service;
+package com.snowroad.mark.service;
 
-import com.snowroad.domain.marks.Mark;
-import com.snowroad.domain.marks.MarkRepository;
-import com.snowroad.web.dto.MarkSaveRequestDto;
+import com.snowroad.mark.domain.Mark;
+import com.snowroad.mark.domain.MarkRepository;
+import com.snowroad.mark.web.dto.MarkSaveRequestDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

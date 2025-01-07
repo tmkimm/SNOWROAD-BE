@@ -1,6 +1,6 @@
-package com.snowroad.domain.marks;
+package com.snowroad.mark.domain;
 
-import com.snowroad.domain.BaseTimeEntity;
+import com.snowroad.common.domain.BaseTimeEntity;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Builder;

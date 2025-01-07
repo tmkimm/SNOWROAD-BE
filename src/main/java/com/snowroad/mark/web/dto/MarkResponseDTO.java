@@ -1,4 +1,4 @@
-package com.snowroad.web.dto;
+package com.snowroad.mark.web.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

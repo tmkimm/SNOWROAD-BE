@@ -1,5 +1,7 @@
 package com.snowroad.domain.marks;
 
+import com.snowroad.mark.domain.Mark;
+import com.snowroad.mark.domain.MarkRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

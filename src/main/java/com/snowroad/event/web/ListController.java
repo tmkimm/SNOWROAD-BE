@@ -110,5 +110,35 @@ public class ListController {
         //return listService.findAllDesc();
     }
 
+    @Operation(summary="즐겨찾기 팝업/전시 리스트 조회", description = "(즐겨찾기) 즐겨찾기된 팝업, 전시 리스트를 조회합니다.")
+    @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = UserEventsListResponseDto.class)))
+    @GetMapping("/api/mark/markedList")
+    public List<UserEventsListResponseDto> getMarkedList(@RequestParam(defaultValue = "0") int page) {
+
+        // 5개의 더미 이벤트 데이터 생성
+        List<UserEventsListResponseDto> events = IntStream.range(0, 5)
+                .mapToObj(i -> new UserEventsListResponseDto(
+                        (long) (i + 1),                               // eventId
+                        "이벤트 " + (i + 1),                         // eventNm
+                        "이벤트 " + (i + 1) + "에 대한 설명",        // eventCntn
+                        "서울시 성동구 성수동1가 777",                // eventAddr
+                        "20250101",                                 // operStatDt
+                        "20250131",                                 // operEndDt
+                        "10:00 ~ 18:00",                            // operDttmCntn
+                        "CTG" + (i % 3 + 1),                        // ctgyId (CTG1, CTG2, CTG3)
+                        "패션",                        // ctgyNm
+                        "ppst",                         // ppstEnbnTypeCd (PPS1, PPS2)
+                        "팝업",                         // ppstEnbnTypeNm (PPS1, PPS2)
+                        "Y",                            //markYn
+                        200,    // viewNmvl
+                        "https://cf.festa.io/img/2024-11-28/7d85d9f9-f041-4a53-b840-027abf836a80.jpg",
+                        "https://cf.festa.io/img/2024-11-28/7d85d9f9-f041-4a53-b840-027abf836a80.jpg"
+                ))
+                .collect(Collectors.toList());
+
+        return events;
+
+        //return eventService.findAllDesc();
+    }
 
 }

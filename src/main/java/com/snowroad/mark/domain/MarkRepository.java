@@ -1,4 +1,4 @@
-package com.snowroad.domain.marks;
+package com.snowroad.mark.domain;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
