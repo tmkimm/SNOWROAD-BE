@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload</title>
+</head>
+<body>
+    <h1>파일 업로드</h1>
+    <form action="/api/admin/events/{{eventId}}/files" method="POST" enctype="multipart/form-data">
+        <div>
+            <label for="mainImage">대표 이미지:</label>
+            <input type="file" id="mainImage" name="mainImage" accept="image/*" required>
+        </div>
+        <div>
+            <label for="files">기타 파일:</label>
+            <input type="file" id="files" name="files" accept="*/*" multiple required>
+        </div>
+        <button type="submit">업로드</button>
+    </form>
+</body>
+</html>

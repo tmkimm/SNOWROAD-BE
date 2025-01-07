@@ -1,11 +1,9 @@
 package com.snowroad.service;
 
+import com.snowroad.domain.eventFilesDtl.EventFilesDtl;
 import com.snowroad.domain.events.Events;
 import com.snowroad.domain.events.EventsRepository;
-import com.snowroad.web.dto.AdminLoginResponseDTO;
-import com.snowroad.web.dto.EventsListResponseDto;
-import com.snowroad.web.dto.EventsResponseDto;
-import com.snowroad.web.dto.EventsSaveRequestDto;
+import com.snowroad.web.dto.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -35,18 +33,18 @@ public class EventService {
         return id;
     }
 
-    public void findById(Long id) {
-//        Events entity = eventsRepository.findById(id)
-//                .orElseThrow(() -> new
-//                        IllegalArgumentException("이벤트가 존재하지 않습니다. id" + id));
-//        return new EventsResponseDto(entity);
+    public EventsResponseDto findById(Long id) {
+        Events entity = eventsRepository.findById(id)
+                .orElseThrow(() -> new
+                        IllegalArgumentException("이벤트가 존재하지 않습니다. id" + id));
+        return new EventsResponseDto(entity);
     }
 
     @Transactional(readOnly = true)
-    public void findAllDesc() {
-//        eventsRepository.findAllDesc().stream()
-//                .map(EventsListResponseDto::new)
-//                .collect(Collectors.toList());
+    public List<AdminEventsListResponseDto> findAllDesc() {
+        return eventsRepository.findAllDesc().stream()
+                .map(AdminEventsListResponseDto::new)
+                .collect(Collectors.toList());
 
     }
 
@@ -55,5 +53,41 @@ public class EventService {
         Events events = eventsRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("해당 이벤트가 없습니다. id="+id));
         eventsRepository.delete(events);
+    }
+
+    // 이벤트 상세 이미지 조회
+    public List<EventsFileDetailResponseDTO> getEventFilesDtlList(Long eventId) {
+        // Native Query 호출
+        List<Object[]> result =  eventsRepository.findEventFilesDtlByEventId(eventId);
+        // Object[]에서 데이터를 추출하여 필요한 형태로 가공
+        List<EventsFileDetailResponseDTO> eventFiles = result.stream()
+                .map(row -> {
+                    EventsFileDetailResponseDTO fileDtl = new EventsFileDetailResponseDTO();
+                    fileDtl.setFileDtlId((Long) row[0]);
+                    fileDtl.setFileUrl((String) row[1]);
+                    fileDtl.setOrigFileNm((String) row[2]);
+                    return fileDtl;
+                })
+                .collect(Collectors.toList());
+
+        return eventFiles;
+    }
+
+    // 썸네일 이미지 정보 조회
+    public List<EventsFileDetailResponseDTO> getTumbFilesDtlList(Long eventId) {
+        // Native Query 호출
+        List<Object[]> result =  eventsRepository.findTumbFilesDtlByEventId(eventId);
+        // Object[]에서 데이터를 추출하여 필요한 형태로 가공
+        List<EventsFileDetailResponseDTO> eventFiles = result.stream()
+                .map(row -> {
+                    EventsFileDetailResponseDTO fileDtl = new EventsFileDetailResponseDTO();
+                    fileDtl.setFileDtlId((Long) row[0]);
+                    fileDtl.setFileUrl((String) row[1]);
+                    fileDtl.setOrigFileNm((String) row[2]);
+                    return fileDtl;
+                })
+                .collect(Collectors.toList());
+
+        return eventFiles;
     }
 }

@@ -1,4 +1,5 @@
 package com.snowroad.domain;
+import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
@@ -16,8 +17,10 @@ import java.time.LocalDateTime;
 public abstract class BaseTimeEntity {
 
     @CreatedDate    // 생성될 시간이 자동 저장된다.
+    @Column(name="DATA_CRTN_DTTM")
     private LocalDateTime createdDate;
 
     @LastModifiedDate   // 변경된 시간이 자동 저장된다.
+    @Column(name="DATA_EDIT_DTTM")
     private LocalDateTime modifiedDate;
 }
