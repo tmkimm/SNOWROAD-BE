@@ -1,6 +1,6 @@
-package com.snowroad.web.dto;
+package com.snowroad.mark.web.dto;
 
-import com.snowroad.domain.marks.Mark;
+import com.snowroad.mark.domain.Mark;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
