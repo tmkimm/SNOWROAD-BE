@@ -1,7 +1,16 @@
 package com.snowroad.search.map.util;
 
-import com.snowroad.search.map.enums.GeoMapEnum;
+import com.snowroad.search.map.enums.SearchMapEnum;
 
+/**
+ *
+ * Bounding Box 계산
+ *
+ * @author hyo298, 김재효
+ * @version 0.0.1
+ * @since 2025-01-09
+ *
+ */
 public class BoundingBoxCalculator {
 
     /**
@@ -13,10 +22,10 @@ public class BoundingBoxCalculator {
     public static double[] calculateBoundingBox(double latitude, double longitude) {
 
         // 위도 변화량 (1도 = 111km)
-        double latRadius = GeoMapEnum.MAP_DISTANCE_STANDARD.getRate() / 111.0;
+        double latRadius = SearchMapEnum.MAP_DISTANCE_STANDARD.getRate() / 111.0;
 
         // 경도 변화량 (위도에 따라 다름)
-        double lonRadius = GeoMapEnum.MAP_DISTANCE_STANDARD.getRate() / (111.0 * Math.cos(Math.toRadians(latitude)));
+        double lonRadius = SearchMapEnum.MAP_DISTANCE_STANDARD.getRate() / (111.0 * Math.cos(Math.toRadians(latitude)));
 
         double minLat = latitude - latRadius;
         double maxLat = latitude + latRadius;
