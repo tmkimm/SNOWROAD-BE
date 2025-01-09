@@ -1,7 +1,7 @@
 package com.snowroad.search.map.web;
 
-import com.snowroad.search.map.dto.EventsGeoMapDto;
-import com.snowroad.search.map.interfaces.EventGeoMapQueryInterface;
+import com.snowroad.search.map.dto.SearchMapResponseDTO;
+import com.snowroad.search.map.interfaces.SearchMapInterface;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -15,20 +15,38 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+/**
+ *
+ * 지도 검색 컨트롤러
+ *
+ * @author hyo298, 김재효
+ * @version 0.0.1
+ * @since 2025-01-09
+ *
+ */
 @Slf4j
 @RequiredArgsConstructor
 @RestController
 @Tag(name = "Map 커스텀 마커 조회", description = "Map 커스텀 마커 구성시 사용하는 API")
-public class EventGeoMapQueryController {
+public class SearchMapController {
 
-    private final EventGeoMapQueryInterface eventGeoMapQueryInterface;
+    private final SearchMapInterface searchMapInterface;
 
+    /**
+     *
+     * 지도에서 커스텀 마커 구현을 위한 조회
+     *
+     * @author hyo298, 김재효
+     * @param latitude 위도
+     * @param longitude 경도
+     * @return List
+     */
     @Operation(summary="지도에서 이벤트 커스텀 마커 조회", description = "가까운 이벤트를 조회합니다")
-    @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = EventsGeoMapDto.class)))
+    @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = SearchMapResponseDTO.class)))
     @PostMapping("/api/search/events")
-    List<EventsGeoMapDto> getEventsGeoMapList(@RequestParam(defaultValue = "37.5540219315164") double addrLttd
-            , @RequestParam(defaultValue = "126.922884921727") double addrLotd) {
-        List<EventsGeoMapDto> list = eventGeoMapQueryInterface.getMapList(addrLttd, addrLotd);
+    List<SearchMapResponseDTO> getEventGeoMapList(@RequestParam(defaultValue = "37.5540219315164") double latitude
+            , @RequestParam(defaultValue = "126.922884921727") double longitude) {
+        List<SearchMapResponseDTO> list = searchMapInterface.getMapList(latitude, longitude);
         log.info("getEventsGeoMapList {} ",list);
        return list;
     }

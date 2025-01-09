@@ -10,6 +10,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ *
+ * Map 검색 DTO
+ *
+ * @author hyo298, 김재효
+ * @version 0.0.1
+ * @since 2025-01-09
+ *
+ */
 @Entity
 @Table(name = "TB_EVNT_M")
 @Getter
@@ -17,7 +26,7 @@ import lombok.Setter;
 @NoArgsConstructor // 기본 생성자
 @AllArgsConstructor
 @Schema(description = "이벤트 데이터 Map 커스텀 마커 조회")
-public class EventsGeoMapDto {
+public class SearchMapResponseDTO {
 
     @Id
     @Schema(description = "이벤트ID")
