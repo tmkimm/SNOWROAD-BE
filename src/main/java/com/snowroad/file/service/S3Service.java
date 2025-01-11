@@ -1,6 +1,7 @@
 package com.snowroad.file.service;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.RequiredArgsConstructor;
@@ -9,31 +10,21 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class FileS3Uploader {
+public class S3Service {
     private final AmazonS3 amazonS3Client;
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
     // MultipartFile을 전달받아 File로 전환한 후 S3에 업로드
-    public String upload(MultipartFile multipartFile, String dirName) throws IOException { // dirName의 디
-        // 파일의 원본 이름을 가져옴
-        String originalFileName = multipartFile.getOriginalFilename();
-
-        // 파일 확장자 추출
-        String fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
-
-        // 고유한 UUID로 파일 이름 생성
-        String uniqueFileName = FileNameGenerator.generateUniqueFileName() + fileExtension;
-
-        return uploadToS3(multipartFile, dirName, uniqueFileName);
+    public String upload(MultipartFile multipartFile, String dirName, String fileName) throws IOException {
+        return uploadToS3(multipartFile, dirName, fileName);
     }
 
     public String uploadToS3(MultipartFile multipartFile, String dirName, String fileName) throws IOException {
@@ -55,12 +46,14 @@ public class FileS3Uploader {
         }
         return amazonS3Client.getUrl(bucket, key).toString();
     }
-
-    private void removeNewFile(File targetFile) {
-        if(targetFile.delete()) {
-            log.info("파일이 삭제되었습니다.");
-        }else {
-            log.info("파일을 삭제하지 못했습니다.");
+    // 파일 삭제 메서드
+    public void deleteFile(String fileName) {
+        try {
+            // S3에서 파일 삭제
+            amazonS3Client.deleteObject(new DeleteObjectRequest(bucket, fileName));
+            System.out.println("File deleted successfully from S3: " + fileName);
+        } catch (Exception e) {
+            System.err.println("Error deleting file from S3: " + e.getMessage());
         }
     }
 

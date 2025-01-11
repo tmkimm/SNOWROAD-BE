@@ -6,11 +6,11 @@ import com.snowroad.admin.web.dto.AdminLoginResponseDTO;
 import com.snowroad.event.web.dto.EventsResponseDto;
 import com.snowroad.event.web.dto.EventsSaveRequestDto;
 import com.snowroad.event.web.dto.PagedResponseDto;
+import com.snowroad.file.service.FileService;
 import com.snowroad.file.web.dto.EventsFileDetailResponseDTO;
 import com.snowroad.file.web.dto.EventsFileUploadRequestDTO;
 import com.snowroad.admin.service.AdminService;
 import com.snowroad.event.service.EventService;
-import com.snowroad.file.service.FileUploadService;
 import com.snowroad.common.util.CookieUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -33,7 +33,7 @@ import java.util.List;
 public class AdminController {
     private final AdminService adminService;
     private final EventService eventService;
-    private final FileUploadService fileUploadService;
+    private final FileService fileService;
     @Operation(summary="어드민 로그인", description = "(관리자) 어드민 페이지에 로그인합니다.\n로그인 성공 시 쿠키에 Refresh token, Access token이 저장됩니다.")
     //@ApiResponse(responseCode = "200", description = "수신함 조회 성공", content = @Content(schema = @Schema(implementation = AlarmReceiveDto.class)))
     @PostMapping("/api/admin/login")
@@ -128,7 +128,7 @@ public class AdminController {
             System.out.println("업로드할 파일: " + file.getOriginalFilename());
         }
         try {
-            fileUploadService.uploadFiles(eventId, files, mainImage);
+            fileService.uploadAllFiles(eventId, files, mainImage);
             return ResponseEntity.ok("파일 업로드 성공");
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -147,5 +147,12 @@ public class AdminController {
     public Long delete(@PathVariable Long eventId) {
         eventService.delete(eventId);
         return eventId;
+    }
+
+    @Operation(summary="이벤트 첨부파일 삭제", description = "(관리자) 이벤트에 첨부된 파일을 삭제합니다.")
+    @DeleteMapping("/api/admin/events/files/{fileId}")
+    public Long deleteFile(@PathVariable Long fileId) {
+        fileService.deleteFileDetail(fileId);
+        return fileId;
     }
 }
