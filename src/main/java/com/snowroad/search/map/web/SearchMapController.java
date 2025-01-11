@@ -46,8 +46,6 @@ public class SearchMapController {
     @GetMapping("/api/search/events")
     List<SearchMapResponseDTO> getEventGeoMapList(@RequestParam(defaultValue = "37.5540219315164") double latitude
             , @RequestParam(defaultValue = "126.922884921727") double longitude) {
-        List<SearchMapResponseDTO> list = searchMapInterface.getMapList(latitude, longitude);
-        log.info("getEventsGeoMapList {} ",list);
-       return list;
+       return searchMapInterface.getMapList(latitude, longitude);
     }
 }

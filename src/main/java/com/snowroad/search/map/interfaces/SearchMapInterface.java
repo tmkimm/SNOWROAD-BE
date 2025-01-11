@@ -14,5 +14,5 @@ import java.util.List;
  *
  */
 public interface SearchMapInterface {
-    List<SearchMapResponseDTO> getMapList(double addrLttd, double addrLotd);
+    List<SearchMapResponseDTO> getMapList(double latitude, double longitude);
 }
