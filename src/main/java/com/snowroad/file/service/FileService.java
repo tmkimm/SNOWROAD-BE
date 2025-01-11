@@ -2,6 +2,7 @@ package com.snowroad.file.service;
 
 import com.snowroad.event.domain.Events;
 import com.snowroad.event.domain.EventsRepository;
+import com.snowroad.event.web.dto.EventsSaveRequestDto;
 import com.snowroad.file.domain.eventFilesDtl.EventFilesDtl;
 import com.snowroad.file.domain.eventFilesDtl.EventFilesDtlRepository;
 import com.snowroad.file.domain.eventFilesMst.EventFilesMst;
@@ -73,6 +74,25 @@ public class FileService {
 
     }
 
+    @Transactional
+    public Long updateFileDetail(Long id, MultipartFile image) throws IOException  {
+        EventFilesDtl file = filesDtlRepository.findById(id)
+                .orElseThrow(() -> new
+                        IllegalArgumentException("파일이 존재하지 않습니다. id" + id));
+
+        // 파일의 원본 이름을 가져옴
+        String originalFileName = image.getOriginalFilename();
+        // 파일 확장자 추출
+        String fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
+        // 고유한 UUID로 파일 이름 생성
+        String uniqueFileName = FileNameGenerator.generateUniqueFileName() + fileExtension;
+
+        String mainImagePath = s3Service.update(image, filePath, uniqueFileName, filePath + "/" +file.getFileNm());
+
+        file.update(filePath, uniqueFileName, image.getOriginalFilename(), null, image.getSize(), image.getContentType(), mainImagePath);
+        return id;
+    }
+
     public EventFilesMst saveEventFilesMst() {
         EventFilesMst fileMst = EventFilesMst.builder()
                 .build();
@@ -100,4 +120,6 @@ public class FileService {
         s3Service.deleteFile(filePath + "/" + file.getFileNm());
         filesDtlRepository.delete(file);
     }
+
+
 }

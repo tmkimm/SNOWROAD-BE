@@ -8,6 +8,7 @@ import com.snowroad.event.web.dto.EventsSaveRequestDto;
 import com.snowroad.event.web.dto.PagedResponseDto;
 import com.snowroad.file.service.FileService;
 import com.snowroad.file.web.dto.EventsFileDetailResponseDTO;
+import com.snowroad.file.web.dto.EventsFileUpdateRequestDTO;
 import com.snowroad.file.web.dto.EventsFileUploadRequestDTO;
 import com.snowroad.admin.service.AdminService;
 import com.snowroad.event.service.EventService;
@@ -141,6 +142,36 @@ public class AdminController {
             @RequestBody EventsSaveRequestDto requestDto) {
         return eventService.update(id, requestDto);
     }
+
+
+    @Operation(
+            summary = "이벤트 첨부파일 수정",
+            description = "(관리자) 이벤트에 첨부된 파일을 수정합니다.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(
+                            mediaType = "multipart/form-data",
+                            schema = @Schema(implementation = EventsFileUpdateRequestDTO.class)
+                    )
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "파일 수정 성공"),
+                    @ApiResponse(responseCode = "400", description = "잘못된 요청")
+            }
+    )
+    @PutMapping("/api/admin/events/files/{fileId}")
+    public ResponseEntity<String> updateFile(@PathVariable Long fileId
+    , @RequestParam("file") MultipartFile file) {
+
+        try {
+            fileService.updateFileDetail(fileId, file);
+            return ResponseEntity.ok("파일 수정 성공");
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("파일 수정 실패: " + e.getMessage());
+        }
+
+    }
+
 
     @Operation(summary="팝업, 전시 삭제", description = "(관리자) 이벤트를 삭제합니다.")
     @DeleteMapping("/api/admin/events/{eventId}")

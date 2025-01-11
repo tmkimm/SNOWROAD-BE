@@ -24,10 +24,6 @@ public class S3Service {
 
     // MultipartFile을 전달받아 File로 전환한 후 S3에 업로드
     public String upload(MultipartFile multipartFile, String dirName, String fileName) throws IOException {
-        return uploadToS3(multipartFile, dirName, fileName);
-    }
-
-    public String uploadToS3(MultipartFile multipartFile, String dirName, String fileName) throws IOException {
         String contentType = multipartFile.getContentType();
         String key = dirName + "/" + fileName;
         // InputStream을 통해 파일을 스트리밍 방식으로 처리
@@ -46,6 +42,13 @@ public class S3Service {
         }
         return amazonS3Client.getUrl(bucket, key).toString();
     }
+
+    public String update(MultipartFile multipartFile, String dirName, String fileName, String deleteFileName) throws IOException {
+        // 기존 파일 삭제 후 추가
+       this.deleteFile(deleteFileName);
+       return this.upload(multipartFile, dirName, fileName);
+    }
+
     // 파일 삭제 메서드
     public void deleteFile(String fileName) {
         try {

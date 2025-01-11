@@ -54,4 +54,14 @@ public class EventFilesDtl extends BaseTimeEntity {
         this.fileType = fileType;
         this.fileUrl = fileUrl;
     }
+
+    public void update(String filePath, String fileNm, String origFileNm, String fileThumbUrl, Long fileSize, String fileType, String fileUrl) {
+        this.filePath = filePath;
+        this.fileNm = fileNm;
+        this.origFileNm = origFileNm;
+        this.fileThumbUrl = fileThumbUrl;
+        this.fileSize = fileSize;
+        this.fileType = fileType;
+        this.fileUrl = fileUrl;
+    }
 }
