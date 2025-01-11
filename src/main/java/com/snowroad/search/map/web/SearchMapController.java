@@ -9,7 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -27,7 +27,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@Tag(name = "Map 커스텀 마커 조회", description = "Map 커스텀 마커 구성시 사용하는 API")
+@Tag(name = "Map API", description = "지도 처리 API")
 public class SearchMapController {
 
     private final SearchMapInterface searchMapInterface;
@@ -41,9 +41,9 @@ public class SearchMapController {
      * @param longitude 경도
      * @return List
      */
-    @Operation(summary="지도에서 이벤트 커스텀 마커 조회", description = "가까운 이벤트를 조회합니다")
+    @Operation(summary="지도에서 이벤트 커스텀 마커 조회", description = "기본거리표준에 따라서 이벤트를 조회합니다")
     @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = SearchMapResponseDTO.class)))
-    @PostMapping("/api/search/events")
+    @GetMapping("/api/search/events")
     List<SearchMapResponseDTO> getEventGeoMapList(@RequestParam(defaultValue = "37.5540219315164") double latitude
             , @RequestParam(defaultValue = "126.922884921727") double longitude) {
         List<SearchMapResponseDTO> list = searchMapInterface.getMapList(latitude, longitude);
