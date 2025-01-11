@@ -31,7 +31,7 @@ public class SearchMapResponseDTO {
     @Id
     @Schema(description = "이벤트ID")
     @Column(name = "EVNT_ID")
-    private String evntId;
+    private Long evntId;
 
     @Schema(description = "이벤트명")
     @Column(name = "EVNT_NM")
