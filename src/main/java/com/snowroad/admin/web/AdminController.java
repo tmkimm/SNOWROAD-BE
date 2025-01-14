@@ -136,6 +136,58 @@ public class AdminController {
                     .body("파일 업로드 실패: " + e.getMessage());
         }
     }
+    @Operation(
+            summary = "(상세)이벤트 첨부파일 추가",
+            description = "(관리자) 이벤트에 첨부된 파일을 추가합니다.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(
+                            mediaType = "multipart/form-data",
+                            schema = @Schema(implementation = EventsFileUpdateRequestDTO.class)
+                    )
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "파일 수정 성공"),
+                    @ApiResponse(responseCode = "400", description = "잘못된 요청")
+            }
+    )
+    @PostMapping("/api/admin/events/{eventId}/file/detail")
+    public ResponseEntity<String> addFileDetail(
+            @PathVariable Long eventId,
+            @RequestParam("file") MultipartFile file) {
+        try {
+            fileService.addFileDetail(eventId, file);
+            return ResponseEntity.ok("파일 업로드 성공");
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("파일 업로드 실패: " + e.getMessage());
+        }
+    }
+    @Operation(
+            summary = "(메인)이벤트 첨부 파일 추가",
+            description = "(관리자) 이벤트에 첨부된 파일을 추가합니다.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(
+                            mediaType = "multipart/form-data",
+                            schema = @Schema(implementation = EventsFileUpdateRequestDTO.class)
+                    )
+            ),
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "파일 수정 성공"),
+                    @ApiResponse(responseCode = "400", description = "잘못된 요청")
+            }
+    )
+    @PostMapping("/api/admin/events/{eventId}/file/main")
+    public ResponseEntity<String> addFileMain(
+            @PathVariable Long eventId,
+            @RequestParam("file") MultipartFile file) {
+        try {
+            fileService.addFileMain(eventId, file);
+            return ResponseEntity.ok("파일 업로드 성공");
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("파일 업로드 실패: " + e.getMessage());
+        }
+    }
     @Operation(summary="팝업, 전시 수정", description = "(관리자) 이벤트를 수정합니다.")
     @PutMapping("/api/admin/events/{id}")
     public Long update(@PathVariable Long id,
