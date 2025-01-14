@@ -41,12 +41,8 @@ public class FileService {
         if (mainImage != null) {
             EventFilesMst tumbFileMst = this.saveEventFilesMst();
 
-            // 파일의 원본 이름을 가져옴
-            String originalFileName = mainImage.getOriginalFilename();
-            // 파일 확장자 추출
-            String fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
             // 고유한 UUID로 파일 이름 생성
-            String uniqueFileName = FileNameGenerator.generateUniqueFileName() + fileExtension;
+            String uniqueFileName = FileNameGenerator.generateUniqueFileName(mainImage);
 
             String mainImagePath = s3Service.upload(mainImage, filePath, uniqueFileName);
             this.saveEventFilesDtl(tumbFileMst, filePath, mainImagePath, mainImage, uniqueFileName);
@@ -59,12 +55,8 @@ public class FileService {
         // 추가 파일들 업로드 처리
         EventFilesMst eventFileMst = this.saveEventFilesMst();
         for (MultipartFile file : files) {
-            // 파일의 원본 이름을 가져옴
-            String originalFileName = mainImage.getOriginalFilename();
-            // 파일 확장자 추출
-            String fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
             // 고유한 UUID로 파일 이름 생성
-            String uniqueFileName = FileNameGenerator.generateUniqueFileName() + fileExtension;
+            String uniqueFileName = FileNameGenerator.generateUniqueFileName(mainImage);
             String filePathForAdditional = s3Service.upload(file, filePath, uniqueFileName);
             this.saveEventFilesDtl(eventFileMst, filePath, filePathForAdditional, file, uniqueFileName);
         }
@@ -74,18 +66,37 @@ public class FileService {
 
     }
 
+    // detail에 파일 추가
+    @Transactional
+    public void addFileDetail(Long id, MultipartFile image) throws IOException {
+        // 이미지 검색
+        Events event = eventsRepository.findById(id).orElseThrow(() -> new RuntimeException("Event not found"));
+        EventFilesMst tumbFileMst = event.getEventFiles();
+        // 고유한 UUID로 파일 이름 생성
+        String uniqueFileName = FileNameGenerator.generateUniqueFileName(image);
+        String imagePath = s3Service.upload(image, filePath, uniqueFileName);
+        this.saveEventFilesDtl(tumbFileMst, filePath, imagePath, image, uniqueFileName);
+    }
+
+    // 메인 파일 추가
+    @Transactional
+    public void addFileMain(Long id, MultipartFile image) throws IOException {
+        // 이미지 검색
+        Events event = eventsRepository.findById(id).orElseThrow(() -> new RuntimeException("Event not found"));
+        EventFilesMst tumbFileMst = event.getEventTumbfile();
+        // 고유한 UUID로 파일 이름 생성
+        String uniqueFileName = FileNameGenerator.generateUniqueFileName(image);
+        String imagePath = s3Service.upload(image, filePath, uniqueFileName);
+        this.saveEventFilesDtl(tumbFileMst, filePath, imagePath, image, uniqueFileName);
+    }
     @Transactional
     public Long updateFileDetail(Long id, MultipartFile image) throws IOException  {
         EventFilesDtl file = filesDtlRepository.findById(id)
                 .orElseThrow(() -> new
                         IllegalArgumentException("파일이 존재하지 않습니다. id" + id));
 
-        // 파일의 원본 이름을 가져옴
-        String originalFileName = image.getOriginalFilename();
-        // 파일 확장자 추출
-        String fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
         // 고유한 UUID로 파일 이름 생성
-        String uniqueFileName = FileNameGenerator.generateUniqueFileName() + fileExtension;
+        String uniqueFileName = FileNameGenerator.generateUniqueFileName(image);
 
         String mainImagePath = s3Service.update(image, filePath, uniqueFileName, filePath + "/" +file.getFileNm());
 
