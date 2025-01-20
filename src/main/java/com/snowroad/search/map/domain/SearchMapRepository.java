@@ -17,7 +17,7 @@ import java.util.List;
  *
  */
 public interface SearchMapRepository extends JpaRepository<SearchMapResponseDTO, Long> {
-    @Query("SELECT p FROM SearchMapResponseDTO p")
+    @Query("SELECT E FROM SearchMapResponseDTO AS E WHERE E.addrLttd BETWEEN :minLat AND :maxLat AND E.addrLotd BETWEEN :minLon AND :maxLon  ")
     List<SearchMapResponseDTO> findEventsGeoCustomPoint(
             @Param("minLat") double minLat,
             @Param("maxLat") double maxLat,

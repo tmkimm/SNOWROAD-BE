@@ -48,8 +48,13 @@ public class SearchMapService implements SearchMapInterface {
             );
 
             if (distance <= SearchMapEnum.MAP_DISTANCE_STANDARD.getRate()) {
-                log.info("거리 계산 :: {}",distance);
-                log.info("이벤트명 :: {}", searchMapResponseDTO.getEvntNm());
+                log.info("""
+                                
+                                ========== START LOG ==========
+                                거리 값: {}
+                                이벤트 명: {}
+                                ========== END LOG ==========""",
+                        distance, searchMapResponseDTO.getEvntNm());
                 result.add(searchMapResponseDTO);
             }
         }
