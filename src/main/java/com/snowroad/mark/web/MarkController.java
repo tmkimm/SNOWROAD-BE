@@ -29,7 +29,7 @@ public class MarkController {
     }
 
     @Operation(summary="(기존) 팝업, 전시 즐겨찾기 수정", description = "(즐겨찾기) 좋아요를 재등록/해제 합니다.")
-    @PutMapping("/api/mark/marks/{id}/{evntId}")
+    @PutMapping("/api/mark/marks/{id}")
     public Long update(@PathVariable Long id, @PathVariable String evntId,
                        @RequestBody MarkSaveRequestDto requestDto) {
         return markService.update(id, evntId, requestDto);
