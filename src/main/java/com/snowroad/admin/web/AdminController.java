@@ -3,6 +3,7 @@ package com.snowroad.admin.web;
 import com.snowroad.admin.web.dto.AdminEventsListResponseDto;
 import com.snowroad.admin.web.dto.AdminLoginRequestDTO;
 import com.snowroad.admin.web.dto.AdminLoginResponseDTO;
+import com.snowroad.event.domain.Events;
 import com.snowroad.event.web.dto.EventsResponseDto;
 import com.snowroad.event.web.dto.EventsSaveRequestDto;
 import com.snowroad.event.web.dto.PagedResponseDto;
@@ -49,29 +50,8 @@ public class AdminController {
 
     @Operation(summary="팝업, 전시 리스트 조회", description = "(관리자) 등록된 팝업, 전시 리스트를 조회합니다.")
     @GetMapping("/api/admin/events")
-    public PagedResponseDto<AdminEventsListResponseDto> getList(@RequestParam(defaultValue = "0") int page) {
-        // 10개의 더미 이벤트 데이터 생성
-//        List<EventsListResponseDto> events = IntStream.range(0, 10)
-//                .mapToObj(i -> new EventsListResponseDto(
-//                        (long) (i + 1),                               // eventId
-//                        "이벤트 " + (i + 1),                         // eventNm
-//                        "이벤트 " + (i + 1) + "에 대한 설명",        // eventCntn
-//                        "서울시 강남구 테헤란로 123",                // eventAddr
-//                        "20240101",                                 // operStatDt
-//                        "20240131",                                 // operEndDt
-//                        "10:00 ~ 18:00",                            // operDttmCntn
-//                        "CTG" + (i % 3 + 1),                        // ctgyId (CTG1, CTG2, CTG3)
-//                        "패션",                        // ctgyId (CTG1, CTG2, CTG3)
-//                        "ppst",                         // ppstEnbnTypeCd (PPS1, PPS2)
-//                        "팝업",                         // ppstEnbnTypeCd (PPS1, PPS2)
-//                        "https://cf.festa.io/img/2024-11-28/7d85d9f9-f041-4a53-b840-027abf836a80.jpg",
-//                        "https://cf.festa.io/img/2024-11-28/7d85d9f9-f041-4a53-b840-027abf836a80.jpg"
-//                ))
-//                .collect(Collectors.toList());
-        List<AdminEventsListResponseDto> events = eventService.findAllDesc();
-
-        // PagedResponseDto로 반환
-        return new PagedResponseDto<>(events, 11);
+    public ResponseEntity<PagedResponseDto<Events>> getList(@RequestParam(defaultValue = "0") int page) {
+        return ResponseEntity.ok(eventService.getEventByPagination(page));
     }
 
 
