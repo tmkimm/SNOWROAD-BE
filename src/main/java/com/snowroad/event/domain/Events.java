@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 public class Events extends BaseTimeEntity {
     @Schema(description = "이벤트ID")
     @Column(name = "EVNT_ID")
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private Long eventId;
 

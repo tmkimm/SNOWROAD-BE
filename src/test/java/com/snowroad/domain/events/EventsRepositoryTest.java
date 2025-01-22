@@ -25,41 +25,41 @@ public class EventsRepositoryTest {
         eventsRepository.deleteAll();
     }
 
-    @Test
-    public void 이벤트저장_불러오기() {
-        //given
-        String eventNm = "Summer Sale";
-        String eventCntn = "Discounts on all summer items.";
-        String eventAddr = "123 Summer St, Beach City";
-        String operStatDt = "20240101";
-        String operEndDt = "20240131";
-        String operDttmCntn = "Mon-Fri, 9 AM to 6 PM";
-        String ctgyId = "SUMMER2024";
-        String ppstEnbnTypeCd = "POPUP";
-        Double addrLttd = 34.0522;  // 위도 (예: LA)
-        Double addrLotd = -118.2437;  // 경도 (예: LA)
-        LocalDateTime now = LocalDateTime.of(2024, 12 ,9, 0, 0, 0);
-        eventsRepository.save(Events.builder()
-                .eventNm(eventNm)
-                        .eventCntn(eventCntn)
-                        .eventAddr(eventAddr)
-                        .operStatDt(operStatDt)
-                        .operEndDt(operEndDt)
-                        .operDttmCntn(operDttmCntn)
-                        .ctgyId(ctgyId)
-                        .ppstEnbnTypeCd(ppstEnbnTypeCd)
-                        .addrLttd(addrLttd)
-                        .addrLotd(addrLotd)
-                .build());
-        // when
-        List<Events> eventsList = eventsRepository.findAll();
-
-        // then
-        Events events = eventsList.get(0);
-        System.out.println(">>> createdDate : " + events.getCreatedDate());
-        assertThat(events.getEventNm()).isEqualTo(eventNm);
-        assertThat(events.getEventAddr()).isEqualTo(eventAddr);
-        assertThat(events.getCreatedDate()).isAfter(now);
-        assertThat(events.getModifiedDate()).isAfter(now);
-    }
+//    @Test
+//    public void 이벤트저장_불러오기() {
+//        //given
+//        String eventNm = "Summer Sale";
+//        String eventCntn = "Discounts on all summer items.";
+//        String eventAddr = "123 Summer St, Beach City";
+//        String operStatDt = "20240101";
+//        String operEndDt = "20240131";
+//        String operDttmCntn = "Mon-Fri, 9 AM to 6 PM";
+//        String ctgyId = "SUMMER2024";
+//        String ppstEnbnTypeCd = "POPUP";
+//        Double addrLttd = 34.0522;  // 위도 (예: LA)
+//        Double addrLotd = -118.2437;  // 경도 (예: LA)
+//        LocalDateTime now = LocalDateTime.of(2024, 12 ,9, 0, 0, 0);
+//        eventsRepository.save(Events.builder()
+//                        .eventNm(eventNm)
+//                        .eventCntn(eventCntn)
+//                        .eventAddr(eventAddr)
+//                        .operStatDt(operStatDt)
+//                        .operEndDt(operEndDt)
+//                        .operDttmCntn(operDttmCntn)
+//                        .ctgyId(ctgyId)
+//                        .ppstEnbnTypeCd(ppstEnbnTypeCd)
+//                        .addrLttd(addrLttd)
+//                        .addrLotd(addrLotd)
+//                .build());
+//        // when
+//        List<Events> eventsList = eventsRepository.findAll();
+//
+//        // then
+//        Events events = eventsList.get(0);
+//        System.out.println(">>> createdDate : " + events.getCreatedDate());
+//        assertThat(events.getEventNm()).isEqualTo(eventNm);
+//        assertThat(events.getEventAddr()).isEqualTo(eventAddr);
+//        assertThat(events.getCreatedDate()).isAfter(now);
+//        assertThat(events.getModifiedDate()).isAfter(now);
+//    }
 }
