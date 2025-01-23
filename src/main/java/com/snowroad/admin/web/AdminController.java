@@ -82,40 +82,7 @@ public class AdminController {
     public Long save(@RequestBody EventsSaveRequestDto requestDto) {
         return eventService.save(requestDto);
     }
-    @Operation(
-            summary = "팝업, 전시 이미지 등록",
-            description = "(관리자) 이벤트 이미지를 등록합니다.",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    content = @Content(
-                            mediaType = "multipart/form-data",
-                            schema = @Schema(implementation = EventsFileUploadRequestDTO.class)
-                    )
-            ),
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "파일 업로드 성공"),
-                    @ApiResponse(responseCode = "400", description = "잘못된 요청")
-            }
-    )
-    @PostMapping("/api/admin/events/{eventId}/files")
-    public ResponseEntity<String> uploadFiles(
-            @PathVariable Long eventId,
-            @RequestParam("files") MultipartFile[] files,
-            @RequestParam("mainImage") MultipartFile mainImage) {
-        // 업로드 처리 로직
-        if (mainImage != null) {
-            System.out.println("대표 이미지: " + mainImage.getOriginalFilename());
-        }
-        for (MultipartFile file : files) {
-            System.out.println("업로드할 파일: " + file.getOriginalFilename());
-        }
-        try {
-            fileService.uploadAllFiles(eventId, files, mainImage);
-            return ResponseEntity.ok("파일 업로드 성공");
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("파일 업로드 실패: " + e.getMessage());
-        }
-    }
+
     @Operation(
             summary = "(상세)이벤트 첨부파일 추가",
             description = "(관리자) 이벤트에 첨부된 파일을 추가합니다.",

@@ -32,50 +32,21 @@ public class FileService {
 
     private String filePath = "event-images";
 
-    @Transactional
-    public void uploadAllFiles(Long eventId, MultipartFile[] files, MultipartFile mainImage) throws IOException {
-        // 이미지 검색
-        Events event = eventsRepository.findById(eventId).orElseThrow(() -> new RuntimeException("Event not found"));
-
-        // 썸네일 이미지 업로드 처리
-        if (mainImage != null) {
-            EventFilesMst tumbFileMst = this.saveEventFilesMst();
-
-            // 고유한 UUID로 파일 이름 생성
-            String uniqueFileName = FileNameGenerator.generateUniqueFileName(mainImage);
-
-            String mainImagePath = s3Service.upload(mainImage, filePath, uniqueFileName);
-            this.saveEventFilesDtl(tumbFileMst, filePath, mainImagePath, mainImage, uniqueFileName);
-
-            // Event 객체를 가져와서 FILE_MST_ID를 설정
-            event.updateTumbFile(tumbFileMst); // 파일 마스터 ID를 Events 엔티티에 설정
-        }
-
-
-        // 추가 파일들 업로드 처리
-        EventFilesMst eventFileMst = this.saveEventFilesMst();
-        for (MultipartFile file : files) {
-            // 고유한 UUID로 파일 이름 생성
-            String uniqueFileName = FileNameGenerator.generateUniqueFileName(mainImage);
-            String filePathForAdditional = s3Service.upload(file, filePath, uniqueFileName);
-            this.saveEventFilesDtl(eventFileMst, filePath, filePathForAdditional, file, uniqueFileName);
-        }
-        event.updateEventFile(eventFileMst); // 파일 마스터 ID를 Events 엔티티에 설정
-        eventsRepository.save(event); // Event 엔티티를 업데이트하여 FILE_MST_ID를 저장
-
-
-    }
 
     // detail에 파일 추가
     @Transactional
     public void addFileDetail(Long id, MultipartFile image) throws IOException {
         // 이미지 검색
         Events event = eventsRepository.findById(id).orElseThrow(() -> new RuntimeException("Event not found"));
-        EventFilesMst tumbFileMst = event.getEventFiles();
+        EventFilesMst detailFileMst = event.getEventFiles();
+        if(detailFileMst == null) {
+            detailFileMst = this.saveEventFilesMst();
+            event.updateEventFile(detailFileMst);
+        }
         // 고유한 UUID로 파일 이름 생성
         String uniqueFileName = FileNameGenerator.generateUniqueFileName(image);
         String imagePath = s3Service.upload(image, filePath, uniqueFileName);
-        this.saveEventFilesDtl(tumbFileMst, filePath, imagePath, image, uniqueFileName);
+        this.saveEventFilesDtl(detailFileMst, filePath, imagePath, image, uniqueFileName);
     }
 
     // 메인 파일 추가
@@ -84,6 +55,11 @@ public class FileService {
         // 이미지 검색
         Events event = eventsRepository.findById(id).orElseThrow(() -> new RuntimeException("Event not found"));
         EventFilesMst tumbFileMst = event.getEventTumbfile();
+        if(tumbFileMst == null) {
+            tumbFileMst = this.saveEventFilesMst();
+            event.updateTumbFile(tumbFileMst);
+        }
+
         // 고유한 UUID로 파일 이름 생성
         String uniqueFileName = FileNameGenerator.generateUniqueFileName(image);
         String imagePath = s3Service.upload(image, filePath, uniqueFileName);
