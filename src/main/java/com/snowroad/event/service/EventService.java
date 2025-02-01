@@ -1,12 +1,18 @@
 package com.snowroad.event.service;
 
 import com.snowroad.admin.web.dto.AdminEventsListResponseDto;
+import com.snowroad.event.web.dto.EventsListResponseDto;
 import com.snowroad.event.domain.Events;
 import com.snowroad.event.domain.EventsRepository;
 import com.snowroad.event.web.dto.EventsResponseDto;
 import com.snowroad.event.web.dto.EventsSaveRequestDto;
+import com.snowroad.event.web.dto.PagedResponseDto;
 import com.snowroad.file.web.dto.EventsFileDetailResponseDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -89,5 +95,65 @@ public class EventService {
                 .collect(Collectors.toList());
 
         return eventFiles;
+    }
+
+    @Transactional(readOnly = true)
+    public List<EventsListResponseDto> findEvntList() {
+        return eventsRepository.findEvntList().stream()
+                .map(EventsListResponseDto::new)
+                .collect(Collectors.toList());
+
+    }
+
+    public EventsResponseDto findEvntData(Long id) {
+        Events entity = eventsRepository.findById(id)
+                .orElseThrow(() -> new
+                        IllegalArgumentException("해당 팝업/전시가 존재하지 않습니다. id" + id));
+        return new EventsResponseDto(entity);
+    }
+
+    @Transactional(readOnly = true)
+    public List<EventsListResponseDto> findEvntMarkedList() {
+        return eventsRepository.findEvntMarkedList().stream()
+                .map(EventsListResponseDto::new)
+                .collect(Collectors.toList());
+
+    }
+
+    @Transactional(readOnly = true)
+    public List<EventsListResponseDto> getMainRankList() {
+        return eventsRepository.getMainRankList().stream()
+                .map(EventsListResponseDto::new)
+                .collect(Collectors.toList());
+
+    }
+    @Transactional(readOnly = true)
+    public List<EventsListResponseDto> getMainOperStatList() {
+        return eventsRepository.getMainOperStatList().stream()
+                .map(EventsListResponseDto::new)
+                .collect(Collectors.toList());
+
+    }
+    @Transactional(readOnly = true)
+    public List<EventsListResponseDto> getMainOperEndList() {
+        return eventsRepository.getMainOperEndList().stream()
+                .map(EventsListResponseDto::new)
+                .collect(Collectors.toList());
+
+    }
+
+    @Transactional(readOnly = true)
+    public PagedResponseDto<Events> getEventByPagination(int page) {
+        int size = 20;
+        Sort sort = Sort.by(Sort.Direction.DESC, "eventId");
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<Events> eventsPage = eventsRepository.findAll(pageable);
+
+        return new PagedResponseDto<>(
+                eventsPage.getContent(),
+                eventsPage.getTotalPages()
+        );
+
     }
 }

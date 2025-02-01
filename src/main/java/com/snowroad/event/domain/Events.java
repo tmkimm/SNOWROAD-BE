@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 public class Events extends BaseTimeEntity {
     @Schema(description = "이벤트ID")
     @Column(name = "EVNT_ID")
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private Long eventId;
 
@@ -33,15 +33,15 @@ public class Events extends BaseTimeEntity {
     private String eventAddr;
 
     @Schema(description = "운영시작일자")
-    @Column(name = "OPEN_STAT_DT", length = 8, nullable = false)
+    @Column(name = "OPER_STAT_DT", length = 8, nullable = false)
     private String operStatDt;
 
     @Schema(description = "운영종료일자")
-    @Column(name = "OPEN_END_DT", length = 8, nullable = false)
+    @Column(name = "OPER_END_DT", length = 8, nullable = false)
     private String operEndDt;
 
     @Schema(description = "운영시간내용")
-    @Column(name = "OPEN_DTTM_CNTN", length = 200)
+    @Column(name = "OPER_DTTM_CNTN", length = 200)
     private String operDttmCntn;
 
     @Schema(description = "카테고리 ID")
@@ -49,7 +49,7 @@ public class Events extends BaseTimeEntity {
     private String ctgyId;
 
     @Schema(description = "팝업, 전시 구분 코드")
-    @Column(name = "PPST_ENBN_TYPE_CD", length = 10, nullable = false)
+    @Column(name = "EVNT_TYPE_CD", length = 10, nullable = false)
     private String ppstEnbnTypeCd;
 
     @Schema(description = "위도")
