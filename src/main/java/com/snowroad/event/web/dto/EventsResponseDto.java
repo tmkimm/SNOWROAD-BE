@@ -68,8 +68,9 @@ public class EventsResponseDto {
         this.operEndDt = entity.getOperEndDt();
         this.operDttmCntn = entity.getOperDttmCntn();
         this.ctgyId = entity.getCtgyId();
-
         this.ppstEnbnTypeCd = entity.getPpstEnbnTypeCd();
+        this.addrLttd = entity.getAddrLttd();
+        this.addrLotd = entity.getAddrLotd();
     }
 
 }

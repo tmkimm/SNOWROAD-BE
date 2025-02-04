@@ -28,9 +28,9 @@ public class EventsListResponseDto {
     @Schema(description = "카테고리 명")
     private String ctgyNm;
     @Schema(description = "팝업, 전시 구분 코드")
-    private String ppstEnbnTypeCd;
+    private String eventTypeCd;
     @Schema(description = "팝업, 전시 구분 명")
-    private String ppstEnbnTypeNm;
+    private String eventTypeNm;
     @Schema(description = "좋아요 여부")
     private String likeYn;
     @Schema(description = "조회수")
@@ -43,7 +43,7 @@ public class EventsListResponseDto {
     private String smallImageUrl;
 
 
-/*    public EventsListResponseDto(Long eventId, String eventNm, String eventCntn, String eventAddr, String operStatDt, String operEndDt, String operDttmCntn, String ctgyId, String ctgyNm, String ppstEnbnTypeCd, String ppstEnbnTypeNm, String imageUrl, String smallImageUrl) {
+/*    public EventsListResponseDto(Long eventId, String eventNm, String eventCntn, String eventAddr, String operStatDt, String operEndDt, String operDttmCntn, String ctgyId, String ctgyNm, String eventTypeCd, String eventTypeNm, String imageUrl, String smallImageUrl) {
         this.eventId = eventId;
         this.eventNm = eventNm;
         this.eventCntn = eventCntn;
@@ -53,8 +53,8 @@ public class EventsListResponseDto {
         this.operDttmCntn = operDttmCntn;
         this.ctgyId = ctgyId;
         this.ctgyNm = ctgyNm;
-        this.ppstEnbnTypeCd = ppstEnbnTypeCd;
-        this.ppstEnbnTypeNm = ppstEnbnTypeNm;
+        this.eventTypeCd = eventTypeCd;
+        this.eventTypeNm = eventTypeNm;
         this.imageUrl = imageUrl;
         this.smallImageUrl = smallImageUrl;
     }*/
@@ -68,7 +68,7 @@ public class EventsListResponseDto {
         this.operEndDt = entity.getOperEndDt();
         this.operDttmCntn = entity.getOperDttmCntn();
         this.ctgyId = entity.getCtgyId();
-        this.ppstEnbnTypeCd = entity.getPpstEnbnTypeCd();
+        this.eventTypeCd = entity.getPpstEnbnTypeCd();
     }
 
     // 팝업전시 구분명, 좋아요여부, 조회수 추가 문의
