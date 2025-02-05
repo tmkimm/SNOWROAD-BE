@@ -1,11 +1,13 @@
 package com.snowroad.config.auth;
 
 
+import com.snowroad.common.util.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
 
 
@@ -14,6 +16,10 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
+
+    private final JwtTokenProvider jwtTokenProvider;
+    private final UserDetailsService userDetailsService;
+    private final OAuth2AuthenticationSuccessHandler successHandler;
 //    @Bean
 //    public WebSecurityCustomizer webSecurityCustomizer() {
 //        // // 정적 자원에 대해서는 Security 설정을 적용하지 않음.
@@ -35,7 +41,10 @@ public class SecurityConfig {
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService))
+                        .successHandler(successHandler)
                 );
+//                .addFilterBefore(new JwtCookieAuthenticationFilter(jwtTokenProvider, userDetailsService),
+//                UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 //    @Bean
