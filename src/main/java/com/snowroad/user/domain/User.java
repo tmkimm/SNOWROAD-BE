@@ -20,21 +20,31 @@ public class User extends BaseTimeEntity {
     private String email;
     @Column
     private String picture;
+
     @Enumerated(EnumType.STRING)    // 문자열로 저장되도록 설정(숫자면 의미를 알 수 없음)
     @Column(nullable = false)
     private Role role;
 
+    @Column(name = "SCLG_ID", length = 255)
+    private String socialLoginId;
+
+    @Column(name = "SCLG_PRVD_SRTN_CD", length = 10)
+    private String socialLoginProviderCode;
+
     @Builder
-    public User(String name, String email, String picture, Role role) {
+    public User(String name, String email, String picture, Role role, String socialLoginId, String socialLoginProviderCode) {
         this.name = name;
         this.email = email;
         this.picture = picture;
         this.role = role;
+        this.socialLoginId = socialLoginId;
+        this.socialLoginProviderCode = socialLoginProviderCode;
     }
 
-    public User update(String name, String picture) {
+    public User update(String name, String picture, String email) {
         this.name = name;
         this.picture = picture;
+        this.email = email;
         return this;
     }
 
