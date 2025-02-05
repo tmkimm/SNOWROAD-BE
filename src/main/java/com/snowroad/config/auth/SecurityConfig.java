@@ -9,6 +9,8 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationFilter;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 
 @RequiredArgsConstructor
@@ -18,7 +20,7 @@ public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final UserDetailsService userDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
     private final OAuth2AuthenticationSuccessHandler successHandler;
 //    @Bean
 //    public WebSecurityCustomizer webSecurityCustomizer() {
@@ -43,8 +45,7 @@ public class SecurityConfig {
                                 .userService(customOAuth2UserService))
                         .successHandler(successHandler)
                 );
-//                .addFilterBefore(new JwtCookieAuthenticationFilter(jwtTokenProvider, userDetailsService),
-//                UsernamePasswordAuthenticationFilter.class);
+                //.addFilterBefore(new JwtCookieAuthenticationFilter(jwtTokenProvider, customUserDetailsService), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 //    @Bean
