@@ -65,7 +65,7 @@ public class OAuthAttributes {
                 .picture((String) response.get("profile_image"))
                 .attributes(response)
                 .nameAttributeKey(userNameAttributeName)
-                .socialLoginId((String) response.get("id"))
+                .socialLoginId((String) response.get(userNameAttributeName))
                 .socialLoginProviderCode("naver")
                 .build();
     }
@@ -80,7 +80,7 @@ public class OAuthAttributes {
                 .picture((String) profile.get("profile_image_url"))
                 .attributes(attributes)
                 .nameAttributeKey(userNameAttributeName)
-                .socialLoginId(String.valueOf(attributes.get("id")))
+                .socialLoginId(String.valueOf(attributes.get(userNameAttributeName)))
                 .socialLoginProviderCode("kakao")
                 .build();
     }

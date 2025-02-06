@@ -1,16 +1,20 @@
 package com.snowroad.config.auth;
 
 import com.snowroad.common.util.JwtTokenProvider;
+import com.snowroad.config.auth.dto.SessionUser;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.WebUtils;
 
 import java.io.IOException;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
@@ -20,10 +24,10 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
         String userId = authentication.getName();  // OAuth2 로그인한 사용자 ID
-        System.out.println("onAuthenticationSuccess : " + userId);
+        SessionUser sessionUser = (SessionUser) request.getSession().getAttribute("user");
 
-        String accessToken = jwtTokenProvider.generateAccessToken(userId);
-        String refreshToken = jwtTokenProvider.generateRefreshToken(userId);
+        String accessToken = jwtTokenProvider.generateAccessToken(String.valueOf(sessionUser.getId()));
+        String refreshToken = jwtTokenProvider.generateRefreshToken(String.valueOf(sessionUser.getId()));
 
         // 쿠키에 JWT 저장
         addCookie(response, "access_token", accessToken, 30 * 60); // 30분
