@@ -11,6 +11,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 //import org.springframework.security.web.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.util.WebUtils;
 
@@ -49,11 +50,20 @@ public class JwtCookieAuthenticationFilter extends OncePerRequestFilter {
         // 최종적으로 Access Token이 유효하면 인증 처리
         if (accessToken != null && jwtTokenProvider.validateToken(accessToken)) {
             String userId = jwtTokenProvider.getUserIdFromToken(accessToken);
-            UserDetails userDetails = userDetailsService.loadUserByUsername(userId);
-            UsernamePasswordAuthenticationToken authentication =
-                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            // 유저 정보 조회
+            UserDetails userDetails = null;
+            try {
+                userDetails = userDetailsService.loadUserByUsername(userId); // 사용자 정보 로드
+            } catch (UsernameNotFoundException e) {
+                logger.info("user not found in userID : " + userId);
+            }
+            if (userDetails != null) {
+                UsernamePasswordAuthenticationToken authentication =
+                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
         }
 
         filterChain.doFilter(request, response);

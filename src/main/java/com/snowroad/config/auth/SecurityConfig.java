@@ -44,8 +44,8 @@ public class SecurityConfig {
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService))
                         .successHandler(successHandler)
-                );
-                //.addFilterBefore(new JwtCookieAuthenticationFilter(jwtTokenProvider, customUserDetailsService), UsernamePasswordAuthenticationFilter.class);
+                )
+                .addFilterBefore(new JwtCookieAuthenticationFilter(jwtTokenProvider, customUserDetailsService), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 //    @Bean
