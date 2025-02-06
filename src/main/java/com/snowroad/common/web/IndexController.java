@@ -1,13 +1,12 @@
 package com.snowroad.common.web;
 
+import com.snowroad.common.util.CurrentUser;
 import com.snowroad.config.auth.LoginUser;
 import com.snowroad.config.auth.dto.SessionUser;
-import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 @RequiredArgsConstructor
 @Controller
 public class IndexController {
-        private final HttpSession httpSession;
         @GetMapping("/")
         public String index(Model model, @LoginUser SessionUser user) {
                 if(user != null) {
@@ -26,17 +24,13 @@ public class IndexController {
         }
 
         @GetMapping("/user")
-        public ResponseEntity<?> getUserInfo() {
-                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-                if (authentication != null && authentication.isAuthenticated()) {
-                        // 인증된 사용자가 있을 경우
-                        String username = authentication.getName();  // 유저 이름 가져오기
-                        // 추가적인 유저 정보 처리 (예: userDetails.getUsername() 등을 활용)
-
+        public ResponseEntity<?> getUserInfo(@CurrentUser UserDetails userDetails) {
+                if (userDetails != null) {
+                        // 유저 정보가 있을 경우
+                        String username = userDetails.getUsername();
                         return ResponseEntity.ok("Authenticated user: " + username);
                 } else {
-                        // 인증되지 않은 사용자 처리
+                        // 유저 정보가 없을 경우
                         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User is not authenticated");
                 }
         }
