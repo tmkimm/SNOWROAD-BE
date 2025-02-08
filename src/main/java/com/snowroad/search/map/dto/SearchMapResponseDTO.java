@@ -77,11 +77,4 @@ public class SearchMapResponseDTO {
     @Column(name = "CTGY_ID")
     private String ctgyId;
 
-/*    @Schema(description = "카테고리명")
-    @Column(name = "CTGY_NM")
-    private String ctgyNm;*/
-
-/*    @Schema(description = "이벤트구분명")
-    @Column(name = "PPST_ENBN_TYPE_NM")
-    private String ppstEnbnTypeNm;*/
 }
