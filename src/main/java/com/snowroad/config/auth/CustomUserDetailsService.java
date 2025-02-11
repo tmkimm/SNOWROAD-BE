@@ -23,10 +23,13 @@ public class CustomUserDetailsService implements UserDetailsService {
         // 이 예에서는 username이 userId로 사용된다고 가정
         Long userId = safelyConvertToLong(username);
 
+        if (userId == null) {
+            throw new UsernameNotFoundException("Invalid userId: " + username);
+        }
+
         // DB에서 userId로 사용자 정보 조회
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
         // UserDetails 객체를 반환 (비밀번호는 필요 없으므로 빈 값 또는 {noop}으로 처리)
         return org.springframework.security.core.userdetails.User.withUsername(String.valueOf(user.getId()))
                 .password("{noop}") // 비밀번호는 필요 없으므로 {noop} 사용

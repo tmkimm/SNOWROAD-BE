@@ -4,20 +4,26 @@ import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import javax.crypto.SecretKey;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
-import java.util.Map;
-import javax.crypto.SecretKey;
 
 @Component
 public class JwtTokenProvider {
-    private static final String SECRET_KEY = "SSBjZGVmZ2hpc2Fzc2RhZGZyZmVnYnlvZ3NldHlja1RVd2FzZA=="; // ✅ 고정된 키 (32바이트 이상 추천)
+
     private final SecretKey secretKey;
-    private static final long ACCESS_TOKEN_VALIDITY = 30 * 60 * 1000; // 30분
-    private static final long REFRESH_TOKEN_VALIDITY = 7 * 24 * 60 * 60 * 1000; // 7일
-    public JwtTokenProvider() {
-        this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(SECRET_KEY)); // ✅ 하드코딩된 키 사용
+    private final long ACCESS_TOKEN_VALIDITY;
+    private final long REFRESH_TOKEN_VALIDITY;
+
+    public JwtTokenProvider(
+            @Value("${secret.key}") String secretKey,
+            @Value("${access.token.validity}") long accessTokenValidity,
+            @Value("${refresh.token.validity}") long refreshTokenValidity
+    ) {
+        this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
+        this.ACCESS_TOKEN_VALIDITY = accessTokenValidity;
+        this.REFRESH_TOKEN_VALIDITY = refreshTokenValidity;
     }
     /**
      * Access Token 생성
