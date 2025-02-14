@@ -84,15 +84,4 @@ public class OAuthAttributes {
                 .socialLoginProviderCode("kakao")
                 .build();
     }
-    // User Entity 생성
-    public User toEntity() {
-        return User.builder()
-                .name(name)
-                .picture(picture)
-                .role(Role.USER)
-                .email(email)
-                .socialLoginId(socialLoginId)
-                .socialLoginProviderCode(socialLoginProviderCode)
-                .build();
-    }
 }

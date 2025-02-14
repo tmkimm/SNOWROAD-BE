@@ -4,6 +4,7 @@ import com.snowroad.config.auth.dto.OAuthAttributes;
 import com.snowroad.config.auth.dto.SessionUser;
 import com.snowroad.user.domain.User;
 import com.snowroad.user.domain.UserRepository;
+import com.snowroad.user.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -21,6 +22,7 @@ import java.util.Collections;
 @RequiredArgsConstructor
 @Service
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
+    private final UserService userService;
     private final UserRepository userRepository;
     private final HttpSession httpSession;
 
@@ -51,9 +53,8 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     }
 
     private User saveOrUpdate(OAuthAttributes attributes) {
-        User user = userRepository.findBySocialLoginId(attributes.getSocialLoginId())
-                .map(entity -> entity.update(attributes.getName(), attributes.getPicture(), attributes.getEmail()))
-                .orElse(attributes.toEntity());
+        User user = userService.findUserBySocialId(attributes.getSocialLoginId())
+                .orElseGet(()-> userService.createUserByOAuthAttributes(attributes));
 
         return userRepository.save(user);
     }

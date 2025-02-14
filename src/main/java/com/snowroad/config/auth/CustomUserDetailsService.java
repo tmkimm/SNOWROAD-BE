@@ -31,7 +31,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         // UserDetails 객체를 반환 (비밀번호는 필요 없으므로 빈 값 또는 {noop}으로 처리)
-        return org.springframework.security.core.userdetails.User.withUsername(String.valueOf(user.getId()))
+        return org.springframework.security.core.userdetails.User.withUsername(String.valueOf(user.getUserAccountNo()))
                 .password("{noop}") // 비밀번호는 필요 없으므로 {noop} 사용
                 .roles(user.getRole().name()) // DB에서 가져온 역할을 설정
                 .build();
