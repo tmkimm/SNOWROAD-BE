@@ -112,9 +112,9 @@ public class EventService {
                     //    evntList.setCtgyNm((String) row[7]);
                     evntList.setEventTypeCd((String) row[7]);
                     //    evntList.setEventTypeNm((String) row[9]);
-                    evntList.setTumbFileId((Long) row[8]);
-                    evntList.setViewNmvl((Long) row[9]);
-                    evntList.setLikeYn((Character) row[10]);
+                    //evntList.setTumbFileId((Long) row[8]);
+                    //evntList.setViewNmvl((Long) row[9]);
+                    evntList.setLikeYn((Character) row[8]);
                     return evntList;
                 })
                 .collect(Collectors.toList());
@@ -147,9 +147,9 @@ public class EventService {
                     //    evntRankList.setCtgyNm((String) row[7]);
                     evntMarkList.setEventTypeCd((String) row[7]);
                     //    evntRankList.setEventTypeNm((String) row[9]);
-                    evntMarkList.setTumbFileId((Long) row[8]);
-                    evntMarkList.setViewNmvl((Long) row[9]);
-                    evntMarkList.setLikeYn((Character) row[10]);
+                    //  evntMarkList.setTumbFileId((Long) row[8]);
+                    // evntMarkList.setViewNmvl((Long) row[9]);
+                    evntMarkList.setLikeYn((Character) row[8]);
                     return evntMarkList;
                 })
                 .collect(Collectors.toList());
@@ -167,29 +167,46 @@ public class EventService {
                     HomeEventsResponseDto evntRankList = new HomeEventsResponseDto();
                     evntRankList.setEventId((Long) row[0]);
                     evntRankList.setEventNm((String) row[1]);
-                    evntRankList.setEventCntn((String) row[2]);
-                    evntRankList.setEventAddr((String) row[3]);
-                    evntRankList.setOperStatDt((String) row[4]);
-                    evntRankList.setOperEndDt((String) row[5]);
-                    evntRankList.setCtgyId((String) row[6]);
-                //    evntRankList.setCtgyNm((String) row[7]);
-                    evntRankList.setEventTypeCd((String) row[7]);
-                //    evntRankList.setEventTypeNm((String) row[9]);
-                    evntRankList.setTumbFileId((Long) row[8]);
-                    evntRankList.setViewNmvl((Long) row[9]);
-                    evntRankList.setLikeYn((String) row[10]);
+                    evntRankList.setOperStatDt((String) row[2]);
+                    evntRankList.setOperEndDt((String) row[3]);
+                    evntRankList.setCtgyId((String) row[4]);
+                    evntRankList.setEventTypeCd((String) row[5]);
+                    evntRankList.setLikeYn((Character) row[6]);
+                    evntRankList.setImageUrl((String) row[7]);
+                    evntRankList.setSmallImageUrl((String) row[8]);
                     return evntRankList;
                 })
                 .collect(Collectors.toList());
 
         return eventRankListData;
+    }
+
+    @Transactional(readOnly = true)
+    public List<HomeEventsResponseDto> getMainRcmnList(String eventTypeCd) {
+        // Native Query 호출
+        List<Object[]> result =  eventsRepository.getMainRcmnList(eventTypeCd);
+        // Object[]에서 데이터를 추출하여 필요한 형태로 가공
+        List<HomeEventsResponseDto> eventRcmnListData = result.stream().map(row -> {
+                    HomeEventsResponseDto evntRcmnList = new HomeEventsResponseDto();
+                    evntRcmnList.setEventId((Long) row[0]);
+                    evntRcmnList.setEventNm((String) row[1]);
+                    evntRcmnList.setOperStatDt((String) row[2]);
+                    evntRcmnList.setOperEndDt((String) row[3]);
+                    evntRcmnList.setCtgyId((String) row[4]);
+                    evntRcmnList.setEventTypeCd((String) row[5]);
+                    evntRcmnList.setLikeYn((Character) row[6]);
+                    evntRcmnList.setImageUrl((String) row[7]);
+                    evntRcmnList.setSmallImageUrl((String) row[8]);
+                    return evntRcmnList;
+                })
+                .collect(Collectors.toList());
+
+        return eventRcmnListData;
 
     }
+
     @Transactional(readOnly = true)
     public List<HomeEventsResponseDto> getMainOperStatList(String eventTypeCd) {
-/*        return eventsRepository.getMainOperStatList().stream()
-                .map(EventsListResponseDto::new)
-                .collect(Collectors.toList());*/
         // Native Query 호출
         List<Object[]> result =  eventsRepository.getMainOperStatList(eventTypeCd);
         // Object[]에서 데이터를 추출하여 필요한 형태로 가공
@@ -197,17 +214,13 @@ public class EventService {
                     HomeEventsResponseDto evntOperDateList = new HomeEventsResponseDto();
                     evntOperDateList.setEventId((Long) row[0]);
                     evntOperDateList.setEventNm((String) row[1]);
-                    evntOperDateList.setEventCntn((String) row[2]);
-                    evntOperDateList.setEventAddr((String) row[3]);
-                    evntOperDateList.setOperStatDt((String) row[4]);
-                    evntOperDateList.setOperEndDt((String) row[5]);
-                    evntOperDateList.setCtgyId((String) row[6]);
-                    //    evntRankList.setCtgyNm((String) row[7]);
-                    evntOperDateList.setEventTypeCd((String) row[7]);
-                    //    evntRankList.setEventTypeNm((String) row[9]);
-                    evntOperDateList.setTumbFileId((Long) row[8]);
-                    evntOperDateList.setViewNmvl((Long) row[9]);
-                    evntOperDateList.setLikeYn((String) row[10]);
+                    evntOperDateList.setOperStatDt((String) row[2]);
+                    evntOperDateList.setOperEndDt((String) row[3]);
+                    evntOperDateList.setCtgyId((String) row[4]);
+                    evntOperDateList.setEventTypeCd((String) row[5]);
+                    evntOperDateList.setLikeYn((Character) row[6]);
+                    evntOperDateList.setImageUrl((String) row[7]);
+                    evntOperDateList.setSmallImageUrl((String) row[8]);
                     return evntOperDateList;
                 })
                 .collect(Collectors.toList());
@@ -226,17 +239,13 @@ public class EventService {
                     HomeEventsResponseDto evntOperDateList = new HomeEventsResponseDto();
                     evntOperDateList.setEventId((Long) row[0]);
                     evntOperDateList.setEventNm((String) row[1]);
-                    evntOperDateList.setEventCntn((String) row[2]);
-                    evntOperDateList.setEventAddr((String) row[3]);
-                    evntOperDateList.setOperStatDt((String) row[4]);
-                    evntOperDateList.setOperEndDt((String) row[5]);
-                    evntOperDateList.setCtgyId((String) row[6]);
-                    //    evntRankList.setCtgyNm((String) row[7]);
-                    evntOperDateList.setEventTypeCd((String) row[7]);
-                    //    evntRankList.setEventTypeNm((String) row[9]);
-                    evntOperDateList.setTumbFileId((Long) row[8]);
-                    evntOperDateList.setViewNmvl((Long) row[9]);
-                    evntOperDateList.setLikeYn((String) row[10]);
+                    evntOperDateList.setOperStatDt((String) row[2]);
+                    evntOperDateList.setOperEndDt((String) row[3]);
+                    evntOperDateList.setCtgyId((String) row[4]);
+                    evntOperDateList.setEventTypeCd((String) row[5]);
+                    evntOperDateList.setLikeYn((Character) row[6]);
+                    evntOperDateList.setImageUrl((String) row[7]);
+                    evntOperDateList.setSmallImageUrl((String) row[8]);
                     return evntOperDateList;
                 })
                 .collect(Collectors.toList());

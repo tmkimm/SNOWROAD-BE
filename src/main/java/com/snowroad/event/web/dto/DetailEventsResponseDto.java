@@ -28,19 +28,19 @@ public class DetailEventsResponseDto {
         private String ctgyNm;*/
     @Schema(description = "팝업, 전시 구분 코드")
     private String eventTypeCd;
+    @Schema(description = "좋아요 여부")
+    private Character likeYn;
 /*    @Schema(description = "팝업, 전시 구분 명")
-    private String eventTypeNm;*/
+    private String eventTypeNm;
     @Schema(description = "썸네일 파일ID")
     private Long tumbFileId;
     @Schema(description = "조회수")
-    private Long viewNmvl;
-    @Schema(description = "좋아요 여부")
-    private Character likeYn;
+    private Long viewNmvl;*/
 
 
-/*    @Schema(description = "메인 이미지 URL")
+    @Schema(description = "메인 이미지 URL")
     private String imageUrl;
 
     @Schema(description = "모바일 이미지 URL")
-    private String smallImageUrl;*/
+    private String smallImageUrl;
 }
