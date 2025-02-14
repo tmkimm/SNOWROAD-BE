@@ -1,8 +1,8 @@
-package com.snowroad.search.MorphemeAnalyzer.komoran.service;
+package com.snowroad.MorphemeAnalyzer.komoran.service;
 
-import com.snowroad.search.MorphemeAnalyzer.komoran.domain.KomoranDTO;
-import com.snowroad.search.MorphemeAnalyzer.komoran.enums.KomoranPOS;
-import com.snowroad.search.MorphemeAnalyzer.komoran.interfaces.KomoranAnalyzerInterface;
+import com.snowroad.MorphemeAnalyzer.komoran.domain.KomoranDTO;
+import com.snowroad.MorphemeAnalyzer.komoran.enums.KomoranPOS;
+import com.snowroad.MorphemeAnalyzer.komoran.interfaces.KomoranAnalyzerInterface;
 import kr.co.shineware.nlp.komoran.constant.DEFAULT_MODEL;
 import kr.co.shineware.nlp.komoran.core.Komoran;
 import kr.co.shineware.nlp.komoran.model.KomoranResult;
@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -48,6 +49,13 @@ public class KomoranAnalyzerService implements KomoranAnalyzerInterface {
                     , token.getPos()
                     , KomoranPOS.getPosNameByKey(token.getPos())
             );
+
+            //따옴표, 괄호표, 줄표를 제외 합니다.
+            if(Objects.equals(token.getPos(), "SS")) continue;
+
+            //기타기호(논리수학기호, 화폐기호)를 제외 합니다.
+            if(Objects.equals(token.getPos(), "SW")) continue;
+
             komoranDTOList.add(KomoranDTO.builder()
                     .token(token.getMorph())
                     .posCode(token.getPos())

@@ -23,8 +23,8 @@ import java.util.List;
  *
  */
 @Slf4j
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class SearchMapService implements SearchMapInterface {
 
     private final SearchMapRepository searchMapRepository;
