@@ -1,6 +1,6 @@
-package com.snowroad.search.MorphemeAnalyzer.komoran.interfaces;
+package com.snowroad.MorphemeAnalyzer.komoran.interfaces;
 
-import com.snowroad.search.MorphemeAnalyzer.komoran.domain.KomoranDTO;
+import com.snowroad.MorphemeAnalyzer.komoran.domain.KomoranDTO;
 
 import java.util.List;
 import java.util.Map;

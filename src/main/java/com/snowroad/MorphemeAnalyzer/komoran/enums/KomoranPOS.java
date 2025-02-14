@@ -1,4 +1,4 @@
-package com.snowroad.search.MorphemeAnalyzer.komoran.enums;
+package com.snowroad.MorphemeAnalyzer.komoran.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

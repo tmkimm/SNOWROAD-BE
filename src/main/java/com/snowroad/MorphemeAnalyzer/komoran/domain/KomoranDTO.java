@@ -1,4 +1,4 @@
-package com.snowroad.search.MorphemeAnalyzer.komoran.domain;
+package com.snowroad.MorphemeAnalyzer.komoran.domain;
 
 import lombok.Builder;
 import lombok.Data;
