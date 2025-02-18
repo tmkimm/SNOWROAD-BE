@@ -159,6 +159,29 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
+    public List<HomeEventsResponseDto> getMainBannerList(String eventTypeCd) {
+        // Native Query 호출
+        List<Object[]> result =  eventsRepository.getMainBannerList(eventTypeCd);
+        // Object[]에서 데이터를 추출하여 필요한 형태로 가공
+        List<HomeEventsResponseDto> eventBannerListData = result.stream().map(row -> {
+                    HomeEventsResponseDto evntBannerList = new HomeEventsResponseDto();
+                    evntBannerList.setEventId((Long) row[0]);
+                    evntBannerList.setEventNm((String) row[1]);
+                    evntBannerList.setOperStatDt((String) row[2]);
+                    evntBannerList.setOperEndDt((String) row[3]);
+                    evntBannerList.setCtgyId((String) row[4]);
+                    evntBannerList.setEventTypeCd((String) row[5]);
+                    evntBannerList.setLikeYn((Character) row[6]);
+                    evntBannerList.setImageUrl((String) row[7]);
+                    evntBannerList.setSmallImageUrl((String) row[8]);
+                    return evntBannerList;
+                })
+                .collect(Collectors.toList());
+
+        return eventBannerListData;
+    }
+
+    @Transactional(readOnly = true)
     public List<HomeEventsResponseDto> getMainRankList(String eventTypeCd) {
         // Native Query 호출
         List<Object[]> result =  eventsRepository.getMainRankList(eventTypeCd);
