@@ -21,6 +21,14 @@ public class EventController {
 
     private final EventService eventService;
 
+    @Operation(summary="메인 배너 조회", description = "(이벤트) 메인 배너 컨텐츠를 조회합니다. ARG : all, PPST, ENBN")
+    @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = HomeEventsResponseDto.class)))
+    @GetMapping("/api/event/banner/{eventTypeCd}")
+    public List<HomeEventsResponseDto> getMainBannerList(@RequestParam(defaultValue = "0") int page, @PathVariable String eventTypeCd) {
+        List<HomeEventsResponseDto> events = eventService.getMainBannerList(eventTypeCd);
+        return events;
+    }
+
     @Operation(summary="메인 인기 리스트 조회", description = "(이벤트) 메인 팝업, 전시 순위 리스트를 조회합니다. ARG : all, PPST, ENBN")
     @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = HomeEventsResponseDto.class)))
     @GetMapping("/api/event/rank/{eventTypeCd}")
