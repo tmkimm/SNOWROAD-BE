@@ -3,10 +3,10 @@ package com.snowroad.MorphemeAnalyzer.komoran.service;
 import com.snowroad.MorphemeAnalyzer.komoran.domain.KomoranDTO;
 import com.snowroad.MorphemeAnalyzer.komoran.enums.KomoranPOS;
 import com.snowroad.MorphemeAnalyzer.komoran.interfaces.KomoranAnalyzerInterface;
-import kr.co.shineware.nlp.komoran.constant.DEFAULT_MODEL;
 import kr.co.shineware.nlp.komoran.core.Komoran;
 import kr.co.shineware.nlp.komoran.model.KomoranResult;
 import kr.co.shineware.nlp.komoran.model.Token;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -27,16 +27,13 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class KomoranAnalyzerService implements KomoranAnalyzerInterface {
 
     private final Komoran komoran;
 
-    public KomoranAnalyzerService() {
-        this.komoran = new Komoran(DEFAULT_MODEL.FULL);
-    }
-
-    public Map<String, List<KomoranDTO>> komoranAnalyzerMap(String text) {
-        KomoranResult analyzeResultList = komoran.analyze(text);
+    public Map<String, List<KomoranDTO>> komoranAnalyzerMap(String keyword) {
+        KomoranResult analyzeResultList = komoran.analyze(keyword);
         log.info(analyzeResultList.getPlainText());
 
         List<KomoranDTO> komoranDTOList = new LinkedList<>();
@@ -63,14 +60,7 @@ public class KomoranAnalyzerService implements KomoranAnalyzerInterface {
                     .build()
             );
         }
-        Map<String, List<KomoranDTO>> groupedResults = komoranDTOList.stream()
-                .collect(Collectors.groupingBy(KomoranDTO::getPosCode));
-        for(List<KomoranDTO> resultList : groupedResults.values()){
-            for (KomoranDTO komoranDTO : resultList) {
-                log.info("Token :: ' {} '  Pos [ code : {} | name : {} ]" , komoranDTO.getToken(), komoranDTO.getPosCode(), komoranDTO.getPosName());
-            }
-        }
-        return groupedResults;
+        return komoranDTOList.stream().collect(Collectors.groupingBy(KomoranDTO::getPosCode));
     }
 
 }

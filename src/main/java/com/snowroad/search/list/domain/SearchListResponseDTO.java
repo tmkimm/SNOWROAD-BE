@@ -1,4 +1,4 @@
-package com.snowroad.search.list.dto;
+package com.snowroad.search.list.domain;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
@@ -12,11 +12,11 @@ import lombok.Setter;
 
 /**
  *
- * 검색 리스트
+ * 검색 인터페이스
  *
  * @author hyo298, 김재효
  * @version 0.0.1
- * @since 2025-02-09
+ * @since 2025-02-14
  *
  */
 @Entity

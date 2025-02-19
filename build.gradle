@@ -49,7 +49,7 @@ dependencies {
 	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 
 	//KOMORAN
-	implementation 'com.github.shin285:KOMORAN:3.3.9'
+	implementation 'com.github.shin285:KOMORAN:3.4.0-beta'
 
 }
 
