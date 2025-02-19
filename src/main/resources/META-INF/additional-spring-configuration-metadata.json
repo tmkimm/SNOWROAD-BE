@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "komoran.dictionary-path",
+      "type": "java.lang.String",
+      "description": "코모란 형태소 분석기 사전."
+  }
+] }

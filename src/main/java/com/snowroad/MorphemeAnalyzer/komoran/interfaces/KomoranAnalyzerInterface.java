@@ -15,5 +15,5 @@ import java.util.Map;
  *
  */
 public interface KomoranAnalyzerInterface {
-    Map<String, List<KomoranDTO>> komoranAnalyzerMap(String text);
+    Map<String, List<KomoranDTO>> komoranAnalyzerMap(String keyword);
 }
