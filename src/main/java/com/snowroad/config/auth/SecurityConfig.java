@@ -34,7 +34,10 @@ public class SecurityConfig {
 //                        .requestMatchers("/api/admin/**").hasRole("ADMIN") // ADMIN 권한만 허용
                         .anyRequest().permitAll())  // 나머지 url은 모두 인증된 사용자만 허용
                 .logout(logout -> logout
-                        .logoutSuccessUrl("/"))
+                        .logoutUrl("/logout")
+                        .logoutSuccessUrl("/")
+                        .deleteCookies("access_token", "refresh_token")
+                        .clearAuthentication(true))
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService))

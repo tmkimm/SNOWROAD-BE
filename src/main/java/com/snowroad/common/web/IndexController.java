@@ -16,9 +16,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 @Controller
 public class IndexController {
         @GetMapping("/")
-        public String index(Model model, @LoginUser SessionUser user) {
-                if(user != null) {
-                        model.addAttribute("userName", user.getNickName());
+        public String index(Model model, @CurrentUser UserDetails userDetails) {
+                if(userDetails != null) {
+                        model.addAttribute("userId", userDetails.getUsername());
                 }
                 return "index";
         }

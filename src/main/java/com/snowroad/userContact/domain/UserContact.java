@@ -1,5 +1,6 @@
 package com.snowroad.userContact.domain;
 
+import com.snowroad.common.domain.BaseTimeEntity;
 import com.snowroad.user.domain.User;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Entity
 @Table(name = "TB_USER_CNTC_M")
-public class UserContact {
+public class UserContact extends BaseTimeEntity {
     @Id
     @Column(name = "USER_ACNT_NO")
     private Long userAccountNo;  // User 엔티티의 PK와 동일한 값 사용
@@ -31,10 +32,10 @@ public class UserContact {
     @Column(name = "USER_TPNO", length = 20)
     private String userPhoneNumber;  // 사용자의 전화번호
 
-    @Column(name = "DELT_YN", nullable = false, columnDefinition = "varchar(1) default 'N'")
+    @Column(name = "DELT_YN", nullable = false)
     private String deleteYn;  // 삭제 여부 (기본값 'N')
 
-    @Column(name = "DATA_DELT_DTTM", nullable = false)
+    @Column(name = "DATA_DELT_DTTM")
     private LocalDateTime deleteDate;  // 데이터 삭제 일시
 
     // UserContact 엔티티
@@ -46,5 +47,6 @@ public class UserContact {
         this.userAccountNo = userAccountNo;
         this.userEmail = email;
         this.userName = userName;
+        this.deleteYn = "N";
     }
 }

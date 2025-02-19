@@ -1,5 +1,6 @@
 package com.snowroad.socialLogin.domain;
 
+import com.snowroad.common.domain.BaseTimeEntity;
 import com.snowroad.user.domain.User;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 @Entity
 @NoArgsConstructor
 @Table(name = "TB_SCLG_M")
-public class SocialLogin {
+public class SocialLogin extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "SCLG_NO", nullable = false)
@@ -28,10 +29,10 @@ public class SocialLogin {
     @Column(name = "SCLG_ID", length = 255)
     private String socialId;        // 미사용
 
-    @Column(name = "DELT_YN", nullable = false, columnDefinition = "varchar(1) default 'N'")
+    @Column(name = "DELT_YN", nullable = false)
     private String deleteYn;  // 삭제 여부 (기본값 'N')
 
-    @Column(name = "DATA_DELT_DTTM", nullable = false)
+    @Column(name = "DATA_DELT_DTTM")
     private LocalDateTime deleteDate;  // 데이터 삭제 일시
     // UserContact 엔티티
     public void setUser(User user) {
@@ -42,6 +43,7 @@ public class SocialLogin {
         this.socialId = socialId;
         this.user = user;
         this.socialLoginProviderCode = socialLoginProviderCode;
+        this.deleteYn = "N";
     }
 
 }

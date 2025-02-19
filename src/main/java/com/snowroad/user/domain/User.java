@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
 
@@ -20,17 +21,21 @@ public class User extends BaseTimeEntity {
     @Column(name = "USER_ACNT_NO", nullable = false)
     private Long userAccountNo;
 
-    @Column(name = "DELT_YN", nullable = false, columnDefinition = "varchar(1) default 'N'")
+    @Column(name = "DELT_YN", nullable = false)
     private String deleteYn;  // 삭제 여부 (기본값 'N')
 
-    @Column(name = "DATA_DELT_DTTM", nullable = false)
+    @Column(name = "DATA_DELT_DTTM")
     private LocalDateTime deleteDate;  // 데이터 삭제 일시
+
+    @CreatedDate    // 생성될 시간이 자동 저장된다.
+    @Column(name = "USER_JOIN_DTTM")
+    private LocalDateTime joinDate;  // 사용자 가입 일시
 
     @Enumerated(EnumType.STRING)    // 문자열로 저장되도록 설정(숫자면 의미를 알 수 없음)
     @Column(name="USER_ROLE", nullable = false)
     private Role role;
 
-    @Column(name = "USER_NCKN", nullable = false, length = 200)
+    @Column(name = "USER_NCKN", length = 200)
     private String nickname;  // 사용자가 설정한 닉네임
 
     // UserCntc (1:1)
@@ -44,6 +49,7 @@ public class User extends BaseTimeEntity {
     public User(String nickname, Role role) {
         this.nickname = nickname;
         this.role = role;
+        this.deleteYn = "N";
     }
 
     public User update(String nickname) {

@@ -21,7 +21,6 @@ public class UserService {
     public User createUserByOAuthAttributes(OAuthAttributes attributes) {
         // User 객체 생성
         User user = User.builder()
-                .nickname("nickName")
                 .role(Role.USER)
                 .build();
 
