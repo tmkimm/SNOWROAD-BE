@@ -21,6 +21,26 @@ import java.util.stream.Collectors;
 public class EventService {
     private final EventsRepository eventsRepository;
 
+    private static DetailEventsResponseDto apply(Object[] row) {
+        DetailEventsResponseDto evntList = new DetailEventsResponseDto();
+        evntList.setEventId((Long) row[0]);
+        evntList.setEventNm((String) row[1]);
+        evntList.setEventCntn((String) row[2]);
+        evntList.setEventAddr((String) row[3]);
+        evntList.setOperStatDt((String) row[4]);
+        evntList.setOperEndDt((String) row[5]);
+        evntList.setCtgyId((String) row[6]);
+        //    evntList.setCtgyNm((String) row[7]);
+        evntList.setEventTypeCd((String) row[7]);
+        //    evntList.setEventTypeNm((String) row[9]);
+        //evntList.setTumbFileId((Long) row[8]);
+        //evntList.setViewNmvl((Long) row[9]);
+        evntList.setLikeYn((Character) row[8]);
+        evntList.setImageUrl((String) row[9]);
+        evntList.setSmallImageUrl((String) row[10]);
+        return evntList;
+    }
+
     @Transactional
     public Long save(EventsSaveRequestDto requestDto) {
         return eventsRepository.save(requestDto.toEntity()).getEventId();
@@ -100,23 +120,7 @@ public class EventService {
         // Native Query 호출
         List<Object[]> result =  eventsRepository.getEvntList(sortType);
         // Object[]에서 데이터를 추출하여 필요한 형태로 가공
-        List<DetailEventsResponseDto> eventDtlListData = result.stream().map(row -> {
-                    DetailEventsResponseDto evntList = new DetailEventsResponseDto();
-                    evntList.setEventId((Long) row[0]);
-                    evntList.setEventNm((String) row[1]);
-                    evntList.setEventCntn((String) row[2]);
-                    evntList.setEventAddr((String) row[3]);
-                    evntList.setOperStatDt((String) row[4]);
-                    evntList.setOperEndDt((String) row[5]);
-                    evntList.setCtgyId((String) row[6]);
-                    //    evntList.setCtgyNm((String) row[7]);
-                    evntList.setEventTypeCd((String) row[7]);
-                    //    evntList.setEventTypeNm((String) row[9]);
-                    //evntList.setTumbFileId((Long) row[8]);
-                    //evntList.setViewNmvl((Long) row[9]);
-                    evntList.setLikeYn((Character) row[8]);
-                    return evntList;
-                })
+        List<DetailEventsResponseDto> eventDtlListData = result.stream().map(EventService::apply)
                 .collect(Collectors.toList());
 
         return eventDtlListData;
@@ -244,6 +248,7 @@ public class EventService {
                     evntOperDateList.setLikeYn((Character) row[6]);
                     evntOperDateList.setImageUrl((String) row[7]);
                     evntOperDateList.setSmallImageUrl((String) row[8]);
+                    evntOperDateList.setDDay((String) row[9]);
                     return evntOperDateList;
                 })
                 .collect(Collectors.toList());
@@ -269,6 +274,7 @@ public class EventService {
                     evntOperDateList.setLikeYn((Character) row[6]);
                     evntOperDateList.setImageUrl((String) row[7]);
                     evntOperDateList.setSmallImageUrl((String) row[8]);
+                    evntOperDateList.setDDay((String) row[9]);
                     return evntOperDateList;
                 })
                 .collect(Collectors.toList());

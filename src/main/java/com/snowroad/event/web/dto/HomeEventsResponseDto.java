@@ -34,4 +34,7 @@ public class HomeEventsResponseDto {
 
     @Schema(description = "모바일 이미지 URL")
     private String smallImageUrl;
+
+    @Schema(description = "D-DAY")
+    private String dDay;
 }
