@@ -4,6 +4,7 @@ import com.snowroad.config.auth.dto.OAuthAttributes;
 import com.snowroad.config.auth.dto.SessionUser;
 import com.snowroad.user.domain.User;
 import com.snowroad.user.domain.UserRepository;
+import com.snowroad.user.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -21,6 +22,7 @@ import java.util.Collections;
 @RequiredArgsConstructor
 @Service
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
+    private final UserService userService;
     private final UserRepository userRepository;
     private final HttpSession httpSession;
 
@@ -39,12 +41,10 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
         // OAuthAttributes : OAuth2UserService를 통해 가져올 OAuth2User의 attributes를 담은 클래스
         OAuthAttributes attributes = OAuthAttributes.of(registrationId, userNameAttributeName, oAuth2User.getAttributes());
-
         User user = saveOrUpdate(attributes);
 
         // SessionUser : 세션에 사용자 정보를 저장하기 위한 DTO
         httpSession.setAttribute("user", new SessionUser(user));
-
         return new DefaultOAuth2User(
                 Collections.singleton(new SimpleGrantedAuthority(user.getRoleKey())),
                 attributes.getAttributes(),
@@ -53,9 +53,8 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     }
 
     private User saveOrUpdate(OAuthAttributes attributes) {
-        User user = userRepository.findByEmail(attributes.getEmail())
-                .map(entity -> entity.update(attributes.getName(), attributes.getPicture()))
-                .orElse(attributes.toEntity());
+        User user = userService.findUserBySocialId(attributes.getSocialLoginId())
+                .orElseGet(()-> userService.createUserByOAuthAttributes(attributes));
 
         return userRepository.save(user);
     }
