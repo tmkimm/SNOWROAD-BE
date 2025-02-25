@@ -12,13 +12,11 @@ import java.io.Serializable;
 // 직렬화된 객체는 파일, DB, 네트워크 등에 전송되어 저장되었다가 다시 역질렬화 할 수 없다.
 @Getter
 public class SessionUser implements Serializable {
-    private String name;
-    private String email;
-    private String picture;
+    private String nickName;
+    private Long id;
 
     public SessionUser(User user) {
-        this.name = user.getName();
-        this.email = user.getEmail();
-        this.picture = user.getPicture();
+        this.nickName = user.getNickname();
+        this.id = user.getUserAccountNo();
     }
 }

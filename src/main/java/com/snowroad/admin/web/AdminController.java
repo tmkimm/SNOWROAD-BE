@@ -1,8 +1,8 @@
 package com.snowroad.admin.web;
 
-import com.snowroad.admin.web.dto.AdminEventsListResponseDto;
 import com.snowroad.admin.web.dto.AdminLoginRequestDTO;
 import com.snowroad.admin.web.dto.AdminLoginResponseDTO;
+import com.snowroad.common.util.CurrentUser;
 import com.snowroad.event.domain.Events;
 import com.snowroad.event.web.dto.EventsResponseDto;
 import com.snowroad.event.web.dto.EventsSaveRequestDto;
@@ -10,19 +10,20 @@ import com.snowroad.event.web.dto.PagedResponseDto;
 import com.snowroad.file.service.FileService;
 import com.snowroad.file.web.dto.EventsFileDetailResponseDTO;
 import com.snowroad.file.web.dto.EventsFileUpdateRequestDTO;
-import com.snowroad.file.web.dto.EventsFileUploadRequestDTO;
 import com.snowroad.admin.service.AdminService;
 import com.snowroad.event.service.EventService;
-import com.snowroad.common.util.CookieUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -36,14 +37,32 @@ public class AdminController {
     private final AdminService adminService;
     private final EventService eventService;
     private final FileService fileService;
+
+    @Value("${access.token.cookie.expiry}")
+    private int ACCESS_TOKEN_COOKIE_EXPIRY;
+
+    @Value("${refresh.token.cookie.expiry}")
+    private int REFRESH_TOKEN_COOKIE_EXPIRY;
+
+
+    private void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
+        Cookie cookie = new Cookie(name, value);
+        cookie.setHttpOnly(true);  // JavaScript에서 접근 불가능
+        cookie.setPath("/");       // 모든 경로에서 사용 가능
+        cookie.setMaxAge(maxAge);  // 쿠키 유효시간 설정
+        response.addCookie(cookie);
+    }
+
     @Operation(summary="어드민 로그인", description = "(관리자) 어드민 페이지에 로그인합니다.\n로그인 성공 시 쿠키에 Refresh token, Access token이 저장됩니다.")
     //@ApiResponse(responseCode = "200", description = "수신함 조회 성공", content = @Content(schema = @Schema(implementation = AlarmReceiveDto.class)))
     @PostMapping("/api/admin/login")
     public ResponseEntity<String> login(@RequestBody AdminLoginRequestDTO requestDto, HttpServletResponse response) {
         AdminLoginResponseDTO loginRes = adminService.login(requestDto.getId(), requestDto.getPassword());
         // CookieUtils를 사용하여 쿠키에 토큰 추가
-        CookieUtils.addAccessTokenToCookies(response, loginRes.getAccessToken());
-        CookieUtils.addRefreshTokenToCookies(response, loginRes.getRefreshToken());
+
+        // 쿠키에 JWT 저장
+        addCookie(response, "access_token", loginRes.getAccessToken(), ACCESS_TOKEN_COOKIE_EXPIRY);
+        addCookie(response, "refresh_token", loginRes.getRefreshToken(), REFRESH_TOKEN_COOKIE_EXPIRY);
 
         return new ResponseEntity<>("Login success", HttpStatus.OK);
     }
@@ -184,5 +203,17 @@ public class AdminController {
     public Long deleteFile(@PathVariable Long fileId) {
         fileService.deleteFileDetail(fileId);
         return fileId;
+    }
+
+    @GetMapping("/api/admin/user")
+    public ResponseEntity<?> getUserInfo(@CurrentUser UserDetails userDetails) {
+        if (userDetails != null) {
+            // 유저 정보가 있을 경우
+            String username = userDetails.getUsername();
+            return ResponseEntity.ok("Authenticated user: " + username);
+        } else {
+            // 유저 정보가 없을 경우
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User is not authenticated");
+        }
     }
 }
