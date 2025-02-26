@@ -1,6 +1,6 @@
 package com.snowroad.event.web.dto;
 
-import com.snowroad.event.domain.Events;
+import com.snowroad.entity.Events;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -68,7 +68,7 @@ public class EventsResponseDto {
         this.operEndDt = entity.getOperEndDt();
         this.operDttmCntn = entity.getOperDttmCntn();
         this.ctgyId = entity.getCtgyId();
-        this.ppstEnbnTypeCd = entity.getPpstEnbnTypeCd();
+        this.ppstEnbnTypeCd = entity.getEventTypeCd();
         this.addrLttd = entity.getAddrLttd();
         this.addrLotd = entity.getAddrLotd();
     }

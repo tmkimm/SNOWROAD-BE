@@ -1,7 +1,7 @@
 package com.snowroad.socialLogin.domain;
 
+import com.snowroad.entity.SocialLogin;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 

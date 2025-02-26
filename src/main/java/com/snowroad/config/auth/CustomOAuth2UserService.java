@@ -2,7 +2,7 @@ package com.snowroad.config.auth;
 
 import com.snowroad.config.auth.dto.OAuthAttributes;
 import com.snowroad.config.auth.dto.SessionUser;
-import com.snowroad.user.domain.User;
+import com.snowroad.entity.User;
 import com.snowroad.user.domain.UserRepository;
 import com.snowroad.user.service.UserService;
 import jakarta.servlet.http.HttpSession;

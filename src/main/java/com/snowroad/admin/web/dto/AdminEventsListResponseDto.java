@@ -1,6 +1,6 @@
 package com.snowroad.admin.web.dto;
 
-import com.snowroad.event.domain.Events;
+import com.snowroad.entity.Events;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -57,7 +57,7 @@ public class AdminEventsListResponseDto {
         this.operEndDt = entity.getOperEndDt();
         this.operDttmCntn = entity.getOperDttmCntn();
         this.ctgyId = entity.getCtgyId();
-        this.ppstEnbnTypeCd = entity.getPpstEnbnTypeCd();
+        this.ppstEnbnTypeCd = entity.getEventTypeCd();
         this.addrLttd = entity.getAddrLttd();
         this.addrLotd = entity.getAddrLotd();
         this.deleteYn = entity.getDeleteYn();

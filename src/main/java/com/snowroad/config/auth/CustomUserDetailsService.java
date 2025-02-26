@@ -1,6 +1,6 @@
 package com.snowroad.config.auth;
 
-import com.snowroad.user.domain.User;
+import com.snowroad.entity.User;
 import com.snowroad.user.domain.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

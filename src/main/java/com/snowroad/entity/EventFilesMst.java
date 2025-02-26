@@ -1,4 +1,4 @@
-package com.snowroad.file.domain.eventFilesMst;
+package com.snowroad.entity;
 
 import com.snowroad.common.domain.BaseTimeEntity;
 import jakarta.persistence.*;
