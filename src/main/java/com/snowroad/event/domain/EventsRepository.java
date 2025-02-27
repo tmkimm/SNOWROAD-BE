@@ -1,12 +1,15 @@
 package com.snowroad.event.domain;
 
+import com.snowroad.entity.Events;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface EventsRepository extends JpaRepository<Events, Long> {
+@Primary  // ✅ 기본 Repository로 지정
+public interface EventsRepository extends JpaRepository<Events, Long>, EventsRepositoryCustom{
 
     @Query(value = "SELECT * from TB_EVNT_M e ORDER BY e.EVNT_ID DESC", nativeQuery = true)
     List<Events> findAllDesc();
@@ -44,6 +47,9 @@ public interface EventsRepository extends JpaRepository<Events, Long> {
             "LIMIT 10"
             , nativeQuery = true)
     List<Object[]> getMainBannerList(@Param("eventTypeCd") String eventTypeCd);
+
+
+    // List<Events> getMainTestList(@Param("eventTypeCd") String eventTypeCd);
 
     // 메인페이지 인기 컨텐츠 list 조회
     @Query(value = "SELECT e.EVNT_ID as eventId, e.EVNT_NM AS eventNm, SUBSTRING(e.OPER_STAT_DT,3,6) as operStatDt, SUBSTRING(e.OPER_END_DT,3,6) as operEndDt, " +
@@ -144,6 +150,5 @@ public interface EventsRepository extends JpaRepository<Events, Long> {
             "ELSE e.OPER_STAT_DT END"
             , nativeQuery = true)
     List<Object[]> getEvntList(@Param("sortType") String sortType);
-    
 
 }

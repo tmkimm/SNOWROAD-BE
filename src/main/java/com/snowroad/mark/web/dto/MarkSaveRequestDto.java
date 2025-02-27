@@ -1,6 +1,6 @@
 package com.snowroad.mark.web.dto;
 
-import com.snowroad.mark.domain.Mark;
+import com.snowroad.entity.Mark;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,12 +20,12 @@ public class MarkSaveRequestDto {
     private Long userAcntNo;
 
     @Schema(description = "이벤트ID")
-    private String eventId;
+    private Long eventId;
     @Schema(description = "좋아요여부")
     private String likeYn;
 
     @Builder
-    public MarkSaveRequestDto(String eventId, String likeYn) {
+    public MarkSaveRequestDto(Long eventId, String likeYn) {
         this.userAcntNo = userAcntNo;
         this.eventId = eventId;
         this.likeYn = likeYn;

@@ -1,6 +1,6 @@
 package com.snowroad.event.web.dto;
 
-import com.snowroad.event.domain.Events;
+import com.snowroad.entity.Events;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
@@ -59,7 +59,7 @@ public class EventsSaveRequestDto {
                 .operEndDt(operEndDt)
                 .operDttmCntn(operDttmCntn)
                 .ctgyId(ctgyId)
-                .ppstEnbnTypeCd(ppstEnbnTypeCd)
+                .eventTypeCd(ppstEnbnTypeCd)
                 .addrLttd(addrLttd)
                 .addrLotd(addrLotd)
                 .build();

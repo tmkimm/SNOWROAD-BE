@@ -3,7 +3,7 @@ package com.snowroad.admin.web;
 import com.snowroad.admin.web.dto.AdminLoginRequestDTO;
 import com.snowroad.admin.web.dto.AdminLoginResponseDTO;
 import com.snowroad.common.util.CurrentUser;
-import com.snowroad.event.domain.Events;
+import com.snowroad.entity.Events;
 import com.snowroad.event.web.dto.EventsResponseDto;
 import com.snowroad.event.web.dto.EventsSaveRequestDto;
 import com.snowroad.event.web.dto.PagedResponseDto;

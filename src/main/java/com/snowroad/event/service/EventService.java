@@ -1,11 +1,13 @@
 package com.snowroad.event.service;
 
 import com.snowroad.admin.web.dto.AdminEventsListResponseDto;
+import com.snowroad.event.domain.EventsRepositoryCustom;
 import com.snowroad.event.web.dto.*;
-import com.snowroad.event.domain.Events;
+import com.snowroad.entity.Events;
 import com.snowroad.event.domain.EventsRepository;
 import com.snowroad.file.web.dto.EventsFileDetailResponseDTO;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +21,11 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Service
 public class EventService {
+
     private final EventsRepository eventsRepository;
+
+    @Qualifier("eventsRepositoryImpl")  // ✅ 명확하게 지정하여 Spring이 올바른 빈을 주입하도록 함
+    private final EventsRepositoryCustom eventsRepositoryCustom;
 
     private static DetailEventsResponseDto apply(Object[] row) {
         DetailEventsResponseDto evntList = new DetailEventsResponseDto();
@@ -183,6 +189,31 @@ public class EventService {
                 .collect(Collectors.toList());
 
         return eventBannerListData;
+    }
+
+
+    @Transactional(readOnly = true)
+    public List<HomeEventsResponseDto> getMainTestList(String eventTypeCd) {
+        // Native Query 호출
+        List<HomeEventsResponseDto> result =  eventsRepositoryCustom.getMainTestList(eventTypeCd);
+        // Object[]에서 데이터를 추출하여 필요한 형태로 가공
+//        List<HomeEventsResponseDto> eventBannerListData = result.stream().map(row -> {
+//                    HomeEventsResponseDto evntBannerList = new HomeEventsResponseDto();
+//                    evntBannerList.setEventId((Long) row[0]);
+//                    evntBannerList.setEventNm((String) row[1]);
+//                    evntBannerList.setOperStatDt((String) row[2]);
+//                    evntBannerList.setOperEndDt((String) row[3]);
+//                    evntBannerList.setCtgyId((String) row[4]);
+//                    evntBannerList.setEventTypeCd((String) row[5]);
+//                    evntBannerList.setLikeYn((Character) row[6]);
+//                    evntBannerList.setImageUrl((String) row[7]);
+//                    evntBannerList.setSmallImageUrl((String) row[8]);
+//                    evntBannerList.setDDay((String) row[9]);
+//                    return evntBannerList;
+//                })
+//                .collect(Collectors.toList());
+
+        return result;
     }
 
     @Transactional(readOnly = true)

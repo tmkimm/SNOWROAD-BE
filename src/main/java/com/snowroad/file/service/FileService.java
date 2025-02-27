@@ -1,11 +1,10 @@
 package com.snowroad.file.service;
 
-import com.snowroad.event.domain.Events;
+import com.snowroad.entity.Events;
 import com.snowroad.event.domain.EventsRepository;
-import com.snowroad.event.web.dto.EventsSaveRequestDto;
-import com.snowroad.file.domain.eventFilesDtl.EventFilesDtl;
+import com.snowroad.entity.EventFilesDtl;
 import com.snowroad.file.domain.eventFilesDtl.EventFilesDtlRepository;
-import com.snowroad.file.domain.eventFilesMst.EventFilesMst;
+import com.snowroad.entity.EventFilesMst;
 import com.snowroad.file.domain.eventFilesMst.EventFilesMstRepository;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;

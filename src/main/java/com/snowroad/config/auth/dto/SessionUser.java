@@ -1,6 +1,6 @@
 package com.snowroad.config.auth.dto;
 
-import com.snowroad.user.domain.User;
+import com.snowroad.entity.User;
 import lombok.Getter;
 
 import java.io.Serializable;

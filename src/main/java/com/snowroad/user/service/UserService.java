@@ -1,10 +1,11 @@
 package com.snowroad.user.service;
 
 import com.snowroad.config.auth.dto.OAuthAttributes;
-import com.snowroad.socialLogin.domain.SocialLogin;
+import com.snowroad.entity.SocialLogin;
+import com.snowroad.entity.User;
 import com.snowroad.socialLogin.domain.SocialLoginRepository;
 import com.snowroad.user.domain.*;
-import com.snowroad.userContact.domain.UserContact;
+import com.snowroad.entity.UserContact;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
