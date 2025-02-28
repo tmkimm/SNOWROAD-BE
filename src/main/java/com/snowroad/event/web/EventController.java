@@ -29,6 +29,15 @@ public class EventController {
         return events;
     }
 
+    @Operation(summary="jpa 테스트용 조회", description = "(이벤트) QueryDsl 테스트용 조회. ARG : ALL, PPST, ENBN")
+    @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = HomeEventsResponseDto.class)))
+    @GetMapping("/api/event/test/{eventTypeCd}")
+    public List<HomeEventsResponseDto> getMainTestList(@RequestParam(defaultValue = "0") int page, @PathVariable String eventTypeCd) {
+        List<HomeEventsResponseDto> events = eventService.getMainTestList(eventTypeCd);
+        return events;
+    }
+
+
     @Operation(summary="메인 인기 리스트 조회", description = "(이벤트) 메인 팝업, 전시 순위 리스트를 조회합니다. ARG : ALL, PPST, ENBN")
     @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = HomeEventsResponseDto.class)))
     @GetMapping("/api/event/rank/{eventTypeCd}")

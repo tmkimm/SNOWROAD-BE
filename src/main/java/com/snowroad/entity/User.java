@@ -1,8 +1,7 @@
-package com.snowroad.user.domain;
+package com.snowroad.entity;
 
 import com.snowroad.common.domain.BaseTimeEntity;
-import com.snowroad.socialLogin.domain.SocialLogin;
-import com.snowroad.userContact.domain.UserContact;
+import com.snowroad.user.domain.Role;
 import jakarta.persistence.*;
 import lombok.Builder;
 import lombok.Getter;

@@ -1,8 +1,5 @@
 package com.snowroad.config.auth.dto;
 
-import com.snowroad.user.domain.Role;
-import com.snowroad.user.domain.User;
-import jakarta.persistence.Column;
 import lombok.Builder;
 import lombok.Getter;
 

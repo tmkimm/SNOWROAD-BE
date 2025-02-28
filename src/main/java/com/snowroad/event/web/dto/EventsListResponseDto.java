@@ -1,6 +1,6 @@
 package com.snowroad.event.web.dto;
 
-import com.snowroad.event.domain.Events;
+import com.snowroad.entity.Events;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -68,7 +68,7 @@ public class EventsListResponseDto {
         this.operEndDt = entity.getOperEndDt();
         this.operDttmCntn = entity.getOperDttmCntn();
         this.ctgyId = entity.getCtgyId();
-        this.eventTypeCd = entity.getPpstEnbnTypeCd();
+        this.eventTypeCd = entity.getEventTypeCd();
     }
 
     // 팝업전시 구분명, 좋아요여부, 조회수 추가 문의

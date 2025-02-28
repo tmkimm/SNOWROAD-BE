@@ -1,7 +1,6 @@
-package com.snowroad.event.domain;
+package com.snowroad.entity;
 
 import com.snowroad.common.domain.BaseTimeEntity;
-import com.snowroad.file.domain.eventFilesMst.EventFilesMst;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -50,7 +49,7 @@ public class Events extends BaseTimeEntity {
 
     @Schema(description = "팝업, 전시 구분 코드")
     @Column(name = "EVNT_TYPE_CD", length = 10, nullable = false)
-    private String ppstEnbnTypeCd;
+    private String eventTypeCd;
 
     @Schema(description = "위도")
     @Column(name = "ADDR_LTTD", nullable = false)
@@ -76,7 +75,7 @@ public class Events extends BaseTimeEntity {
     private EventFilesMst eventFiles; // EventFilesMst와 1:1 관계 설정
 
     @Builder
-    public Events(Long eventId, String eventNm, String eventCntn, String eventAddr, String operStatDt, String operEndDt, String operDttmCntn, String ctgyId, String ppstEnbnTypeCd, Double addrLttd, Double addrLotd, String ldcd) {
+    public Events(Long eventId, String eventNm, String eventCntn, String eventAddr, String operStatDt, String operEndDt, String operDttmCntn, String ctgyId, String eventTypeCd, Double addrLttd, Double addrLotd, String ldcd) {
         this.eventId = eventId;
         this.eventNm = eventNm;
         this.eventCntn = eventCntn;
@@ -85,13 +84,13 @@ public class Events extends BaseTimeEntity {
         this.operEndDt = operEndDt;
         this.operDttmCntn = operDttmCntn;
         this.ctgyId = ctgyId;
-        this.ppstEnbnTypeCd = ppstEnbnTypeCd;
+        this.eventTypeCd = eventTypeCd;
         this.addrLttd = addrLttd;
         this.addrLotd = addrLotd;
         this.ldcd = ldcd;
     }
 
-    public void update(String eventNm, String eventCntn, String eventAddr, String operStatDt, String operEndDt, String operDttmCntn, String ctgyId, String ppstEnbnTypeCd, Double addrLttd, Double addrLotd) {
+    public void update(String eventNm, String eventCntn, String eventAddr, String operStatDt, String operEndDt, String operDttmCntn, String ctgyId, String eventTypeCd, Double addrLttd, Double addrLotd) {
         this.eventNm = eventNm;
         this.eventCntn = eventCntn;
         this.eventAddr = eventAddr;
@@ -99,7 +98,7 @@ public class Events extends BaseTimeEntity {
         this.operEndDt = operEndDt;
         this.operDttmCntn = operDttmCntn;
         this.ctgyId = ctgyId;
-        this.ppstEnbnTypeCd = ppstEnbnTypeCd;
+        this.eventTypeCd = eventTypeCd;
         this.addrLttd = addrLttd;
         this.addrLotd = addrLotd;
     }
