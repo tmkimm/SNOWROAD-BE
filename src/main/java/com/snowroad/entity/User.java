@@ -1,6 +1,8 @@
 package com.snowroad.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.snowroad.common.domain.BaseTimeEntity;
+import com.snowroad.event.domain.Category;
 import com.snowroad.user.domain.Role;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -9,6 +11,8 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -44,6 +48,21 @@ public class User extends BaseTimeEntity {
     // SocialLogins (1:N)
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private SocialLogin socialLogin;
+
+    // 사용자 관심 카테고리
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<UserCategory> userCategories = new ArrayList<>();
+
+    // 관심 카테고리 추가 메서드
+    public void addCategory(Category category) {
+        UserCategory userCategory = UserCategory.builder()
+                .user(this)
+                .category(category)
+                .build();
+        this.userCategories.add(userCategory);
+    }
+
     @Builder
     public User(String nickname, Role role) {
         this.nickname = nickname;
