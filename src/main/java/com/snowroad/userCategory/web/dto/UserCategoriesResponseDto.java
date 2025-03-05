@@ -7,12 +7,12 @@ import lombok.Getter;
 import java.util.List;
 
 @Getter
-public class GetUserCategoriesResponseDto {
+public class UserCategoriesResponseDto {
 
     @Schema(description = "사용자의 관심 카테고리 리스트")
     private List<Category> data;
 
-    public GetUserCategoriesResponseDto(List<Category> data) {
+    public UserCategoriesResponseDto(List<Category> data) {
         this.data = data;
     }
 }
