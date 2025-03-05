@@ -1,5 +1,6 @@
 package com.snowroad.config.auth;
 
+import com.snowroad.config.auth.dto.CustomUserDetails;
 import com.snowroad.entity.User;
 import com.snowroad.user.domain.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,10 +32,18 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         // UserDetails 객체를 반환 (비밀번호는 필요 없으므로 빈 값 또는 {noop}으로 처리)
-        return org.springframework.security.core.userdetails.User.withUsername(String.valueOf(user.getUserAccountNo()))
-                .password("{noop}") // 비밀번호는 필요 없으므로 {noop} 사용
-                .roles(user.getRole().name()) // DB에서 가져온 역할을 설정
-                .build();
+
+        return new CustomUserDetails(
+                user.getUserAccountNo(),
+                user.getNickname(),
+                user.getRole().name(),
+                true // 회원가입된 상태
+        );
+
+//        return org.springframework.security.core.userdetails.User.withUsername(String.valueOf(user.getUserAccountNo()))
+//                .password("{noop}") // 비밀번호는 필요 없으므로 {noop} 사용
+//                .roles(user.getRole().name()) // DB에서 가져온 역할을 설정
+//                .build();
     }
 
     public Long safelyConvertToLong(String str) {
