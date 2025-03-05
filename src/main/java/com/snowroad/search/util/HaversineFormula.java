@@ -1,4 +1,4 @@
-package com.snowroad.search.map.util;
+package com.snowroad.search.util;
 
 /**
  *

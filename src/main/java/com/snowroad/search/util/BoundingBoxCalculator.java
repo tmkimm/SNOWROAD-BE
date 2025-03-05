@@ -1,6 +1,6 @@
-package com.snowroad.search.map.util;
+package com.snowroad.search.util;
 
-import com.snowroad.search.map.enums.SearchMapEnum;
+import com.snowroad.search.enums.SearchMapEnum;
 
 /**
  *
