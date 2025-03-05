@@ -8,21 +8,21 @@ public class CustomUserDetails implements UserDetails {
     private final Long userId;
     private final String username;
     private final String role;
-    private final boolean isRegistered;
+    private final String joinYn;
 
-    public CustomUserDetails(Long userId, String username, String role, boolean isRegistered) {
+    public CustomUserDetails(Long userId, String username, String role, String joinYn) {
         this.userId = userId;
         this.username = username;
         this.role = role;
-        this.isRegistered = isRegistered;
+        this.joinYn = joinYn;
     }
 
     public Long getUserId() {
         return userId;
     }
 
-    public boolean isRegistered() {
-        return isRegistered;
+    public String getJoinYn() {
+        return joinYn;
     }
 
     @Override

@@ -32,7 +32,8 @@ public class SecurityConfig {
                         .permitAll()// 모두 허용
 //                        .requestMatchers("/api/**").hasRole(Role.USER.name())    // user 권한을 가진 사람만 허용
 //                        .requestMatchers("/api/admin/**").hasRole("ADMIN") // ADMIN 권한만 허용
-                        .anyRequest().permitAll())  // 나머지 url은 모두 인증된 사용자만 허용
+                        .anyRequest().permitAll()
+                )  // 나머지 url은 모두 인증된 사용자만 허용
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/")

@@ -37,13 +37,8 @@ public class CustomUserDetailsService implements UserDetailsService {
                 user.getUserAccountNo(),
                 user.getNickname(),
                 user.getRole().name(),
-                true // 회원가입된 상태
+                user.getJoinYn()
         );
-
-//        return org.springframework.security.core.userdetails.User.withUsername(String.valueOf(user.getUserAccountNo()))
-//                .password("{noop}") // 비밀번호는 필요 없으므로 {noop} 사용
-//                .roles(user.getRole().name()) // DB에서 가져온 역할을 설정
-//                .build();
     }
 
     public Long safelyConvertToLong(String str) {

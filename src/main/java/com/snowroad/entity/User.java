@@ -54,6 +54,9 @@ public class User extends BaseTimeEntity {
     @JsonIgnore
     private List<UserCategory> userCategories = new ArrayList<>();
 
+    @Column(name = "JOIN_YN", nullable = false)
+    private String joinYn = "N";
+
     // 관심 카테고리 추가 메서드
     public void addCategory(Category category) {
         UserCategory userCategory = UserCategory.builder()
