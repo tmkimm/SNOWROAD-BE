@@ -1,5 +1,6 @@
 package com.snowroad.search.map.interfaces;
 
+import com.snowroad.search.map.dto.SearchMapRequestDTO;
 import com.snowroad.search.map.dto.SearchMapResponseDTO;
 
 import java.util.List;
@@ -14,5 +15,5 @@ import java.util.List;
  *
  */
 public interface SearchMapInterface {
-    List<SearchMapResponseDTO> getMapList(double latitude, double longitude);
+    List<SearchMapResponseDTO> getMapList(SearchMapRequestDTO searchMapRequestDTO);
 }
