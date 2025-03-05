@@ -1,7 +1,7 @@
 package com.snowroad.search.map.web;
 
-import com.snowroad.search.map.dto.SearchMapRequestDTO;
-import com.snowroad.search.map.dto.SearchMapResponseDTO;
+import com.snowroad.entity.Events;
+import com.snowroad.search.map.dto.SearchRequestDTO;
 import com.snowroad.search.map.interfaces.SearchMapInterface;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -30,26 +30,26 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @Tag(name = "Map API", description = "지도 처리 API")
-public class SearchMapController {
+public class SearchController {
 
     private final SearchMapInterface searchMapInterface;
 
     /**
      *
-     * 지도에서 커스텀 마커 조회
+     * 이벤트 검색
      *
      * @author hyo298, 김재효
-     * @param searchMapRequestDTO 지도 요청 DTO
+     * @param searchRequestDTO 이벤트 검색 DTO
      * @return List
      */
     @Operation(
-        summary="지도 커스텀 마커 조회"
-        , description = "설정된 조회 조건으로 지도에서 이벤트를 조회합니다."
+        summary="이벤트 검색"
+        , description = "설정된 조회 조건으로 이벤트를 조회합니다."
         , responses = {
             @ApiResponse(
                 responseCode = "200"
                 , description = "Map Custom Markers Search Successful"
-                , content = @Content(schema = @Schema(implementation = SearchMapResponseDTO.class))
+                , content = @Content(schema = @Schema(implementation = Events.class))
             )
             , @ApiResponse(
                 responseCode = "500"
@@ -59,9 +59,9 @@ public class SearchMapController {
         }
     )
     @GetMapping(value = "/api/search/events")
-    List<SearchMapResponseDTO> getEventGeoMapList(
+    List<Events> getEvents(
             @Valid
-            @ModelAttribute SearchMapRequestDTO searchMapRequestDTO) {
-       return searchMapInterface.getMapList(searchMapRequestDTO);
+            @ModelAttribute SearchRequestDTO searchRequestDTO) {
+       return searchMapInterface.getEvents(searchRequestDTO);
     }
 }

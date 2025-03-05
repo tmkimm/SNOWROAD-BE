@@ -6,12 +6,17 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.List;
+
 @Getter
 @Setter
 @ToString
-public class SearchMapRequestDTO {
+public class SearchRequestDTO {
 
-    @Schema(description = "이벤트 타입에 대한 구분코드로 '10'은 팝업 '20'은 전시 입니다" , example = "10")
+    @Schema(description = "이벤트 텍스트 검색어")
+    private String keyword;
+
+    @Schema(description = "이벤트 타입에 대한 구분코드" )
     private String eventTypeCd;
 
     @Schema(description = "위도" , example = "37.550716")
@@ -39,6 +44,9 @@ public class SearchMapRequestDTO {
 
     @Schema(description = "법정동코드")
     private String ldcd;
+
+    @Schema(hidden = true)
+    List<Long> eventIds;
 
     @Schema(hidden = true)
     private double minLat;  //바운딩 박스 - 최소 위도 값

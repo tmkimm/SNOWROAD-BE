@@ -1,7 +1,7 @@
 package com.snowroad.search.map.interfaces;
 
-import com.snowroad.search.map.dto.SearchMapRequestDTO;
-import com.snowroad.search.map.dto.SearchMapResponseDTO;
+import com.snowroad.entity.Events;
+import com.snowroad.search.map.dto.SearchRequestDTO;
 
 import java.util.List;
 
@@ -15,5 +15,6 @@ import java.util.List;
  *
  */
 public interface SearchMapInterface {
-    List<SearchMapResponseDTO> getMapList(SearchMapRequestDTO searchMapRequestDTO);
+    List<Events> getEvents(SearchRequestDTO searchRequestDTO);
 }
+
