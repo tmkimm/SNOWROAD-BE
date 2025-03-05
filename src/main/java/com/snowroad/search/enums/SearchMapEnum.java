@@ -1,15 +1,15 @@
-package com.snowroad.search.map.enums;
+package com.snowroad.search.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
  *
- * Map 검색 Enum
+ * 검색 Map enum
  *
  * @author hyo298, 김재효
  * @version 0.0.1
- * @since 2025-01-09
+ * @since 2025-03-05
  *
  */
 @Getter

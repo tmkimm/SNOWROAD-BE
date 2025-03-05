@@ -1,17 +1,17 @@
-package com.snowroad.search.map.interfaces;
+package com.snowroad.search.interfaces;
 
 import com.snowroad.entity.Events;
-import com.snowroad.search.map.dto.SearchRequestDTO;
+import com.snowroad.search.dto.SearchRequestDTO;
 
 import java.util.List;
 
 /**
  *
- * Map 검색 인터페이스
+ * 검색 인터페이스
  *
  * @author hyo298, 김재효
  * @version 0.0.1
- * @since 2025-01-09
+ * @since 2025-03-05
  *
  */
 public interface SearchMapInterface {

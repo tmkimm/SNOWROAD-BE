@@ -1,9 +1,10 @@
-package com.snowroad.search.map.web;
+package com.snowroad.search.web;
 
 import com.snowroad.entity.Events;
-import com.snowroad.search.map.dto.SearchRequestDTO;
-import com.snowroad.search.map.interfaces.SearchMapInterface;
+import com.snowroad.search.dto.SearchRequestDTO;
+import com.snowroad.search.interfaces.SearchMapInterface;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -19,17 +20,17 @@ import java.util.List;
 
 /**
  *
- * 지도 검색 컨트롤러
+ * 검색 컨트롤러
  *
  * @author hyo298, 김재효
  * @version 0.0.1
- * @since 2025-02-28
+ * @since 2025-03-05
  *
  */
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@Tag(name = "Map API", description = "지도 처리 API")
+@Tag(name = "검색 API", description = "검색과 관련된 API")
 public class SearchController {
 
     private final SearchMapInterface searchMapInterface;
@@ -60,6 +61,7 @@ public class SearchController {
     )
     @GetMapping(value = "/api/search/events")
     List<Events> getEvents(
+            @Parameter(description = "검색 요청 DTO")
             @Valid
             @ModelAttribute SearchRequestDTO searchRequestDTO) {
        return searchMapInterface.getEvents(searchRequestDTO);

@@ -1,16 +1,16 @@
-package com.snowroad.search.map.service;
+package com.snowroad.search.service;
 
 import com.snowroad.MorphemeAnalyzer.event.domain.EventMorphemeAnalyzerDTO;
 import com.snowroad.MorphemeAnalyzer.event.domain.EventMorphemeAnalyzerRepository;
 import com.snowroad.MorphemeAnalyzer.komoran.domain.KomoranDTO;
 import com.snowroad.MorphemeAnalyzer.komoran.interfaces.KomoranAnalyzerInterface;
 import com.snowroad.entity.Events;
-import com.snowroad.search.map.repository.SearchRepository;
-import com.snowroad.search.map.dto.SearchRequestDTO;
-import com.snowroad.search.map.enums.SearchMapEnum;
-import com.snowroad.search.map.interfaces.SearchMapInterface;
-import com.snowroad.search.map.util.BoundingBoxCalculator;
-import com.snowroad.search.map.util.HaversineFormula;
+import com.snowroad.search.repository.SearchRepository;
+import com.snowroad.search.dto.SearchRequestDTO;
+import com.snowroad.search.enums.SearchMapEnum;
+import com.snowroad.search.interfaces.SearchMapInterface;
+import com.snowroad.search.util.BoundingBoxCalculator;
+import com.snowroad.search.util.HaversineFormula;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,11 +21,11 @@ import java.util.Map;
 
 /**
  *
- * Map 검색 서비스
+ * 검색 서비스
  *
  * @author hyo298, 김재효
  * @version 0.0.1
- * @since 2025-01-09
+ * @since 2025-03-05
  *
  */
 @Slf4j
@@ -48,10 +48,9 @@ public class SearchService implements SearchMapInterface {
         List<Events> eventsList;
 
         // step.1 : 텍스트가 있는 경우 텍스트 검색을 진행하여 in 절을 구성합니다
-        if(searchRequestDTO.getKeyword() != null) {
+        if(searchRequestDTO.getKeyword() != null
+            && !searchRequestDTO.getKeyword().trim().isEmpty()) {
             searchRequestDTO.setEventIds(getKeywordSearchResult(searchRequestDTO));
-
-            searchRequestDTO.getEventIds().forEach(eventId -> log.info("\n TEST :: {} \n",eventId.toString()));
         }
 
         // step.2 : 좌표가 있는 경우 지도 계산을 진행합니다.

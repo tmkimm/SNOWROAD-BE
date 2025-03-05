@@ -1,4 +1,4 @@
-package com.snowroad.search.map.repository.custom;
+package com.snowroad.search.repository.custom;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -7,7 +7,7 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.snowroad.entity.Events;
 import com.snowroad.entity.QEvents;
-import com.snowroad.search.map.dto.SearchRequestDTO;
+import com.snowroad.search.dto.SearchRequestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -15,11 +15,11 @@ import java.util.List;
 
 /**
  *
- * Map 검색 커스텀 레포 구현체
+ * 검색 커스텀 레포지토리 구현체
  *
  * @author hyo298, 김재효
  * @version 0.0.1
- * @since 2025-02-28
+ * @since 2025-03-05
  *
  */
 @Repository
