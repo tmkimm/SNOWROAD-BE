@@ -2,9 +2,11 @@ package com.snowroad.event.web.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
+import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
@@ -36,8 +38,6 @@ public class DetailEventsResponseDto {
     private Long tumbFileId;
     @Schema(description = "조회수")
     private Long viewNmvl;*/
-
-
     @Schema(description = "메인 이미지 URL")
     private String imageUrl;
 
