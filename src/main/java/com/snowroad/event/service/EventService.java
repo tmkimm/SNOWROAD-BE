@@ -1,6 +1,7 @@
 package com.snowroad.event.service;
 
 import com.snowroad.admin.web.dto.AdminEventsListResponseDto;
+import com.snowroad.event.domain.Category;
 import com.snowroad.event.domain.EventsRepositoryCustom;
 import com.snowroad.event.web.dto.*;
 import com.snowroad.entity.Events;
@@ -121,17 +122,15 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
-    public List<DetailEventsResponseDto> getEvntList(String sortType) {
+    public List<DetailEventsResponseDto> getEvntList(String eventTypeCd, String sortType, List<String> ctgyId, String fromDate, String toDate, List<String> geo) {
 
         // Native Query 호출
-        List<Object[]> result =  eventsRepository.getEvntList(sortType);
-        // Object[]에서 데이터를 추출하여 필요한 형태로 가공
-        List<DetailEventsResponseDto> eventDtlListData = result.stream().map(EventService::apply)
-                .collect(Collectors.toList());
+        List<DetailEventsResponseDto> result =  eventsRepositoryCustom.getEvntList(eventTypeCd, sortType,ctgyId,fromDate,toDate,geo);
 
-        return eventDtlListData;
+        return result;
 
     }
+
 
     public EventsResponseDto findEvntData(Long id) {
         Events entity = eventsRepository.findById(id)
@@ -326,4 +325,5 @@ public class EventService {
         );
 
     }
+
 }

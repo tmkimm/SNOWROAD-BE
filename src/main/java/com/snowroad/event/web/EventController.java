@@ -1,5 +1,6 @@
 package com.snowroad.event.web;
 
+import com.snowroad.event.domain.Category;
 import com.snowroad.event.service.EventService;
 import com.snowroad.event.web.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -112,12 +114,23 @@ public class EventController {
     }
 
 
-    @Operation(summary="리스트 팝업/전시 조회", description = "[작업중](이벤트) 리스트페이지 등록된 팝업, 전시 리스트를 조회합니다. (sortType : 10, 20, 30 그외 항목 구현중)")
+    @Operation(summary="리스트 팝업/전시 조회", description = "(이벤트) 리스트페이지 등록된 팝업, 전시 리스트를 조회합니다.<br>" +
+            "sortType-10:조회순 20:최신순 30:마감순 40/50:미완<br>  " +
+            "ctgyId-category enum 내부 코드(FANDB,DESIGN 등)<br>  " +
+            " geo-미완<br>" +
+            "eventTypeCd : ALL, PPST, ENBN")
     @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = EventsListResponseDto.class)))
-    @GetMapping("/api/events/list/{sortType}")
-    public PagedResponseDto<DetailEventsResponseDto> getEventList(@RequestParam(defaultValue = "0") int page, @PathVariable String sortType) {
+    @GetMapping("/api/events/list/{eventTypeCd}")
+    public PagedResponseDto<DetailEventsResponseDto> getEventList(
+            @RequestParam(defaultValue = "0") int page, @PathVariable String eventTypeCd,
+            @RequestParam(required = false) String sortType,
+            @RequestParam List<String> ctgyId,
+            @RequestParam(required = false) String fromDate,
+            @RequestParam(required = false) String toDate,
+            @RequestParam(required = false) List<String> geo
 
-        List<DetailEventsResponseDto> events = eventService.getEvntList(sortType);
+    ) {
+        List<DetailEventsResponseDto> events = eventService.getEvntList(eventTypeCd, sortType, ctgyId, fromDate, toDate, geo);
         // PagedResponseDto로 반환
         return new PagedResponseDto<>(events, 11);
     }
