@@ -92,7 +92,8 @@ public class User extends BaseTimeEntity {
         return this.role.getKey();
     }
 
-    public void signUp() {
+    public void signUp(String nickname) {
         this.joinYn = "Y";
+        this.nickname = nickname;
     }
 }

@@ -2,8 +2,6 @@ package com.snowroad.user.service;
 
 import com.snowroad.auth.web.dto.SignUpRequestDto;
 import com.snowroad.common.exception.BadRequestException;
-import com.snowroad.common.util.CurrentUser;
-import com.snowroad.config.auth.dto.CustomUserDetails;
 import com.snowroad.config.auth.dto.OAuthAttributes;
 import com.snowroad.entity.SocialLogin;
 import com.snowroad.entity.User;
@@ -24,6 +22,9 @@ public class UserService {
     private final SocialLoginRepository socialLoginRepository;
 
     private final UserCategoryService userCategoryService;
+
+    private final NicknameGenerator nicknameGenerator;
+
 
 
     @Transactional
@@ -67,11 +68,23 @@ public class UserService {
         if (user.getJoinYn().equals("Y")) {
             throw new BadRequestException("이미 회원가입된 사용자입니다.");
         }
+
+        String nickname = nicknameGenerator.generate(); // 닉네임 랜덤 생성
         // 회원가입
-        user.signUp();
+        user.signUp(nickname);
         // 관심 카테고리 추가
         if (request.getCategories() != null && !request.getCategories().isEmpty()) {
             userCategoryService.updateUserCategories(user.getUserAccountNo(), request.getCategories());
         }
+    }
+
+    @Transactional
+    public void deleteUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new BadRequestException("존재하지 않는 사용자입니다."));
+
+        // User만 삭제하면, cascade = CascadeType.ALL, orphanRemoval = true 설정에 의해 UserContact & SocialLogin 자동 삭제됨
+        userRepository.delete(user);
+
     }
 }
