@@ -318,7 +318,6 @@ public class EventService {
         Pageable pageable = PageRequest.of(page, size, sort);
 
         Page<Events> eventsPage = eventsRepository.findAll(pageable);
-
         return new PagedResponseDto<>(
                 eventsPage.getContent(),
                 eventsPage.getTotalPages()

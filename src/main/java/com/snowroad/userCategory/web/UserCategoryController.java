@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import com.snowroad.common.exception.ForbiddenException;
 import com.snowroad.common.exception.UnauthorizedException;
 import com.snowroad.common.util.CurrentUser;
+import com.snowroad.config.auth.dto.CustomUserDetails;
 import com.snowroad.event.domain.Category;
 import com.snowroad.userCategory.service.UserCategoryService;
 import com.snowroad.userCategory.web.dto.UserCategoriesResponseDto;
@@ -42,11 +43,11 @@ public class UserCategoryController {
     // TODO - 인가 로직 AOP로 분리
     @Operation(summary = "관심 카테고리 여러 개 추가", description = "사용자의 관심 카테고리를 한 번에 여러 개 추가합니다. 기존 카테고리는 유지됩니다.")
     @PostMapping("/{userId}")
-    public ResponseEntity<String> addUserCategories(@PathVariable Long userId, @RequestBody Set<Category> categories, @CurrentUser UserDetails userDetails) {
+    public ResponseEntity<String> addUserCategories(@PathVariable Long userId, @RequestBody Set<Category> categories, @CurrentUser CustomUserDetails userDetails) {
         if (userDetails == null) {
             throw new UnauthorizedException("인증 정보가 존재하지 않습니다. 로그인이 필요합니다.");
         }
-        if (!userId.toString().equals(userDetails.getUsername())) {
+        if (userId != userDetails.getUserId()) {
             throw new ForbiddenException("권한이 존재하지 않습니다.");
         }
 
@@ -56,11 +57,11 @@ public class UserCategoryController {
 
     @Operation(summary = "관심 카테고리 수정", description = "사용자의 관심 카테고리를 기존 카테고리를 삭제하고 새로운 목록으로 변경합니다.")
     @PutMapping("/{userId}")
-    public ResponseEntity<String> updateUserCategories(@PathVariable Long userId, @RequestBody Set<Category> categories, @CurrentUser UserDetails userDetails) {
+    public ResponseEntity<String> updateUserCategories(@PathVariable Long userId, @RequestBody Set<Category> categories, @CurrentUser CustomUserDetails userDetails) {
         if (userDetails == null) {
             throw new UnauthorizedException("인증 정보가 존재하지 않습니다. 로그인이 필요합니다.");
         }
-        if (!userId.toString().equals(userDetails.getUsername())) {
+        if (userId != userDetails.getUserId()) {
             throw new ForbiddenException("권한이 존재하지 않습니다.");
         }
         userCategoryService.updateUserCategories(userId, categories);
