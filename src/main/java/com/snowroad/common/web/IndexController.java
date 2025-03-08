@@ -2,6 +2,7 @@ package com.snowroad.common.web;
 
 import com.snowroad.common.util.CurrentUser;
 import com.snowroad.config.auth.LoginUser;
+import com.snowroad.config.auth.dto.CustomUserDetails;
 import com.snowroad.config.auth.dto.SessionUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -16,9 +17,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 @Controller
 public class IndexController {
         @GetMapping("/")
-        public String index(Model model, @CurrentUser UserDetails userDetails) {
+        public String index(Model model, @CurrentUser CustomUserDetails userDetails) {
                 if(userDetails != null) {
-                        model.addAttribute("userId", userDetails.getUsername());
+                        model.addAttribute("userId", userDetails.getUserId());
+                        model.addAttribute("userName", userDetails.getUsername());
                 }
                 return "index";
         }

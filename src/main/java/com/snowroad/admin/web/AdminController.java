@@ -3,6 +3,7 @@ package com.snowroad.admin.web;
 import com.snowroad.admin.web.dto.AdminLoginRequestDTO;
 import com.snowroad.admin.web.dto.AdminLoginResponseDTO;
 import com.snowroad.common.util.CurrentUser;
+import com.snowroad.config.auth.dto.CustomUserDetails;
 import com.snowroad.entity.Events;
 import com.snowroad.event.web.dto.EventsResponseDto;
 import com.snowroad.event.web.dto.EventsSaveRequestDto;
@@ -203,17 +204,5 @@ public class AdminController {
     public Long deleteFile(@PathVariable Long fileId) {
         fileService.deleteFileDetail(fileId);
         return fileId;
-    }
-
-    @GetMapping("/api/admin/user")
-    public ResponseEntity<?> getUserInfo(@CurrentUser UserDetails userDetails) {
-        if (userDetails != null) {
-            // 유저 정보가 있을 경우
-            String username = userDetails.getUsername();
-            return ResponseEntity.ok("Authenticated user: " + username);
-        } else {
-            // 유저 정보가 없을 경우
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User is not authenticated");
-        }
     }
 }
