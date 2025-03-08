@@ -4,6 +4,7 @@ import com.snowroad.auth.web.dto.SignUpRequestDto;
 import com.snowroad.auth.web.dto.UserInfoResponseDto;
 import com.snowroad.common.exception.ForbiddenException;
 import com.snowroad.common.exception.UnauthorizedException;
+import com.snowroad.common.util.CookieUtil;
 import com.snowroad.common.util.CurrentUser;
 import com.snowroad.config.auth.dto.CustomUserDetails;
 import com.snowroad.user.service.UserService;
@@ -12,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
+    private final CookieUtil cookieUtil;
     private final UserService userService;
 
     @Operation(
@@ -44,6 +47,14 @@ public class AuthController {
         );
         return userInfo;
     }
-
-
+    @Operation(
+            summary = "로그아웃",
+            description = "자동 로그인을 해제하며 로그아웃합니다."
+    )
+    @DeleteMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletResponse response) {
+        // 인증 관련 쿠키 클리어
+        cookieUtil.clearCookies(response);
+        return ResponseEntity.noContent().build();
+    }
 }

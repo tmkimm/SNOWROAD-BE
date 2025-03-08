@@ -54,7 +54,7 @@ public class UserController {
         }
         userService.deleteUser(userId);
 
-        // 3️⃣ 쿠키 삭제 (공통 코드)
+        // 인증 관련 쿠키 클리어
         cookieUtil.clearCookies(response);
         return ResponseEntity.ok("회원 탈퇴가 완료되었습니다.");
     }
