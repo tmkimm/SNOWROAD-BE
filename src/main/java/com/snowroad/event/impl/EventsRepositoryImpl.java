@@ -3,13 +3,14 @@ package com.snowroad.event.impl;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.snowroad.entity.*;
-import com.snowroad.event.domain.Category;
 import com.snowroad.event.domain.EventsRepositoryCustom;
 import com.snowroad.event.web.dto.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -57,7 +58,7 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
     }
 
     @Override
-    public List<DetailEventsResponseDto> getEvntList(String eventTypeCd, String sortType, List<String> ctgyId, String fromDate, String toDate, List<String> geo) {
+    public Page<DetailEventsResponseDto> getEvntList(Pageable page, String eventTypeCd, String sortType, List<String> ctgyId, String fromDate, String toDate, List<String> geo) {
 
         QEvents e = QEvents.events;
         QMark mark = QMark.mark;
@@ -75,7 +76,7 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
 
         // WHERE 조건 동적 추가
         BooleanBuilder whereCondition = new BooleanBuilder();
-        whereCondition.and(e.deleteYn.eq("N")); // 기본 조건 유지
+        whereCondition.and(e.deleteYn.eq("N")); // 기본 조건 유지 (삭제여부)
 
         // categoryList 값이 존재할 때만 IN 조건 추가
         if (ctgyId != null && !ctgyId.isEmpty()) {
@@ -92,28 +93,35 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
             whereCondition.and(e.operStatDt.between(fromDate, toDate));
         }
 
-        // sortType에 따른 날짜 조건 추가 (값이 존재할 때만 적용)
-        if ("20".equals(sortType)) {
-            whereCondition.and(e.operStatDt.goe(todayStr)); // 현재일자보다 이후 데이터 (이전:loe, 이후:goe)
-        } else if ("30".equals(sortType)) {
+        // sortType 10:조회순 20:최신순(오픈일순) 30:마감순(마감임박순) 40:지역별(지역명칭)-미완 50:거리순-미완
+        // sortType = 30일 때는 `operEndDt`가 현재일자 이후여야 함
+        if ("30".equals(sortType)) {
             whereCondition.and(e.operEndDt.goe(todayStr)); // 현재일자보다 이후 데이터
         }
 
-
-        // ORDER BY 조건 설정, 10:조회순 20:최신순 30:마감순 40:지역별(지역명칭)-미완 50:거리순-미완
+        // ORDER BY 조건 설정,
         OrderSpecifier<?> orderBy = e.operStatDt.asc(); // 기본 정렬
         if ("10".equals(sortType)) {
             orderBy = view.viewNwvl.desc();
         } else if ("20".equals(sortType)) {
-            orderBy = e.operStatDt.asc();
+            orderBy = e.operStatDt.desc();
         } else if ("30".equals(sortType)) {
             orderBy = e.operEndDt.asc();
         } else if ("40".equals(sortType)) {
-            orderBy = e.operEndDt.asc();
+        //    orderBy = e.operEndDt.asc();
         } else if ("50".equals(sortType)) {
-            orderBy = e.operEndDt.asc();
+        //    orderBy = e.operEndDt.asc();
         }
-        List<Tuple> result = queryFactory
+
+
+        // ✅ 전체 데이터 개수 조회 (페이징을 위한 count 쿼리)
+        long total = queryFactory
+                .select(e.count())
+                .from(e)
+                .where(whereCondition)
+                .fetchOne();
+
+        List<DetailEventsResponseDto> result = queryFactory
                 .select(
                         e.eventId,
                         e.eventNm,
@@ -140,22 +148,25 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
 //                ) // WHERE e.DELT_YN = 'N'
                 .where(whereCondition) // ✅ 동적으로 WHERE 조건 적용
                 .orderBy(orderBy) // ✅ 정렬 적용
-                .fetch();
-        System.out.println(result);
+                .offset(page.getOffset()) // ✅ 페이지 시작 위치
+                .limit(page.getPageSize()) // ✅ 한 페이지당 개수
+                .fetch()
+                .stream()
+                .map(row -> new DetailEventsResponseDto(
+                        row.get(e.eventId),
+                        row.get(e.eventNm),
+                        row.get(e.eventCntn),
+                        row.get(e.eventAddr),
+                        row.get(e.operStatDt.substring(2, 8)), // 날짜 변환
+                        row.get(e.operEndDt.substring(2, 8)), // 날짜 변환
+                        row.get(e.ctgyId),
+                        row.get(e.eventTypeCd),
+                        row.get(mark.likeYn.charAt(0)), // 임시 char처리, queryDsl 리팩토링 완료시 String으로 Dto타입 변경 필요
+                        row.get(fileDtl.fileUrl),
+                        row.get(fileDtl.fileThumbUrl)
+                )).toList();
 
-        return result.stream().map(row -> new DetailEventsResponseDto(
-                row.get(e.eventId),
-                row.get(e.eventNm),
-                row.get(e.eventCntn),
-                row.get(e.eventAddr),
-                row.get(e.operStatDt.substring(2, 8)), // 날짜 변환
-                row.get(e.operEndDt.substring(2, 8)), // 날짜 변환
-                row.get(e.ctgyId),
-                row.get(e.eventTypeCd),
-                row.get(mark.likeYn.charAt(0)), // 임시 char처리, queryDsl 리팩토링 완료시 String으로 Dto타입 변경 필요
-                row.get(fileDtl.fileUrl),
-                row.get(fileDtl.fileThumbUrl)
-        )).collect(Collectors.toList());
+        return new PageImpl<>(result, page, total); // ✅ 페이징된 결과 반환
     }
 }
 

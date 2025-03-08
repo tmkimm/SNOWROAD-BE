@@ -9,6 +9,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -121,18 +123,18 @@ public class EventController {
             "eventTypeCd : ALL, PPST, ENBN")
     @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = EventsListResponseDto.class)))
     @GetMapping("/api/events/list/{eventTypeCd}")
-    public PagedResponseDto<DetailEventsResponseDto> getEventList(
+    public ResponseEntity<Page<DetailEventsResponseDto>> getEventList(
             @RequestParam(defaultValue = "0") int page, @PathVariable String eventTypeCd,
-            @RequestParam(required = false) String sortType,
-            @RequestParam List<String> ctgyId,
+            @RequestParam(defaultValue = "20") String sortType,
+            @RequestParam(required = false) List<String> ctgyId,
             @RequestParam(required = false) String fromDate,
             @RequestParam(required = false) String toDate,
             @RequestParam(required = false) List<String> geo
 
     ) {
-        List<DetailEventsResponseDto> events = eventService.getEvntList(eventTypeCd, sortType, ctgyId, fromDate, toDate, geo);
-        // PagedResponseDto로 반환
-        return new PagedResponseDto<>(events, 11);
+        // 페이지네이션 반환
+        Page<DetailEventsResponseDto> response = eventService.getEvntList(page, eventTypeCd, sortType, ctgyId, fromDate, toDate, geo);
+        return ResponseEntity.ok(response);
     }
 
 

@@ -122,12 +122,18 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
-    public List<DetailEventsResponseDto> getEvntList(String eventTypeCd, String sortType, List<String> ctgyId, String fromDate, String toDate, List<String> geo) {
+    public Page<DetailEventsResponseDto> getEvntList(int page, String eventTypeCd, String sortType, List<String> ctgyId, String fromDate, String toDate, List<String> geo) {
+
+        int size = 12; // 임의로 한페이지에 20개 데이터 처리, 추후 필요시 변경
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "operStatDt"));
+
+//        return new PagedResponseDto<>(
+//                eventsPage.getContent(),
+//                eventsPage.getTotalPages()
+//        );
 
         // Native Query 호출
-        List<DetailEventsResponseDto> result =  eventsRepositoryCustom.getEvntList(eventTypeCd, sortType,ctgyId,fromDate,toDate,geo);
-
-        return result;
+        return eventsRepositoryCustom.getEvntList(pageable,eventTypeCd, sortType,ctgyId,fromDate,toDate,geo);
 
     }
 
