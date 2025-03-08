@@ -123,7 +123,7 @@ public class EventController {
             "eventTypeCd : ALL, PPST, ENBN")
     @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = EventsListResponseDto.class)))
     @GetMapping("/api/events/list/{eventTypeCd}")
-    public ResponseEntity<Page<DetailEventsResponseDto>> getEventList(
+    public ResponseEntity<PagedResponseDto<DetailEventsResponseDto>> getEventList(
             @RequestParam(defaultValue = "0") int page, @PathVariable String eventTypeCd,
             @RequestParam(defaultValue = "20") String sortType,
             @RequestParam(required = false) List<String> ctgyId,
@@ -133,8 +133,8 @@ public class EventController {
 
     ) {
         // 페이지네이션 반환
-        Page<DetailEventsResponseDto> response = eventService.getEvntList(page, eventTypeCd, sortType, ctgyId, fromDate, toDate, geo);
-        return ResponseEntity.ok(response);
+    //    Page<DetailEventsResponseDto> response = eventService.getEvntList(page, eventTypeCd, sortType, ctgyId, fromDate, toDate, geo);
+        return ResponseEntity.ok(eventService.getEvntList(page, eventTypeCd, sortType, ctgyId, fromDate, toDate, geo));
     }
 
 
