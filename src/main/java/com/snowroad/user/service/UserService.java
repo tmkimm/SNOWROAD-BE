@@ -1,11 +1,16 @@
 package com.snowroad.user.service;
 
+import com.snowroad.auth.web.dto.SignUpRequestDto;
+import com.snowroad.common.exception.BadRequestException;
+import com.snowroad.common.util.CurrentUser;
+import com.snowroad.config.auth.dto.CustomUserDetails;
 import com.snowroad.config.auth.dto.OAuthAttributes;
 import com.snowroad.entity.SocialLogin;
 import com.snowroad.entity.User;
 import com.snowroad.socialLogin.domain.SocialLoginRepository;
 import com.snowroad.user.domain.*;
 import com.snowroad.entity.UserContact;
+import com.snowroad.userCategory.service.UserCategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +22,9 @@ import java.util.Optional;
 public class UserService {
     private final UserRepository userRepository;
     private final SocialLoginRepository socialLoginRepository;
+
+    private final UserCategoryService userCategoryService;
+
 
     @Transactional
     public User createUserByOAuthAttributes(OAuthAttributes attributes) {
@@ -49,5 +57,21 @@ public class UserService {
     public Optional<User> findUserBySocialId(String socialId) {
         return socialLoginRepository.findBySocialId(socialId)
                 .map(SocialLogin::getUser);
+    }
+
+    @Transactional
+    public void signUp(SignUpRequestDto request) {
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new BadRequestException("존재하지 않는 사용자입니다."));
+
+        if (user.getJoinYn().equals("Y")) {
+            throw new BadRequestException("이미 회원가입된 사용자입니다.");
+        }
+        // 회원가입
+        user.signUp();
+        // 관심 카테고리 추가
+        if (request.getCategories() != null && !request.getCategories().isEmpty()) {
+            userCategoryService.updateUserCategories(user.getUserAccountNo(), request.getCategories());
+        }
     }
 }
