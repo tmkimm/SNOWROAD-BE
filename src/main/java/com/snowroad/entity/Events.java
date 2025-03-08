@@ -31,6 +31,13 @@ public class Events extends BaseTimeEntity {
     @Column(name = "EVNT_ADDR", length = 500, nullable = false)
     private String eventAddr;
 
+    @Schema(description = "도로명주소")
+    @Column(name = "RADS", length = 100)
+    private String rads;
+
+    @Schema(description = "지번주소")
+    @Column(name = "LNAD", length = 100)
+    private String lnad;
     @Schema(description = "운영시작일자")
     @Column(name = "OPER_STAT_DT", length = 8, nullable = false)
     private String operStatDt;
@@ -75,7 +82,7 @@ public class Events extends BaseTimeEntity {
     private EventFilesMst eventFiles; // EventFilesMst와 1:1 관계 설정
 
     @Builder
-    public Events(Long eventId, String eventNm, String eventCntn, String eventAddr, String operStatDt, String operEndDt, String operDttmCntn, String ctgyId, String eventTypeCd, Double addrLttd, Double addrLotd, String ldcd) {
+    public Events(Long eventId, String eventNm, String eventCntn, String eventAddr, String operStatDt, String operEndDt, String operDttmCntn, String ctgyId, String eventTypeCd, Double addrLttd, Double addrLotd, String ldcd, String rads, String lnad) {
         this.eventId = eventId;
         this.eventNm = eventNm;
         this.eventCntn = eventCntn;
@@ -88,9 +95,11 @@ public class Events extends BaseTimeEntity {
         this.addrLttd = addrLttd;
         this.addrLotd = addrLotd;
         this.ldcd = ldcd;
+        this.rads = rads;
+        this.lnad = lnad;
     }
 
-    public void update(String eventNm, String eventCntn, String eventAddr, String operStatDt, String operEndDt, String operDttmCntn, String ctgyId, String eventTypeCd, Double addrLttd, Double addrLotd) {
+    public void update(String eventNm, String eventCntn, String eventAddr, String operStatDt, String operEndDt, String operDttmCntn, String ctgyId, String eventTypeCd, Double addrLttd, Double addrLotd, String ldcd,  String rads, String lnad) {
         this.eventNm = eventNm;
         this.eventCntn = eventCntn;
         this.eventAddr = eventAddr;
@@ -101,6 +110,9 @@ public class Events extends BaseTimeEntity {
         this.eventTypeCd = eventTypeCd;
         this.addrLttd = addrLttd;
         this.addrLotd = addrLotd;
+        this.ldcd = ldcd;
+        this.rads = rads;
+        this.lnad = lnad;
     }
 
     public void updateTumbFile(EventFilesMst eventFilesMst) {
