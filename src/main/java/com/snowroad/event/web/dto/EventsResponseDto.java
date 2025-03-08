@@ -31,6 +31,11 @@ public class EventsResponseDto {
     @Schema(description = "카테고리 명")
     private String ctgyNm;
 
+    @Schema(description = "도로명주소", example = "서울 마포구 홍익로 10")
+    private String rads;
+
+    @Schema(description = "지번주소", example = "서울 마포구 서교동 486")
+    private String lnad;
 
     @Schema(description = "위도")
     private Double addrLttd;
@@ -71,6 +76,8 @@ public class EventsResponseDto {
         this.ppstEnbnTypeCd = entity.getEventTypeCd();
         this.addrLttd = entity.getAddrLttd();
         this.addrLotd = entity.getAddrLotd();
+        this.rads = entity.getRads();
+        this.lnad = entity.getLnad();
     }
 
 }
