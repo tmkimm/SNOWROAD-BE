@@ -1,9 +1,14 @@
 package com.snowroad.mark.service;
 
+import com.snowroad.event.web.dto.PagedResponseDto;
 import com.snowroad.mark.domain.MarkRepository;
 import com.snowroad.mark.web.dto.MarkedEventResponseDTO;
 import com.snowroad.mark.web.dto.MarkSaveRequestDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,9 +19,21 @@ import java.util.List;
 public class MarkService {
     private final MarkRepository markRepository;
 
+    @Transactional(readOnly = true)
+    public PagedResponseDto<MarkedEventResponseDTO> getMarkedEventList(int page, Long userId) {
+        int size = 12; // 임의로 한페이지에 20개 데이터 처리, 추후 필요시 변경
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "operStatDt"));
+        Page<MarkedEventResponseDTO> eventsPage = markRepository.getMarkedEventList(pageable,userId);
+
+        return new PagedResponseDto<>(
+                eventsPage.getContent(),
+                eventsPage.getTotalPages()
+        );
+    }
+
     @Transactional
-    public Long saveMarkEvent(MarkSaveRequestDto requestDto) {
-        return markRepository.saveMarkEvent(requestDto);
+    public Long addMarkEvent(MarkSaveRequestDto requestDto) {
+        return markRepository.addMarkEvent(requestDto);
     }
 
     @Transactional
@@ -30,22 +47,6 @@ public class MarkService {
 //      return markRepository.save(requestDto.toEntity()).getUserAcntNo(); // 실제 db 작업시 위 주석으로 변경
     }
 
-    @Transactional(readOnly = true)
-    public List<MarkedEventResponseDTO> getMarkedEventList(Long userId) {
 
-        // Native Query 호출
-        List<MarkedEventResponseDTO> result =  markRepository.getMarkedEventList(userId);
-
-        return result;
-
-    }
-
-    @Transactional(readOnly = true)
-    public void findAllDesc() {
-//        markRepository.findAllDesc().stream()
-//                .map(EventsListResponseDto::new)
-//                .collect(Collectors.toList());
-
-    }
 
 }

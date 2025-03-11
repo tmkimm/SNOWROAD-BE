@@ -25,7 +25,7 @@ public class EventController {
 
     private final EventService eventService;
 
-    @Operation(summary="메인 배너 조회", description = "(이벤트) 메인 배너 컨텐츠를 조회합니다. ARG : ALL, PPST, ENBN")
+    @Operation(summary="메인 배너 조회", description = "(이벤트) 메인 배너 컨텐츠를 조회합니다. ARG : ALL, 10, 20")
     @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = HomeEventsResponseDto.class)))
     @GetMapping("/api/event/banner/{eventTypeCd}")
     public List<HomeEventsResponseDto> getMainBannerList(@RequestParam(defaultValue = "0") int page, @PathVariable String eventTypeCd) {
@@ -33,16 +33,7 @@ public class EventController {
         return events;
     }
 
-    @Operation(summary="jpa 테스트용 조회", description = "(이벤트) QueryDsl 테스트용 조회. ARG : ALL, PPST, ENBN")
-    @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = HomeEventsResponseDto.class)))
-    @GetMapping("/api/event/test/{eventTypeCd}")
-    public List<HomeEventsResponseDto> getMainTestList(@RequestParam(defaultValue = "0") int page, @PathVariable String eventTypeCd) {
-        List<HomeEventsResponseDto> events = eventService.getMainTestList(eventTypeCd);
-        return events;
-    }
-
-
-    @Operation(summary="메인 인기 리스트 조회", description = "(이벤트) 메인 팝업, 전시 순위 리스트를 조회합니다. ARG : ALL, PPST, ENBN")
+    @Operation(summary="메인 인기 리스트 조회", description = "(이벤트) 메인 팝업, 전시 순위 리스트를 조회합니다. ARG : ALL, 10, 20")
     @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = HomeEventsResponseDto.class)))
     @GetMapping("/api/event/rank/{eventTypeCd}")
     public List<HomeEventsResponseDto> getMainRankList(@RequestParam(defaultValue = "0") int page, @PathVariable String eventTypeCd) {
@@ -51,7 +42,7 @@ public class EventController {
     }
 
 
-    @Operation(summary="메인 추천 리스트 조회", description = "(이벤트) 메인 팝업, 전시 리스트 추천 항목을 조회합니다. ARG : ALL, PPST, ENBN")
+    @Operation(summary="메인 추천 리스트 조회", description = "(이벤트) 메인 팝업, 전시 리스트 추천 항목을 조회합니다. ARG : ALL, 10, 20")
     @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = EventsListResponseDto.class)))
     @GetMapping("/api/events/rcmn/{eventTypeCd}")
     public List<HomeEventsResponseDto> getMainRecsList(@PathVariable String eventTypeCd){
@@ -90,7 +81,7 @@ public class EventController {
         //return mainService.getMainRecoList();
     }*/
 
-    @Operation(summary="메인 오픈임박 리스트 조회", description = "(이벤트) 메인 팝업, 전시 오픈임박 리스트를 조회합니다. eventTypeCd : ALL, PPST, ENBN")
+    @Operation(summary="메인 오픈임박 리스트 조회", description = "(이벤트) 메인 팝업, 전시 오픈임박 리스트를 조회합니다. eventTypeCd : ALL, 10, 20")
     @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = HomeEventsResponseDto.class)))
     @GetMapping("/api/events/operStat/{eventTypeCd}")
     public PagedResponseDto<HomeEventsResponseDto> getMainOperStatList(@RequestParam(defaultValue = "0") int page, @PathVariable String eventTypeCd) {
@@ -98,7 +89,7 @@ public class EventController {
         return new PagedResponseDto<>(events, 10);
     }
 
-    @Operation(summary="메인 마감임박 리스트 조회", description = "(이벤트) 메인 팝업, 전시 마감임박 리스트를 조회합니다. eventTypeCd : ALL, PPST, ENBN")
+    @Operation(summary="메인 마감임박 리스트 조회", description = "(이벤트) 메인 팝업, 전시 마감임박 리스트를 조회합니다. eventTypeCd : ALL, 10, 20")
     @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = HomeEventsResponseDto.class)))
     @GetMapping("/api/events/operEnd/{eventTypeCd}")
     public PagedResponseDto<HomeEventsResponseDto> getMainOperEndList(@RequestParam(defaultValue = "0") int page, @PathVariable String eventTypeCd) {
@@ -106,21 +97,11 @@ public class EventController {
         return new PagedResponseDto<>(events, 10);
     }
 
-    @Operation(summary="즐겨찾기 팝업/전시 리스트 조회", description = "(이벤트) 즐겨찾기된 팝업, 전시 리스트를 조회합니다.")
-    @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = DetailEventsResponseDto.class)))
-    @GetMapping("/api/events/marked")
-    public PagedResponseDto<DetailEventsResponseDto> getMarkedList(@RequestParam(defaultValue = "0") int page) {
-        List<DetailEventsResponseDto> events = eventService.findEvntMarkedList();
-        // PagedResponseDto로 반환
-        return new PagedResponseDto<>(events, 11);
-    }
-
-
     @Operation(summary="리스트 팝업/전시 조회", description = "(이벤트) 리스트페이지 등록된 팝업, 전시 리스트를 조회합니다.<br>" +
             "sortType-10:조회순 20:최신순 30:마감순 40/50:미완<br>  " +
             "ctgyId-category enum 내부 코드(FANDB,DESIGN 등)<br>  " +
             " geo-미완<br>" +
-            "eventTypeCd : ALL, PPST, ENBN")
+            "eventTypeCd : ALL, 10, 20")
     @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = EventsListResponseDto.class)))
     @GetMapping("/api/events/list/{eventTypeCd}")
     public ResponseEntity<PagedResponseDto<DetailEventsResponseDto>> getEventList(
@@ -136,7 +117,6 @@ public class EventController {
     //    Page<DetailEventsResponseDto> response = eventService.getEvntList(page, eventTypeCd, sortType, ctgyId, fromDate, toDate, geo);
         return ResponseEntity.ok(eventService.getEvntList(page, eventTypeCd, sortType, ctgyId, fromDate, toDate, geo));
     }
-
 
     @Operation(summary="상세 컨텐츠 조회", description = "(이벤트) 상세페이지 개별 팝업/전시 항목을 조회합니다.")
     @ApiResponse(responseCode = "200", description = "상세 조회 성공", content = @Content(schema = @Schema(implementation = EventsListResponseDto.class)))

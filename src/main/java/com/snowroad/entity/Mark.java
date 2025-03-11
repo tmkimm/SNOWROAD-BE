@@ -11,17 +11,18 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Entity
 @Table(name="TB_EVNT_LIKE_D")
+@IdClass(MarkId.class) // 복합 키를 지정
 // 원칙) Entity는 setter를 만들지 않고 목적과 의도를 알 수 있는 메소드를 생성한다.(예시 : cancleOrder)
 public class Mark extends BaseTimeEntity {
 
     @Schema(description = "사용자계정번호")
     @Column(name = "USER_ACNT_NO")
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long userAcntNo;
 
     @Schema(description = "이벤트ID")
     @Column(name = "EVNT_ID")
+    @Id
     private Long eventId;
 
     @Schema(description = "좋아요여부")
@@ -35,9 +36,7 @@ public class Mark extends BaseTimeEntity {
         this.likeYn = likeYn;
     }
 
-    public void update(Long userAcntNo, Long eventId, String likeYn) {
-        this.userAcntNo = userAcntNo;
-        this.eventId = eventId;
+    public void update(String likeYn) {
         this.likeYn = likeYn;
     }
 }
