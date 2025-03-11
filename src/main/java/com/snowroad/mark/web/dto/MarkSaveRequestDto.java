@@ -2,9 +2,6 @@ package com.snowroad.mark.web.dto;
 
 import com.snowroad.entity.Mark;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,17 +12,16 @@ import lombok.NoArgsConstructor;
 public class MarkSaveRequestDto {
 
     @Schema(description = "사용자계정번호")
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long userAcntNo;
+    private Long userAcntNo;  // @Id 및 @GeneratedValue 제거
 
     @Schema(description = "이벤트ID")
     private Long eventId;
+
     @Schema(description = "좋아요여부")
     private String likeYn;
 
     @Builder
-    public MarkSaveRequestDto(Long eventId, String likeYn) {
+    public MarkSaveRequestDto(Long userAcntNo, Long eventId, String likeYn) {
         this.userAcntNo = userAcntNo;
         this.eventId = eventId;
         this.likeYn = likeYn;
