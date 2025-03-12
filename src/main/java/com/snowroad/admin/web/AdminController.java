@@ -2,6 +2,8 @@ package com.snowroad.admin.web;
 
 import com.snowroad.admin.web.dto.AdminLoginRequestDTO;
 import com.snowroad.admin.web.dto.AdminLoginResponseDTO;
+import com.snowroad.auth.web.dto.UserInfoResponseDto;
+import com.snowroad.common.exception.UnauthorizedException;
 import com.snowroad.common.util.CurrentUser;
 import com.snowroad.config.auth.dto.CustomUserDetails;
 import com.snowroad.entity.Events;
@@ -13,6 +15,7 @@ import com.snowroad.file.web.dto.EventsFileDetailResponseDTO;
 import com.snowroad.file.web.dto.EventsFileUpdateRequestDTO;
 import com.snowroad.admin.service.AdminService;
 import com.snowroad.event.service.EventService;
+import com.snowroad.user.domain.Role;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -204,5 +207,30 @@ public class AdminController {
     public Long deleteFile(@PathVariable Long fileId) {
         fileService.deleteFileDetail(fileId);
         return fileId;
+    }
+
+
+    @Operation(
+            summary = "어드민 로그인 정보 조회",
+            description = "어드민 로그인 후 사용자 정보를 반환합니다.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "User information retrieved successfully", content = @Content(mediaType = "application/json", schema = @Schema(implementation = UserInfoResponseDto.class))),
+                    @ApiResponse(responseCode = "401", description = "Unauthorized")
+            }
+    )
+    @GetMapping("/api/admin/user-info")
+    public UserInfoResponseDto getAuthStatus(@CurrentUser CustomUserDetails userDetails) {
+        if(userDetails == null) {
+            throw new UnauthorizedException("로그인되지 않았습니다.");
+        }
+        if(!userDetails.getRole().equals(Role.ADMIN.name())) {
+            throw new UnauthorizedException("관리자만 접근이 가능합니다.");
+        }
+        UserInfoResponseDto userInfo = new UserInfoResponseDto(
+                userDetails.getUserId(),
+                userDetails.getUsername(),
+                userDetails.getJoinYn()
+        );
+        return userInfo;
     }
 }
