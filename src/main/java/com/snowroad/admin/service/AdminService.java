@@ -1,6 +1,7 @@
 package com.snowroad.admin.service;
 
 import com.snowroad.admin.web.dto.AdminLoginResponseDTO;
+import com.snowroad.common.exception.UnauthorizedException;
 import com.snowroad.common.util.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,7 +32,7 @@ public class AdminService {
             accessToken = jwtTokenProvider.generateAccessToken(adminUserId);
             refreshToken = jwtTokenProvider.generateRefreshToken(adminUserId);
         } else {
-            throw new RuntimeException("Authentication failed");
+            throw new UnauthorizedException("인증정보가 올바르지 않습니다.");
         }
         return new AdminLoginResponseDTO(accessToken, refreshToken);
     }
