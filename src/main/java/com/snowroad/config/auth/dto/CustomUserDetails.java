@@ -25,6 +25,10 @@ public class CustomUserDetails implements UserDetails {
         return joinYn;
     }
 
+    public String getRole() {
+        return role;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return null; // 필요하면 권한을 추가
