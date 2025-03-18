@@ -3,6 +3,7 @@ package com.snowroad.event.impl;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.snowroad.entity.*;
 import com.snowroad.event.domain.EventsRepositoryCustom;
@@ -32,8 +33,8 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
                 .select(
                         e.eventId,
                         e.eventNm,
-                        e.operStatDt.substring(2, 8),
-                        e.operEndDt.substring(2, 8),
+                        e.operStatDt,
+                        e.operEndDt,
                         e.ctgyId,
                         e.eventTypeCd
                 )
@@ -49,8 +50,8 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
         return result.stream().map(row -> HomeEventsResponseDto.builder()
                 .eventId(row.get(e.eventId))
                 .eventNm(row.get(e.eventNm))
-                .operStatDt(row.get(e.operStatDt.substring(2, 8)))
-                .operEndDt(row.get(e.operEndDt.substring(2, 8)))
+                .operStatDt(row.get(e.operStatDt))
+                .operEndDt(row.get(e.operEndDt))
                 .ctgyId(row.get(e.ctgyId))
                 .eventTypeCd(row.get(e.eventTypeCd))
                 .build()
@@ -127,8 +128,27 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
                         e.eventNm,
                         e.eventCntn,
                         e.eventAddr,
-                        e.operStatDt.substring(2, 8), // SUBSTRING(e.OPER_STAT_DT,3,6)
-                        e.operEndDt.substring(2, 8), // SUBSTRING(e.OPER_END_DT,3,6)
+                        Expressions.stringTemplate(
+                                "CASE " +
+                                        // 마지막 "동" 찾기
+                                        "WHEN {0} LIKE '%동%' THEN LEFT({0}, LENGTH({0}) - LOCATE('동', REVERSE({0})) + 1) " +
+
+                                        // 마지막 "구" 찾기
+                                        "WHEN {0} LIKE '%구%' THEN LEFT({0}, LENGTH({0}) - LOCATE('구', REVERSE({0})) + 1) " +
+
+                                        // 마지막 "시" 찾기
+                                        "WHEN {0} LIKE '%시%' THEN LEFT({0}, LENGTH({0}) - LOCATE('시', REVERSE({0})) + 1) " +
+
+                                        // 마지막 "도" 찾기
+                                        "WHEN {0} LIKE '%도%' THEN LEFT({0}, LENGTH({0}) - LOCATE('도', REVERSE({0})) + 1) " +
+
+                                        // 원본 유지
+                                        "ELSE {0} " +
+                                        "END",
+                                e.lnad
+                        ), // e.lnad 값을 "서울특별시 xx구 xx동" 형식으로 변환
+                        e.operStatDt, // 
+                        e.operEndDt, // 
                         e.ctgyId,
                         e.eventTypeCd,
                         mark.likeYn.coalesce("N"),
@@ -139,7 +159,7 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
                 .leftJoin(view).on(e.eventId.eq(view.eventId)) // JOIN TB_EVNT_VIEW_D
                 .leftJoin(mark).on(e.eventId.eq(mark.eventId)) // JOIN TB_EVNT_LIKE_D
                 .leftJoin(fileMst).on(e.eventTumbfile.fileMstId.eq(fileMst.fileMstId)) // JOIN TB_EVNT_FILE_M
-                .leftJoin(fileDtl).on(fileMst.fileMstId.eq(fileDtl.fileDtlId)) // JOIN TB_EVNT_FILE_D
+                .leftJoin(fileDtl).on(fileMst.fileMstId.eq(fileDtl.fileMst.fileMstId)) // JOIN TB_EVNT_FILE_D
 //                .where(
 //                        e.deleteYn.eq("N"),
 //                        e.ctgyId.in(ctgyId), // ✅ categoryList를 IN 조건으로 적용
@@ -157,16 +177,99 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
                         row.get(e.eventNm),
                         row.get(e.eventCntn),
                         row.get(e.eventAddr),
-                        row.get(e.operStatDt.substring(2, 8)), // 날짜 변환
-                        row.get(e.operEndDt.substring(2, 8)), // 날짜 변환
+                        row.get(Expressions.stringTemplate(
+                                "CASE " +
+                                        // 마지막 "동" 찾기
+                                        "WHEN {0} LIKE '%동%' THEN LEFT({0}, LENGTH({0}) - LOCATE('동', REVERSE({0})) + 1) " +
+
+                                        // 마지막 "구" 찾기
+                                        "WHEN {0} LIKE '%구%' THEN LEFT({0}, LENGTH({0}) - LOCATE('구', REVERSE({0})) + 1) " +
+
+                                        // 마지막 "시" 찾기
+                                        "WHEN {0} LIKE '%시%' THEN LEFT({0}, LENGTH({0}) - LOCATE('시', REVERSE({0})) + 1) " +
+
+                                        // 마지막 "도" 찾기
+                                        "WHEN {0} LIKE '%도%' THEN LEFT({0}, LENGTH({0}) - LOCATE('도', REVERSE({0})) + 1) " +
+
+                                        // 원본 유지
+                                        "ELSE {0} " +
+                                        "END",
+                                e.lnad
+                        )), // Dto 매핑 시에도 변환 적용
+                        row.get(e.operStatDt), // 날짜 변환
+                        row.get(e.operEndDt), // 날짜 변환
                         row.get(e.ctgyId),
                         row.get(e.eventTypeCd),
-                        row.get(mark.likeYn.charAt(0)), // 임시 char처리, queryDsl 리팩토링 완료시 String으로 Dto타입 변경 필요
+                        row.get(mark.likeYn), // 임시 char처리, queryDsl 리팩토링 완료시 String으로 Dto타입 변경 필요
                         row.get(fileDtl.fileUrl),
                         row.get(fileDtl.fileThumbUrl)
                 )).toList();
 
         return new PageImpl<>(result, page, total); // ✅ 페이징된 결과 반환
     }
+
+    public EventContentsResponseDto findEvntData(Long evntId){
+
+        QEvents e = QEvents.events;
+        QMark mark = QMark.mark;
+        QView view = QView.view;
+        QEventFilesMst fileMst = QEventFilesMst.eventFilesMst;
+        QEventFilesDtl fileDtl = QEventFilesDtl.eventFilesDtl;
+
+        LocalDate today = LocalDate.now();
+        String todayStr = today.format(DateTimeFormatter.ofPattern("yyyyMMdd")); // 현재일자를 yyyyMMdd 포맷으로 변환
+
+
+        Tuple tupleResult = queryFactory
+                .select(
+                        e.eventId,
+                        e.eventNm,
+                        e.eventCntn,
+                        e.eventAddr,
+                        e.rads,
+                        e.lnad,
+                        e.operStatDt,
+                        e.operEndDt,
+                        e.operDttmCntn,
+                        e.ctgyId,
+                        e.eventTypeCd,
+                        mark.likeYn.coalesce("N"),
+                        view.viewNwvl.coalesce(0),
+                        fileDtl.fileUrl,
+                        fileDtl.fileThumbUrl
+                )
+                .from(e)
+                .leftJoin(view).on(e.eventId.eq(view.eventId)) // JOIN TB_EVNT_VIEW_D
+                .leftJoin(mark).on(e.eventId.eq(mark.eventId)) // JOIN TB_EVNT_LIKE_D
+                .leftJoin(fileMst).on(e.eventTumbfile.fileMstId.eq(fileMst.fileMstId)) // JOIN TB_EVNT_FILE_M
+                .leftJoin(fileDtl).on(fileMst.fileMstId.eq(fileDtl.fileMst.fileMstId)) // JOIN TB_EVNT_FILE_D
+                .where(
+                        e.eventId.eq(evntId)
+                )
+                .fetchOne();
+        String likeYn = tupleResult.get(mark.likeYn.coalesce("N"));
+
+        EventContentsResponseDto dto = (tupleResult != null) ? new EventContentsResponseDto(
+                tupleResult.get(e.eventId),
+                tupleResult.get(e.eventNm),
+                tupleResult.get(e.eventCntn),
+                tupleResult.get(e.eventAddr),
+                tupleResult.get(e.rads),
+                tupleResult.get(e.lnad),
+                tupleResult.get(e.operStatDt),
+                tupleResult.get(e.operEndDt),
+                tupleResult.get(e.operDttmCntn),
+                tupleResult.get(e.ctgyId),
+                tupleResult.get(e.eventTypeCd),
+                tupleResult.get(mark.likeYn),
+                (tupleResult.get(view.viewNwvl) != null) ? tupleResult.get(view.viewNwvl) : 0, // Null 체크 추가
+                tupleResult.get(fileDtl.fileUrl),
+                tupleResult.get(fileDtl.fileThumbUrl)
+        ) : null;
+
+
+        return dto;
+    }
+
 }
 
