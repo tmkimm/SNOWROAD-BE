@@ -24,6 +24,9 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
     @Value("${refresh.token.cookie.expiry}")
     private int REFRESH_TOKEN_COOKIE_EXPIRY;
 
+    @Value("${app.redirect-url:http://ec2-13-125-216-97.ap-northeast-2.compute.amazonaws.com}") // 기본값 설정
+    private String redirectUrl;
+
     private final JwtTokenProvider jwtTokenProvider;
 
     @Override
@@ -36,9 +39,8 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         // 쿠키에 JWT 저장
         addCookie(response, "access_token", accessToken, ACCESS_TOKEN_COOKIE_EXPIRY);
         addCookie(response, "refresh_token", refreshToken, REFRESH_TOKEN_COOKIE_EXPIRY);
-
         // 로그인 후 리다이렉트
-        response.sendRedirect("/");
+        response.sendRedirect(redirectUrl);
     }
 
     private void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
