@@ -73,6 +73,7 @@ public class Events extends BaseTimeEntity {
     @Schema(description = "법정동코드")
     @Column(name = "LDCD", length = 30)
     private String ldcd;
+
     @OneToOne
     @JoinColumn(name = "TUMB_FILE_ID")
     private EventFilesMst eventTumbfile; // EventFilesMst와 1:1 관계 설정

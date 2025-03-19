@@ -1,7 +1,6 @@
 package com.snowroad.event.service;
 
 import com.snowroad.admin.web.dto.AdminEventsListResponseDto;
-import com.snowroad.event.domain.Category;
 import com.snowroad.event.domain.EventsRepositoryCustom;
 import com.snowroad.event.web.dto.*;
 import com.snowroad.entity.Events;
@@ -42,7 +41,7 @@ public class EventService {
         //    evntList.setEventTypeNm((String) row[9]);
         //evntList.setTumbFileId((Long) row[8]);
         //evntList.setViewNmvl((Long) row[9]);
-        evntList.setLikeYn((Character) row[8]);
+        evntList.setLikeYn((String) row[8]);
         evntList.setImageUrl((String) row[9]);
         evntList.setSmallImageUrl((String) row[10]);
         return evntList;
@@ -137,11 +136,9 @@ public class EventService {
     }
 
 
-    public EventsResponseDto findEvntData(Long id) {
-        Events entity = eventsRepository.findById(id)
-                .orElseThrow(() -> new
-                        IllegalArgumentException("해당 팝업/전시가 존재하지 않습니다. id" + id));
-        return new EventsResponseDto(entity);
+    public EventContentsResponseDto findEvntData(Long eventId) {
+   //     DetailEventsResponseDto dto = eventsRepositoryCustom.findEvntData(eventId);
+        return eventsRepositoryCustom.findEvntData(eventId);
     }
 
     @Transactional(readOnly = true)
@@ -163,7 +160,7 @@ public class EventService {
                     //    evntRankList.setEventTypeNm((String) row[9]);
                     //  evntMarkList.setTumbFileId((Long) row[8]);
                     // evntMarkList.setViewNmvl((Long) row[9]);
-                    evntMarkList.setLikeYn((Character) row[8]);
+                    evntMarkList.setLikeYn((String) row[8]);
                     return evntMarkList;
                 })
                 .collect(Collectors.toList());
@@ -185,7 +182,8 @@ public class EventService {
                     evntBannerList.setOperEndDt((String) row[3]);
                     evntBannerList.setCtgyId((String) row[4]);
                     evntBannerList.setEventTypeCd((String) row[5]);
-                    evntBannerList.setLikeYn((Character) row[6]);
+                    // likeYn이 Character로 인식될 가능성이 있으므로, String으로 변환
+                    evntBannerList.setLikeYn(row[6] != null ? row[6].toString() : "N");
                     evntBannerList.setImageUrl((String) row[7]);
                     evntBannerList.setSmallImageUrl((String) row[8]);
                     return evntBannerList;
@@ -209,7 +207,7 @@ public class EventService {
 //                    evntBannerList.setOperEndDt((String) row[3]);
 //                    evntBannerList.setCtgyId((String) row[4]);
 //                    evntBannerList.setEventTypeCd((String) row[5]);
-//                    evntBannerList.setLikeYn((Character) row[6]);
+//                    evntBannerList.setLikeYn((String) row[6]);
 //                    evntBannerList.setImageUrl((String) row[7]);
 //                    evntBannerList.setSmallImageUrl((String) row[8]);
 //                    evntBannerList.setDDay((String) row[9]);
@@ -233,7 +231,8 @@ public class EventService {
                     evntRankList.setOperEndDt((String) row[3]);
                     evntRankList.setCtgyId((String) row[4]);
                     evntRankList.setEventTypeCd((String) row[5]);
-                    evntRankList.setLikeYn((Character) row[6]);
+                    // likeYn이 Character로 인식될 가능성이 있으므로, String으로 변환
+                    evntRankList.setLikeYn(row[6] != null ? row[6].toString() : "N");
                     evntRankList.setImageUrl((String) row[7]);
                     evntRankList.setSmallImageUrl((String) row[8]);
                     return evntRankList;
@@ -256,7 +255,8 @@ public class EventService {
                     evntRcmnList.setOperEndDt((String) row[3]);
                     evntRcmnList.setCtgyId((String) row[4]);
                     evntRcmnList.setEventTypeCd((String) row[5]);
-                    evntRcmnList.setLikeYn((Character) row[6]);
+                    // likeYn이 Character로 인식될 가능성이 있으므로, String으로 변환
+                    evntRcmnList.setLikeYn(row[6] != null ? row[6].toString() : "N");
                     evntRcmnList.setImageUrl((String) row[7]);
                     evntRcmnList.setSmallImageUrl((String) row[8]);
                     return evntRcmnList;
@@ -280,7 +280,8 @@ public class EventService {
                     evntOperDateList.setOperEndDt((String) row[3]);
                     evntOperDateList.setCtgyId((String) row[4]);
                     evntOperDateList.setEventTypeCd((String) row[5]);
-                    evntOperDateList.setLikeYn((Character) row[6]);
+                    // likeYn이 Character로 인식될 가능성이 있으므로, String으로 변환
+                    evntOperDateList.setLikeYn(row[6] != null ? row[6].toString() : "N");
                     evntOperDateList.setImageUrl((String) row[7]);
                     evntOperDateList.setSmallImageUrl((String) row[8]);
                     evntOperDateList.setDDay((String) row[9]);
@@ -306,7 +307,8 @@ public class EventService {
                     evntOperDateList.setOperEndDt((String) row[3]);
                     evntOperDateList.setCtgyId((String) row[4]);
                     evntOperDateList.setEventTypeCd((String) row[5]);
-                    evntOperDateList.setLikeYn((Character) row[6]);
+                    // likeYn이 Character로 인식될 가능성이 있으므로, String으로 변환
+                    evntOperDateList.setLikeYn(row[6] != null ? row[6].toString() : "N");
                     evntOperDateList.setImageUrl((String) row[7]);
                     evntOperDateList.setSmallImageUrl((String) row[8]);
                     evntOperDateList.setDDay((String) row[9]);

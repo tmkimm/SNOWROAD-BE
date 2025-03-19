@@ -29,7 +29,7 @@ public class HomeEventsResponseDto {
     @Schema(description = "팝업, 전시 구분 코드")
     private String eventTypeCd;
     @Schema(description = "좋아요 여부")
-    private Character likeYn;
+    private String likeYn;
 
     @Schema(description = "메인 이미지 URL")
     private String imageUrl;
