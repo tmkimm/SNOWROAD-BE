@@ -32,8 +32,8 @@ public class MarkService {
     }
 
     @Transactional
-    public Long addMarkEvent(MarkSaveRequestDto requestDto) {
-        return markRepository.addMarkEvent(requestDto);
+    public Long addMarkEvent(MarkSaveRequestDto requestDto, Long userId) {
+        return markRepository.addMarkEvent(requestDto, userId);
     }
 
     @Transactional

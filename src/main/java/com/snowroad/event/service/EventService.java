@@ -1,6 +1,7 @@
 package com.snowroad.event.service;
 
 import com.snowroad.admin.web.dto.AdminEventsListResponseDto;
+import com.snowroad.config.auth.dto.CustomUserDetails;
 import com.snowroad.event.domain.EventsRepositoryCustom;
 import com.snowroad.event.web.dto.*;
 import com.snowroad.entity.Events;
@@ -121,12 +122,12 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
-    public PagedResponseDto<DetailEventsResponseDto> getEvntList(int page, String eventTypeCd, String sortType, List<String> ctgyId, String fromDate, String toDate, List<String> geo) {
+    public PagedResponseDto<DetailEventsResponseDto> getEvntList(int page, String eventTypeCd, String sortType, List<String> ctgyId, String fromDate, String toDate, List<String> geo, Long userId) {
 
-        int size = 12; // 임의로 한페이지에 20개 데이터 처리, 추후 필요시 변경
+        int size = 12; // 임의로 한페이지에 12개 데이터 처리, 추후 필요시 변경
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "operStatDt"));
 
-        Page<DetailEventsResponseDto> eventsPage = eventsRepositoryCustom.getEvntList(pageable,eventTypeCd, sortType,ctgyId,fromDate,toDate,geo);
+        Page<DetailEventsResponseDto> eventsPage = eventsRepositoryCustom.getEvntList(pageable,eventTypeCd, sortType,ctgyId,fromDate,toDate,geo,userId);
 
         return new PagedResponseDto<>(
                 eventsPage.getContent(),
@@ -243,9 +244,9 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
-    public List<HomeEventsResponseDto> getMainRcmnList(String eventTypeCd) {
+    public List<HomeEventsResponseDto> getMainRcmnList(String eventTypeCd, CustomUserDetails userDetails) {
         // Native Query 호출
-        List<Object[]> result =  eventsRepository.getMainRcmnList(eventTypeCd);
+        List<Object[]> result =  eventsRepository.getMainRcmnList(eventTypeCd, userDetails.getUserId());
         // Object[]에서 데이터를 추출하여 필요한 형태로 가공
         List<HomeEventsResponseDto> eventRcmnListData = result.stream().map(row -> {
                     HomeEventsResponseDto evntRcmnList = new HomeEventsResponseDto();

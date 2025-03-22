@@ -1,5 +1,6 @@
 package com.snowroad.event.domain;
 
+import com.snowroad.config.auth.dto.CustomUserDetails;
 import com.snowroad.entity.Events;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -84,7 +85,7 @@ public interface EventsRepository extends JpaRepository<Events, Long>, EventsRep
             "ORDER BY RAND() * 10000, OPER_STAT_DT ASC " + // RAND() * 10000 => 랜덤정렬
             "LIMIT 10"
             , nativeQuery = true)
-    List<Object[]> getMainRcmnList(@Param("eventTypeCd") String eventTypeCd);
+    List<Object[]> getMainRcmnList(@Param("eventTypeCd") String eventTypeCd, Long userId);
 
     // 메인페이지 오픈임박-상위 9개 조회순
     @Query(value = "SELECT e.EVNT_ID as eventId, e.EVNT_NM AS eventNm, OPER_STAT_DT as operStatDt, OPER_END_DT as operEndDt, " +

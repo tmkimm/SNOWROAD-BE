@@ -14,7 +14,7 @@ public interface EventsRepositoryCustom{
     // 쿼리dsl 테스트
     List<HomeEventsResponseDto> getMainTestList(String eventTypeCd);
 
-    Page<DetailEventsResponseDto> getEvntList(Pageable page, String eventTypeCd, String sortType, List<String> ctgyId, String fromDate, String toDate, List<String> geo);
+    Page<DetailEventsResponseDto> getEvntList(Pageable page, String eventTypeCd, String sortType, List<String> ctgyId, String fromDate, String toDate, List<String> geo, Long userId);
 
     // 상세 페이지
     EventContentsResponseDto findEvntData(Long eventId);
