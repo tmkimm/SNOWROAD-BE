@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 @Schema(description = "팝업, 전시 즐겨찾기 등록 DTO")
 public class MarkSaveRequestDto {
 
-    @Schema(description = "사용자계정번호")
-    private Long userAcntNo;  // @Id 및 @GeneratedValue 제거
+//    @Schema(description = "사용자계정번호")
+//    private Long userAcntNo;  // @Id 및 @GeneratedValue 제거
 
     @Schema(description = "이벤트ID")
     private Long eventId;
@@ -22,14 +22,14 @@ public class MarkSaveRequestDto {
 
     @Builder
     public MarkSaveRequestDto(Long userAcntNo, Long eventId, String likeYn) {
-        this.userAcntNo = userAcntNo;
+//        this.userAcntNo = userAcntNo;
         this.eventId = eventId;
         this.likeYn = likeYn;
     }
 
     public Mark toEntity() {
         return Mark.builder()
-                .userAcntNo(userAcntNo)
+//                .userAcntNo(userAcntNo)
                 .eventId(eventId)
                 .likeYn(likeYn)
                 .build();

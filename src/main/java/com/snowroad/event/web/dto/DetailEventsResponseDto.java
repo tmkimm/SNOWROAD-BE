@@ -1,5 +1,6 @@
 package com.snowroad.event.web.dto;
 
+import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.AllArgsConstructor;
@@ -28,21 +29,33 @@ public class DetailEventsResponseDto {
     private String operEndDt;
     @Schema(description = "카테고리 ID")
     private String ctgyId;
-    /*    @Schema(description = "카테고리 명")
-        private String ctgyNm;*/
     @Schema(description = "팝업, 전시 구분 코드")
     private String eventTypeCd;
     @Schema(description = "좋아요 여부")
     private String likeYn;
-/*    @Schema(description = "팝업, 전시 구분 명")
-    private String eventTypeNm;
-    @Schema(description = "썸네일 파일ID")
-    private Long tumbFileId;
-    @Schema(description = "조회수")
-    private Long viewNmvl;*/
     @Schema(description = "메인 이미지 URL")
     private String imageUrl;
 
     @Schema(description = "모바일 이미지 URL")
     private String smallImageUrl;
+    @Schema(description = "조회수")
+    private int viewNmvl;
+
+    @QueryProjection
+    public DetailEventsResponseDto(Long eventId, String eventNm, String eventCntn, String eventAddr, String lnad, String operStatDt, String operEndDt, String ctgyId, String eventTypeCd, String likeYn, String imageUrl, String smallImageUrl, Integer viewNmvl) {
+        this.eventId = eventId;
+        this.eventNm = eventNm;
+        this.eventCntn = eventCntn;
+        this.eventAddr = eventAddr;
+        this.lnad = lnad;
+        this.operStatDt = operStatDt;
+        this.operEndDt = operEndDt;
+        this.ctgyId = ctgyId;
+        this.eventTypeCd = eventTypeCd;
+        this.likeYn = likeYn;
+        this.imageUrl = imageUrl;
+        this.smallImageUrl = smallImageUrl;
+        this.viewNmvl = viewNmvl;
+    }
+
 }

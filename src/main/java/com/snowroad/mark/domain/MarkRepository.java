@@ -15,6 +15,6 @@ public interface MarkRepository {
     // 쿼리dsl 테스트
     Page<MarkedEventResponseDTO> getMarkedEventList(Pageable page, Long userId);
 
-    Long addMarkEvent(MarkSaveRequestDto requestDto);
+    Long addMarkEvent(MarkSaveRequestDto requestDto, Long userId);
 
 }

@@ -96,18 +96,16 @@ public class MarkRepositoryImpl implements MarkRepository {
 
     @Transactional
     @Override
-    public Long addMarkEvent(MarkSaveRequestDto requestDto){
+    public Long addMarkEvent(MarkSaveRequestDto requestDto, Long userId){
 
         QMark mark = QMark.mark;
 
         // 1) 넘어온 likeYn 값이 N일 경우, 기존에 'Y'로 저장된 데이터를 N으로 변경
         if ("N".equals(requestDto.getLikeYn())) {
-            System.out.println(requestDto.getUserAcntNo());
-            System.out.println(mark.userAcntNo.intValue());
             // 해당 사용자와 이벤트의 기존 데이터를 조회
             Mark existingMark = queryFactory
                     .selectFrom(mark)
-                    .where(mark.userAcntNo.eq(requestDto.getUserAcntNo())
+                    .where(mark.userAcntNo.eq(userId)
                             .and(mark.eventId.eq(requestDto.getEventId())))
                     .fetchOne();
 
@@ -115,7 +113,7 @@ public class MarkRepositoryImpl implements MarkRepository {
                 // 기존에 'Y'인 데이터가 있으면 'N'으로 업데이트
                 queryFactory.update(mark)
                         .set(mark.likeYn, "N")
-                        .where(mark.userAcntNo.eq(requestDto.getUserAcntNo())
+                        .where(mark.userAcntNo.eq(userId)
                                 .and(mark.eventId.eq(requestDto.getEventId())))
                         .execute();
                 return existingMark.getEventId();  // 기존 데이터의 eventId 반환
@@ -125,7 +123,7 @@ public class MarkRepositoryImpl implements MarkRepository {
         // 2) requestDto eventId를 가져와, 기존에 즐겨찾기를 추가한 항목인지 체크
         Mark existingMark = queryFactory
                 .selectFrom(mark)
-                .where(mark.userAcntNo.eq(requestDto.getUserAcntNo())
+                .where(mark.userAcntNo.eq(userId)
                         .and(mark.eventId.eq(requestDto.getEventId())))
                 .fetchOne();
 
@@ -138,7 +136,7 @@ public class MarkRepositoryImpl implements MarkRepository {
             // 4) 기존 즐겨찾기 이력 있을 시 likeYn 업데이트 (UPDATE)
             queryFactory.update(mark)
                     .set(mark.likeYn, requestDto.getLikeYn())
-                    .where(mark.userAcntNo.eq(requestDto.getUserAcntNo())
+                    .where(mark.userAcntNo.eq(userId)
                             .and(mark.eventId.eq(requestDto.getEventId())))
                     .execute();
             return existingMark.getEventId();

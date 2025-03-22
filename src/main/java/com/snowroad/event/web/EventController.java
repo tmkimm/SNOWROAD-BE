@@ -1,5 +1,7 @@
 package com.snowroad.event.web;
 
+import com.snowroad.common.util.CurrentUser;
+import com.snowroad.config.auth.dto.CustomUserDetails;
 import com.snowroad.event.service.EventService;
 import com.snowroad.event.web.dto.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,8 +42,8 @@ public class EventController {
     @Operation(summary="메인 추천 리스트 조회", description = "(이벤트) 메인 팝업, 전시 리스트 추천 항목을 조회합니다. ARG : ALL, 10, 20")
     @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = HomeEventsResponseDto.class)))
     @GetMapping("/api/main-events/rcmn/{eventTypeCd}")
-    public List<HomeEventsResponseDto> getMainRecsList(@PathVariable String eventTypeCd){
-        List<HomeEventsResponseDto> events = eventService.getMainRcmnList(eventTypeCd);
+    public List<HomeEventsResponseDto> getMainRecsList(@PathVariable String eventTypeCd, @CurrentUser CustomUserDetails userDetails){
+        List<HomeEventsResponseDto> events = eventService.getMainRcmnList(eventTypeCd, userDetails);
         return events;
     }
 
@@ -74,12 +76,16 @@ public class EventController {
             @RequestParam(required = false) List<String> ctgyId,
             @RequestParam(required = false) String fromDate,
             @RequestParam(required = false) String toDate,
-            @RequestParam(required = false) List<String> geo
+            @RequestParam(required = false) List<String> geo,
+            @CurrentUser CustomUserDetails userDetails
 
     ) {
-        // 페이지네이션 반환
-    //    Page<DetailEventsResponseDto> response = eventService.getEvntList(page, eventTypeCd, sortType, ctgyId, fromDate, toDate, geo);
-        return ResponseEntity.ok(eventService.getEvntList(page, eventTypeCd, sortType, ctgyId, fromDate, toDate, geo));
+        Long userId = 0L;
+        if (userDetails != null) {
+            userId =userDetails.getUserId();
+        }
+
+        return ResponseEntity.ok(eventService.getEvntList(page, eventTypeCd, sortType, ctgyId, fromDate, toDate, geo, userId));
     }
 
     @Operation(summary="상세 컨텐츠 조회", description = "(이벤트) 상세페이지 개별 팝업/전시 항목을 조회합니다.")

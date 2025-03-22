@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Component
@@ -59,7 +60,7 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
     }
 
     @Override
-    public Page<DetailEventsResponseDto> getEvntList(Pageable page, String eventTypeCd, String sortType, List<String> ctgyId, String fromDate, String toDate, List<String> geo) {
+    public Page<DetailEventsResponseDto> getEvntList(Pageable page, String eventTypeCd, String sortType, List<String> ctgyId, String fromDate, String toDate, List<String> geo, Long userId) {
 
         QEvents e = QEvents.events;
         QMark mark = QMark.mark;
@@ -79,27 +80,27 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
         BooleanBuilder whereCondition = new BooleanBuilder();
         whereCondition.and(e.deleteYn.eq("N")); // 기본 조건 유지 (삭제여부)
 
+        // userId값이 있는 경우 좋아요여부 체킹
+        if (userId != null && userId != 0) {
+            whereCondition.and(e.ctgyId.in(ctgyId));
+        }
         // categoryList 값이 존재할 때만 IN 조건 추가
         if (ctgyId != null && !ctgyId.isEmpty()) {
             whereCondition.and(e.ctgyId.in(ctgyId));
         }
-
         // geoList 값이 존재할 때만 IN 조건 추가
         if (geo != null && !geo.isEmpty()) {
             whereCondition.and(e.ldcd.in(geo));
         }
-
         // fromDate & toDate 값이 존재할 때만 BETWEEN 조건 추가
         if (fromDate != null && toDate != null) {
             whereCondition.and(e.operStatDt.between(fromDate, toDate));
         }
-
         // sortType 10:조회순 20:최신순(오픈일순) 30:마감순(마감임박순) 40:지역별(지역명칭)-미완 50:거리순-미완
         // sortType = 30일 때는 `operEndDt`가 현재일자 이후여야 함
         if ("30".equals(sortType)) {
             whereCondition.and(e.operEndDt.goe(todayStr)); // 현재일자보다 이후 데이터
         }
-
         // ORDER BY 조건 설정,
         OrderSpecifier<?> orderBy = e.operStatDt.asc(); // 기본 정렬
         if ("10".equals(sortType)) {
@@ -114,16 +115,16 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
         //    orderBy = e.operEndDt.asc();
         }
 
-
-        // ✅ 전체 데이터 개수 조회 (페이징을 위한 count 쿼리)
-        long total = queryFactory
-                .select(e.count())
-                .from(e)
-                .where(whereCondition)
-                .fetchOne();
+        // 전체 데이터 개수 조회 (페이징을 위한 count 쿼리)
+        Long total = Optional.ofNullable(queryFactory
+                        .select(e.count())
+                        .from(e)
+                        .where(whereCondition)
+                        .fetchOne())
+                .orElse(0L);
 
         List<DetailEventsResponseDto> result = queryFactory
-                .select(
+                .select(new QDetailEventsResponseDto( // QDetailEventsResponseDto 사용
                         e.eventId,
                         e.eventNm,
                         e.eventCntn,
@@ -132,80 +133,38 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
                                 "CASE " +
                                         // 마지막 "동" 찾기
                                         "WHEN {0} LIKE '%동%' THEN LEFT({0}, LENGTH({0}) - LOCATE('동', REVERSE({0})) + 1) " +
-
                                         // 마지막 "구" 찾기
                                         "WHEN {0} LIKE '%구%' THEN LEFT({0}, LENGTH({0}) - LOCATE('구', REVERSE({0})) + 1) " +
-
                                         // 마지막 "시" 찾기
                                         "WHEN {0} LIKE '%시%' THEN LEFT({0}, LENGTH({0}) - LOCATE('시', REVERSE({0})) + 1) " +
-
                                         // 마지막 "도" 찾기
                                         "WHEN {0} LIKE '%도%' THEN LEFT({0}, LENGTH({0}) - LOCATE('도', REVERSE({0})) + 1) " +
-
                                         // 원본 유지
                                         "ELSE {0} " +
                                         "END",
                                 e.lnad
-                        ), // e.lnad 값을 "서울특별시 xx구 xx동" 형식으로 변환
-                        e.operStatDt, // 
-                        e.operEndDt, // 
+                        ),
+                        e.operStatDt, // String 타입 유지
+                        e.operEndDt, // String 타입 유지
                         e.ctgyId,
                         e.eventTypeCd,
                         mark.likeYn.coalesce("N"),
                         fileDtl.fileUrl,
-                        fileDtl.fileThumbUrl
-                )
+                        fileDtl.fileThumbUrl,
+                        view.viewNwvl.coalesce(0)
+                ))
                 .from(e)
-                .leftJoin(view).on(e.eventId.eq(view.eventId)) // JOIN TB_EVNT_VIEW_D
-                .leftJoin(mark).on(e.eventId.eq(mark.eventId)) // JOIN TB_EVNT_LIKE_D
-                .leftJoin(fileMst).on(e.eventTumbfile.fileMstId.eq(fileMst.fileMstId)) // JOIN TB_EVNT_FILE_M
-                .leftJoin(fileDtl).on(fileMst.fileMstId.eq(fileDtl.fileMst.fileMstId)) // JOIN TB_EVNT_FILE_D
-//                .where(
-//                        e.deleteYn.eq("N"),
-//                        e.ctgyId.in(ctgyId), // ✅ categoryList를 IN 조건으로 적용
-//                        "20".equals(sortType) ? e.operStatDt.goe(todayStr) : null, // ✅ sortType이 20이면 operStatDt >= 현재일자
-//                        "30".equals(sortType) ? e.operEndDt.goe(todayStr) : null   // ✅ sortType이 30이면 operEndDt >= 현재일자
-//                ) // WHERE e.DELT_YN = 'N'
-                .where(whereCondition) // ✅ 동적으로 WHERE 조건 적용
-                .orderBy(orderBy) // ✅ 정렬 적용
-                .offset(page.getOffset()) // ✅ 페이지 시작 위치
-                .limit(page.getPageSize()) // ✅ 한 페이지당 개수
-                .fetch()
-                .stream()
-                .map(row -> new DetailEventsResponseDto(
-                        row.get(e.eventId),
-                        row.get(e.eventNm),
-                        row.get(e.eventCntn),
-                        row.get(e.eventAddr),
-                        row.get(Expressions.stringTemplate(
-                                "CASE " +
-                                        // 마지막 "동" 찾기
-                                        "WHEN {0} LIKE '%동%' THEN LEFT({0}, LENGTH({0}) - LOCATE('동', REVERSE({0})) + 1) " +
+                .leftJoin(view).on(e.eventId.eq(view.eventId))
+                .leftJoin(mark).on(e.eventId.eq(mark.eventId).and(mark.userAcntNo.eq(userId)))
+                .leftJoin(fileMst).on(e.eventTumbfile.fileMstId.eq(fileMst.fileMstId))
+                .leftJoin(fileDtl).on(fileMst.fileMstId.eq(fileDtl.fileMst.fileMstId))
+                .where(whereCondition)
+                .orderBy(orderBy)
+                .offset(page.getOffset())
+                .limit(page.getPageSize())
+                .fetch();
 
-                                        // 마지막 "구" 찾기
-                                        "WHEN {0} LIKE '%구%' THEN LEFT({0}, LENGTH({0}) - LOCATE('구', REVERSE({0})) + 1) " +
-
-                                        // 마지막 "시" 찾기
-                                        "WHEN {0} LIKE '%시%' THEN LEFT({0}, LENGTH({0}) - LOCATE('시', REVERSE({0})) + 1) " +
-
-                                        // 마지막 "도" 찾기
-                                        "WHEN {0} LIKE '%도%' THEN LEFT({0}, LENGTH({0}) - LOCATE('도', REVERSE({0})) + 1) " +
-
-                                        // 원본 유지
-                                        "ELSE {0} " +
-                                        "END",
-                                e.lnad
-                        )), // Dto 매핑 시에도 변환 적용
-                        row.get(e.operStatDt), // 날짜 변환
-                        row.get(e.operEndDt), // 날짜 변환
-                        row.get(e.ctgyId),
-                        row.get(e.eventTypeCd),
-                        row.get(mark.likeYn), // 임시 char처리, queryDsl 리팩토링 완료시 String으로 Dto타입 변경 필요
-                        row.get(fileDtl.fileUrl),
-                        row.get(fileDtl.fileThumbUrl)
-                )).toList();
-
-        return new PageImpl<>(result, page, total); // ✅ 페이징된 결과 반환
+        return new PageImpl<>(result, page, total); // 페이징된 결과 반환
     }
 
     public EventContentsResponseDto findEvntData(Long evntId){
@@ -218,7 +177,6 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
 
         LocalDate today = LocalDate.now();
         String todayStr = today.format(DateTimeFormatter.ofPattern("yyyyMMdd")); // 현재일자를 yyyyMMdd 포맷으로 변환
-
 
         Tuple tupleResult = queryFactory
                 .select(
