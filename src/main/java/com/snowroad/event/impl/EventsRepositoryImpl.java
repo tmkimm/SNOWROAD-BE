@@ -3,6 +3,7 @@ package com.snowroad.event.impl;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.snowroad.entity.*;
@@ -81,9 +82,10 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
         whereCondition.and(e.deleteYn.eq("N")); // 기본 조건 유지 (삭제여부)
 
         // userId값이 있는 경우 좋아요여부 체킹
-        if (userId != null && userId != 0) {
-            whereCondition.and(e.ctgyId.in(ctgyId));
-        }
+//        BooleanExpression markJoinCondition = null;
+//        if (userId != null && userId != 0) {
+//            userId = 0L;
+//        }
         // categoryList 값이 존재할 때만 IN 조건 추가
         if (ctgyId != null && !ctgyId.isEmpty()) {
             whereCondition.and(e.ctgyId.in(ctgyId));
@@ -155,7 +157,7 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
                 ))
                 .from(e)
                 .leftJoin(view).on(e.eventId.eq(view.eventId))
-                .leftJoin(mark).on(e.eventId.eq(mark.eventId).and(mark.userAcntNo.eq(userId)))
+                .leftJoin(mark).on(e.eventId.eq(mark.eventId).and(userId != null ? mark.userAcntNo.eq(userId) : Expressions.FALSE))
                 .leftJoin(fileMst).on(e.eventTumbfile.fileMstId.eq(fileMst.fileMstId))
                 .leftJoin(fileDtl).on(fileMst.fileMstId.eq(fileDtl.fileMst.fileMstId))
                 .where(whereCondition)
