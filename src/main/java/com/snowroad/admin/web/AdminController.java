@@ -229,7 +229,8 @@ public class AdminController {
         UserInfoResponseDto userInfo = new UserInfoResponseDto(
                 userDetails.getUserId(),
                 userDetails.getUsername(),
-                userDetails.getJoinYn()
+                userDetails.getJoinYn(),
+                null
         );
         return userInfo;
     }

@@ -44,15 +44,13 @@ public class UserController {
     @Operation(
             summary = "회원탈퇴"
     )
-    @DeleteMapping("/{userId}")
-    public ResponseEntity<String> deleteUser(@PathVariable Long userId, @CurrentUser CustomUserDetails userDetails, HttpServletResponse response) {
+    @DeleteMapping("")
+    public ResponseEntity<String> deleteUser(@CurrentUser CustomUserDetails userDetails, HttpServletResponse response) {
         if (userDetails == null) {
             throw new UnauthorizedException("인증 정보가 존재하지 않습니다. 로그인이 필요합니다.");
         }
-        if (!Objects.equals(userId, userDetails.getUserId())) {
-            throw new ForbiddenException("권한이 존재하지 않습니다.");
-        }
-        userService.deleteUser(userId);
+
+        userService.deleteUser(userDetails.getUserId());
 
         // 인증 관련 쿠키 클리어
         cookieUtil.clearCookies(response);
