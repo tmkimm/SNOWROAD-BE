@@ -35,36 +35,34 @@ public class UserCategoryController {
     @ApiResponse(responseCode = "200", description = "성공",
             content = @Content(mediaType = "application/json",
                     schema = @Schema(implementation = UserCategoriesResponseDto.class)))
-    @GetMapping("/{userId}")
-    public UserCategoriesResponseDto getUserCategories(@PathVariable Long userId) {
-        return userCategoryService.getUserCategories(userId);
+    @GetMapping("")
+    public UserCategoriesResponseDto getUserCategories(@CurrentUser CustomUserDetails userDetails) {
+        if (userDetails == null) {
+            throw new UnauthorizedException("인증 정보가 존재하지 않습니다. 로그인이 필요합니다.");
+        }
+        return userCategoryService.getUserCategories(userDetails.getUserId());
     }
 
     // TODO - 인가 로직 AOP로 분리
     @Operation(summary = "관심 카테고리 여러 개 추가", description = "사용자의 관심 카테고리를 한 번에 여러 개 추가합니다. 기존 카테고리는 유지됩니다.")
-    @PostMapping("/{userId}")
-    public ResponseEntity<String> addUserCategories(@PathVariable Long userId, @RequestBody Set<Category> categories, @CurrentUser CustomUserDetails userDetails) {
+    @PostMapping("")
+    public ResponseEntity<String> addUserCategories(@RequestBody Set<Category> categories, @CurrentUser CustomUserDetails userDetails) {
         if (userDetails == null) {
             throw new UnauthorizedException("인증 정보가 존재하지 않습니다. 로그인이 필요합니다.");
         }
-        if (userId != userDetails.getUserId()) {
-            throw new ForbiddenException("권한이 존재하지 않습니다.");
-        }
 
-        userCategoryService.addUserCategories(userId, categories);
+        userCategoryService.addUserCategories(userDetails.getUserId(), categories);
         return ResponseEntity.ok("관심 카테고리가 추가되었습니다.");
     }
 
     @Operation(summary = "관심 카테고리 수정", description = "사용자의 관심 카테고리를 기존 카테고리를 삭제하고 새로운 목록으로 변경합니다.")
-    @PutMapping("/{userId}")
-    public ResponseEntity<String> updateUserCategories(@PathVariable Long userId, @RequestBody Set<Category> categories, @CurrentUser CustomUserDetails userDetails) {
+    @PutMapping("")
+    public ResponseEntity<String> updateUserCategories(@RequestBody Set<Category> categories, @CurrentUser CustomUserDetails userDetails) {
         if (userDetails == null) {
             throw new UnauthorizedException("인증 정보가 존재하지 않습니다. 로그인이 필요합니다.");
         }
-        if (userId != userDetails.getUserId()) {
-            throw new ForbiddenException("권한이 존재하지 않습니다.");
-        }
-        userCategoryService.updateUserCategories(userId, categories);
+
+        userCategoryService.updateUserCategories(userDetails.getUserId(), categories);
         return ResponseEntity.ok("관심 카테고리가 수정되었습니다.");
     }
     // 잘못된 Enum 값이 들어왔을 때 400 에러 메시지를 반환

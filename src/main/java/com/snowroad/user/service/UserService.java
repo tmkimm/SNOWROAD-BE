@@ -1,6 +1,7 @@
 package com.snowroad.user.service;
 
 import com.snowroad.auth.web.dto.SignUpRequestDto;
+import com.snowroad.auth.web.dto.UserInfoResponseDto;
 import com.snowroad.common.exception.BadRequestException;
 import com.snowroad.config.auth.dto.OAuthAttributes;
 import com.snowroad.entity.SocialLogin;
@@ -86,5 +87,20 @@ public class UserService {
         // User만 삭제하면, cascade = CascadeType.ALL, orphanRemoval = true 설정에 의해 UserContact & SocialLogin 자동 삭제됨
         userRepository.delete(user);
 
+    }
+
+    @Transactional
+    public UserInfoResponseDto getUserInfo(Long userId) {
+        User user = userRepository.findUserWithSocialLogin(userId)
+                .orElseThrow(() -> new BadRequestException("존재하지 않는 사용자입니다."));
+
+        UserInfoResponseDto userInfo = new UserInfoResponseDto(
+                user.getUserAccountNo(),
+                user.getNickname(),
+                user.getJoinYn(),
+                user.getSocialLogin().getSocialLoginProviderCode()
+        );
+
+        return userInfo;
     }
 }

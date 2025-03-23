@@ -40,12 +40,7 @@ public class AuthController {
         if(userDetails == null) {
             throw new UnauthorizedException("로그인되지 않았습니다.");
         }
-        UserInfoResponseDto userInfo = new UserInfoResponseDto(
-                userDetails.getUserId(),
-                userDetails.getUsername(),
-                userDetails.getJoinYn()
-        );
-        return userInfo;
+        return userService.getUserInfo(userDetails.getUserId());
     }
     @Operation(
             summary = "로그아웃",

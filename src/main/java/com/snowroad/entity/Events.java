@@ -82,8 +82,11 @@ public class Events extends BaseTimeEntity {
     @JoinColumn(name = "EVNT_FILE_ID")
     private EventFilesMst eventFiles; // EventFilesMst와 1:1 관계 설정
 
+    @Column(name = "EVNT_DTL_URL", length = 2000)
+    private String eventDetailUrl;
+
     @Builder
-    public Events(Long eventId, String eventNm, String eventCntn, String eventAddr, String operStatDt, String operEndDt, String operDttmCntn, String ctgyId, String eventTypeCd, Double addrLttd, Double addrLotd, String ldcd, String rads, String lnad) {
+    public Events(Long eventId, String eventNm, String eventCntn, String eventAddr, String operStatDt, String operEndDt, String operDttmCntn, String ctgyId, String eventTypeCd, Double addrLttd, Double addrLotd, String ldcd, String rads, String lnad, String eventDetailUrl) {
         this.eventId = eventId;
         this.eventNm = eventNm;
         this.eventCntn = eventCntn;
@@ -98,9 +101,10 @@ public class Events extends BaseTimeEntity {
         this.ldcd = ldcd;
         this.rads = rads;
         this.lnad = lnad;
+        this.eventDetailUrl = eventDetailUrl;
     }
 
-    public void update(String eventNm, String eventCntn, String eventAddr, String operStatDt, String operEndDt, String operDttmCntn, String ctgyId, String eventTypeCd, Double addrLttd, Double addrLotd, String ldcd,  String rads, String lnad) {
+    public void update(String eventNm, String eventCntn, String eventAddr, String operStatDt, String operEndDt, String operDttmCntn, String ctgyId, String eventTypeCd, Double addrLttd, Double addrLotd, String ldcd,  String rads, String lnad, String eventDetailUrl) {
         this.eventNm = eventNm;
         this.eventCntn = eventCntn;
         this.eventAddr = eventAddr;
@@ -114,6 +118,7 @@ public class Events extends BaseTimeEntity {
         this.ldcd = ldcd;
         this.rads = rads;
         this.lnad = lnad;
+        this.eventDetailUrl = eventDetailUrl;
     }
 
     public void updateTumbFile(EventFilesMst eventFilesMst) {

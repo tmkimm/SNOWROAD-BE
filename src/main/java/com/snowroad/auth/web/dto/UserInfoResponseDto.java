@@ -16,4 +16,7 @@ public class UserInfoResponseDto {
 
     @Schema(description = "회원가입 여부 (Y/N)", example = "Y", required = true)
     private final String joinYn;;
+
+    @Schema(description = "소셜 로그인 구분(google, naver, kakao)", example = "kakao")
+    private final String socialLoginProviderCode;
 }

@@ -41,8 +41,11 @@ public class EventsSaveRequestDto {
     @Schema(description = "법정동코드", example = "111000050")
     private String ldcd;
 
+    @Schema(description = "이벤트 상세 URL", example = "https://groundseesaw.co.kr/product/detail.html?product_no=1265&cate_no=47&https://groundseesaw.co.kr/product/detail.html?product_no=1265")
+    private String eventDetailUrl;
+
     @Builder
-    public EventsSaveRequestDto(String eventNm, String eventCntn, String eventAddr, String operStatDt, String operEndDt, String operDttmCntn, String ctgyId, String ppstEnbnTypeCd, double addrLttd, double addrLotd, String ldcd) {
+    public EventsSaveRequestDto(String eventNm, String eventCntn, String eventAddr, String operStatDt, String operEndDt, String operDttmCntn, String ctgyId, String ppstEnbnTypeCd, double addrLttd, double addrLotd, String ldcd, String eventDetailUrl) {
         this.eventNm = eventNm;
         this.eventCntn = eventCntn;
         this.eventAddr = eventAddr;
@@ -54,6 +57,7 @@ public class EventsSaveRequestDto {
         this.addrLttd = addrLttd;
         this.addrLotd = addrLotd;
         this.ldcd = ldcd;
+        this.eventDetailUrl = eventDetailUrl;
     }
 
 
@@ -71,6 +75,7 @@ public class EventsSaveRequestDto {
                 .addrLotd(addrLotd)
                 .rads(rads)
                 .lnad(lnad)
+                .eventDetailUrl(eventDetailUrl)
                 .build();
     }
 }
