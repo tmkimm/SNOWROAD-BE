@@ -76,7 +76,7 @@ public interface EventsRepository extends JpaRepository<Events, Long>, EventsRep
             "efd.FILE_URL as imageUrl, efd.FILE_THUB_URL as smALLImageUrl " +
             "from TB_EVNT_M e " +
             "LEFT OUTER JOIN TB_EVNT_VIEW_D evd ON e.EVNT_ID = evd.EVNT_ID " +
-            "LEFT OUTER JOIN TB_EVNT_LIKE_D eld ON e.EVNT_ID = eld.EVNT_ID " +
+            "LEFT OUTER JOIN TB_EVNT_LIKE_D eld ON e.EVNT_ID = eld.EVNT_ID and :userId = eld.userAcntNo " +
             "LEFT OUTER JOIN TB_EVNT_FILE_M efm ON e.TUMB_FILE_ID = efm.FILE_MST_ID " +
             "LEFT OUTER JOIN TB_EVNT_FILE_D efd ON efm.FILE_MST_ID = efd.FILE_MST_ID " +
             "WHERE e.DELT_YN = 'N' AND STR_TO_DATE(e.OPER_END_DT, '%Y%m%d') >= CURDATE() " +
