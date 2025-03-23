@@ -43,8 +43,9 @@ public class EventsResponseDto {
     @Schema(description = "경도")
     private Double addrLotd;
 
-
-    public EventsResponseDto(Long eventId, String eventNm, String eventCntn, String eventAddr, String operStatDt, String operEndDt, String operDttmCntn, String ctgyId, String ppstEnbnTypeCd, String ctgyNm, Double addrLttd, Double addrLotd) {
+    @Schema(description = "이벤트 상세 URL", example = "https://groundseesaw.co.kr/product/detail.html?product_no=1265&cate_no=47&https://groundseesaw.co.kr/product/detail.html?product_no=1265")
+    private String eventDetailUrl;
+    public EventsResponseDto(Long eventId, String eventNm, String eventCntn, String eventAddr, String operStatDt, String operEndDt, String operDttmCntn, String ctgyId, String ppstEnbnTypeCd, String ctgyNm, Double addrLttd, Double addrLotd, String eventDetailUrl) {
         this.eventId = eventId;
         this.eventNm = eventNm;
         this.eventCntn = eventCntn;
@@ -57,6 +58,7 @@ public class EventsResponseDto {
         this.ctgyNm = ctgyNm;
         this.addrLttd = addrLttd;
         this.addrLotd = addrLotd;
+        this.eventDetailUrl = eventDetailUrl;
     }
 //    @Schema(description = "메인 이미지 정보")
 //    private FileInfoDTO mainImage;
@@ -78,6 +80,7 @@ public class EventsResponseDto {
         this.addrLotd = entity.getAddrLotd();
         this.rads = entity.getRads();
         this.lnad = entity.getLnad();
+        this.eventDetailUrl = entity.getEventDetailUrl();
     }
 
 }
