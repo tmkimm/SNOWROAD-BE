@@ -76,12 +76,14 @@ public interface EventsRepository extends JpaRepository<Events, Long>, EventsRep
             "efd.FILE_URL as imageUrl, efd.FILE_THUB_URL as smALLImageUrl " +
             "from TB_EVNT_M e " +
             "LEFT OUTER JOIN TB_EVNT_VIEW_D evd ON e.EVNT_ID = evd.EVNT_ID " +
-            "LEFT OUTER JOIN TB_EVNT_LIKE_D eld ON e.EVNT_ID = eld.EVNT_ID and :userId = eld.userAcntNo " +
+            "LEFT OUTER JOIN TB_EVNT_LIKE_D eld ON e.EVNT_ID = eld.EVNT_ID " +
+            "AND (:userId IS NULL OR :userId = eld.USER_ACNT_NO) " + // 조건부 JOIN (로그인X시 :userId null 처리)
             "LEFT OUTER JOIN TB_EVNT_FILE_M efm ON e.TUMB_FILE_ID = efm.FILE_MST_ID " +
             "LEFT OUTER JOIN TB_EVNT_FILE_D efd ON efm.FILE_MST_ID = efd.FILE_MST_ID " +
             "WHERE e.DELT_YN = 'N' AND STR_TO_DATE(e.OPER_END_DT, '%Y%m%d') >= CURDATE() " +
             "  AND STR_TO_DATE(e.OPER_STAT_DT, '%Y%m%d') <= CURDATE() " +
             "  AND (:eventTypeCd = 'ALL' OR e.EVNT_TYPE_CD = :eventTypeCd) " +
+            "  AND (:userId IS NULL OR e.CTGY_ID IN (SELECT uct.USER_CTRY_NO FROM TB_USER_CTGY_M uct WHERE uct.USER_ACNT_NO = :userId)) " +
             "ORDER BY RAND() * 10000, OPER_STAT_DT ASC " + // RAND() * 10000 => 랜덤정렬
             "LIMIT 10"
             , nativeQuery = true)

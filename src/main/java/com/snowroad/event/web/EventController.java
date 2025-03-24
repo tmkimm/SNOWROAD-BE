@@ -1,5 +1,6 @@
 package com.snowroad.event.web;
 
+import com.snowroad.common.exception.UnauthorizedException;
 import com.snowroad.common.util.CurrentUser;
 import com.snowroad.config.auth.dto.CustomUserDetails;
 import com.snowroad.event.service.EventService;
@@ -42,9 +43,16 @@ public class EventController {
     @Operation(summary="메인 추천 리스트 조회", description = "(이벤트) 메인 팝업, 전시 리스트 추천 항목을 조회합니다. ARG : ALL, 10, 20")
     @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = HomeEventsResponseDto.class)))
     @GetMapping("/api/main-events/rcmn/{eventTypeCd}")
-    public List<HomeEventsResponseDto> getMainRecsList(@PathVariable String eventTypeCd, @CurrentUser CustomUserDetails userDetails){
-        List<HomeEventsResponseDto> events = eventService.getMainRcmnList(eventTypeCd, userDetails);
-        return events;
+    public List<HomeEventsResponseDto> getMainRecsList(@PathVariable String eventTypeCd, @CurrentUser CustomUserDetails userDetails) {
+
+        if (userDetails == null) {
+            throw new UnauthorizedException("로그인되지 않았습니다.");
+        }
+        else {
+            List<HomeEventsResponseDto> events = eventService.getMainRcmnList(eventTypeCd, userDetails);
+            return events;
+        }
+
     }
 
     @Operation(summary="메인 오픈임박 리스트 조회", description = "(이벤트) 메인 팝업, 전시 오픈임박 리스트를 조회합니다. eventTypeCd : ALL, 10, 20")
@@ -80,7 +88,7 @@ public class EventController {
             @CurrentUser CustomUserDetails userDetails
 
     ) {
-        Long userId = 0L;
+        Long userId = null;
         if (userDetails != null) {
             userId =userDetails.getUserId();
         }
