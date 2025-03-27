@@ -16,7 +16,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -243,30 +245,49 @@ public class EventService {
         return eventRankListData;
     }
 
-    @Transactional(readOnly = true)
-    public List<HomeEventsResponseDto> getMainRcmnList(String eventTypeCd, CustomUserDetails userDetails) {
-        // Native Query 호출
-        List<Object[]> result =  eventsRepository.getMainRcmnList(eventTypeCd, userDetails.getUserId());
-        // Object[]에서 데이터를 추출하여 필요한 형태로 가공
-        List<HomeEventsResponseDto> eventRcmnListData = result.stream().map(row -> {
-                    HomeEventsResponseDto evntRcmnList = new HomeEventsResponseDto();
-                    evntRcmnList.setEventId((Long) row[0]);
-                    evntRcmnList.setEventNm((String) row[1]);
-                    evntRcmnList.setOperStatDt((String) row[2]);
-                    evntRcmnList.setOperEndDt((String) row[3]);
-                    evntRcmnList.setCtgyId((String) row[4]);
-                    evntRcmnList.setEventTypeCd((String) row[5]);
-                    // likeYn이 Character로 인식될 가능성이 있으므로, String으로 변환
-                    evntRcmnList.setLikeYn(row[6] != null ? row[6].toString() : "N");
-                    evntRcmnList.setImageUrl((String) row[7]);
-                    evntRcmnList.setSmallImageUrl((String) row[8]);
-                    return evntRcmnList;
-                })
-                .collect(Collectors.toList());
+//    @Transactional(readOnly = true)
+//    public List<HomeEventsResponseDto> getMainRcmnList(String eventTypeCd, CustomUserDetails userDetails) {
+//        // Native Query 호출
+////        List<Object[]> result =  eventsRepository.getMainRcmnList(eventTypeCd, userDetails.getUserId());
+//        List<Object[]> result =  eventsRepositoryCustom.getMainRcmnList(eventTypeCd, userDetails);
+//
+//        // Object[]에서 데이터를 추출하여 필요한 형태로 가공
+//        List<HomeEventsResponseDto> eventRcmnListData = result.stream().map(row -> {
+//                    HomeEventsResponseDto evntRcmnList = new HomeEventsResponseDto();
+//                    evntRcmnList.setEventId((Long) row[0]);
+//                    evntRcmnList.setEventNm((String) row[1]);
+//                    evntRcmnList.setOperStatDt((String) row[2]);
+//                    evntRcmnList.setOperEndDt((String) row[3]);
+//                    evntRcmnList.setCtgyId((String) row[4]);
+//                    evntRcmnList.setEventTypeCd((String) row[5]);
+//                    // likeYn이 Character로 인식될 가능성이 있으므로, String으로 변환
+//                    evntRcmnList.setLikeYn(row[6] != null ? row[6].toString() : "N");
+//                    evntRcmnList.setImageUrl((String) row[7]);
+//                    evntRcmnList.setSmallImageUrl((String) row[8]);
+//                    return evntRcmnList;
+//                })
+//                .collect(Collectors.toList());
+//
+//        return eventRcmnListData;
+//
+//    }
 
-        return eventRcmnListData;
+@Transactional(readOnly = true)
+public Map<String, Object> getMainRcmnList(String eventTypeCd, CustomUserDetails userDetails) {
+    // Querydsl 구현체 호출
+    List<HomeEventsResponseDto> result =  eventsRepositoryCustom.getMainRcmnList(eventTypeCd, userDetails);
+    // ctgyId별로 리스트를 묶어서 Map으로 변환
+    Map<String,List<HomeEventsResponseDto>> eventsByCategory = result.stream()
+            .collect(Collectors.groupingBy(HomeEventsResponseDto::getCtgyId));
 
-    }
+    // 전체 리스트와 카테고리별 리스트를 담을 Map 생성
+    Map<String, Object> resultData = new HashMap<>();
+    resultData.put("all", result);
+    resultData.put("categories", eventsByCategory);
+
+    return resultData;
+//    return result;
+}
 
     @Transactional(readOnly = true)
     public List<HomeEventsResponseDto> getMainOperStatList(String eventTypeCd) {

@@ -6,6 +6,7 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.snowroad.config.auth.dto.CustomUserDetails;
 import com.snowroad.entity.*;
 import com.snowroad.event.domain.EventsRepositoryCustom;
 import com.snowroad.event.web.dto.*;
@@ -26,6 +27,73 @@ import java.util.stream.Collectors;
 public class EventsRepositoryImpl implements EventsRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
+
+    @Override
+    public List<HomeEventsResponseDto> getMainRcmnList(String eventTypeCd, CustomUserDetails userDetails) {
+        QEvents e = QEvents.events;
+        QView evd = QView.view;
+        QMark eld = QMark.mark;
+        QEventFilesMst efm = QEventFilesMst.eventFilesMst;
+        QEventFilesDtl efd = QEventFilesDtl.eventFilesDtl;
+        QUserCategory uct = QUserCategory.userCategory;
+
+        Long userId = userDetails != null ? userDetails.getUserId() : null;
+
+        BooleanBuilder likeCondition = new BooleanBuilder();
+        if (userId != null) {
+            likeCondition.and(eld.userAcntNo.eq(userId));
+        }
+
+        List<Tuple> result = queryFactory
+                .select(
+                        e.eventId,
+                        e.eventNm,
+                        e.operStatDt,
+                        e.operEndDt,
+                        e.ctgyId,
+                        e.eventTypeCd,
+                        Expressions.cases()
+                                .when(eld.likeYn.isNotNull()).then(eld.likeYn.stringValue())
+                                .otherwise("N").as("likeYn"),
+                        efd.fileUrl,
+                        efd.fileThumbUrl
+                )
+                .from(e)
+                .leftJoin(evd).on(e.eventId.eq(evd.eventId))
+                .leftJoin(eld).on(e.eventId.eq(eld.eventId).and(likeCondition))
+                .leftJoin(efm).on(e.eventTumbfile.fileMstId.eq(efm.fileMstId))
+                .leftJoin(efd).on(efm.fileMstId.eq(efd.fileMst.fileMstId))
+                .where(
+                        e.deleteYn.eq("N"),
+                        e.operEndDt.goe(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))),
+                        e.operStatDt.loe(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))),
+                        eventTypeCd.equals("ALL") ? null : e.eventTypeCd.eq(eventTypeCd),
+                        userId == null ? null : e.ctgyId.in(
+                                queryFactory
+                                        .select(uct.category.stringValue())
+                                        .from(uct)
+                                        .where(uct.user.userAccountNo.eq(userId)) // QUser의 id로 비교 (QUser에 id 필드가 있다고 가정)
+                        )
+                )
+                .orderBy(Expressions.numberTemplate(Double.class, "function('rand')").asc(), e.operStatDt.asc()) //  RAND() 함수 사용
+                .limit(12)
+                .fetch();
+
+        return result.stream().map(row -> {
+                    HomeEventsResponseDto evntRcmnList = new HomeEventsResponseDto();
+                    evntRcmnList.setEventId(row.get(e.eventId));
+                    evntRcmnList.setEventNm(row.get(e.eventNm));
+                    evntRcmnList.setOperStatDt(row.get(e.operStatDt));
+                    evntRcmnList.setOperEndDt(row.get(e.operEndDt));
+                    evntRcmnList.setCtgyId(row.get(e.ctgyId));
+                    evntRcmnList.setEventTypeCd(row.get(e.eventTypeCd));
+                    evntRcmnList.setLikeYn(row.get(Expressions.stringPath("likeYn")));
+                    evntRcmnList.setImageUrl(row.get(efd.fileUrl));
+                    evntRcmnList.setSmallImageUrl(row.get(efd.fileThumbUrl));
+                    return evntRcmnList;
+                })
+                .collect(Collectors.toList());
+    }
 
     @Override
     public List<HomeEventsResponseDto> getMainTestList(String eventTypeCd) {
