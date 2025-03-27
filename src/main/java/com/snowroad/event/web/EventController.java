@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
@@ -43,14 +44,15 @@ public class EventController {
     @Operation(summary="메인 추천 리스트 조회", description = "(이벤트) 메인 팝업, 전시 리스트 추천 항목을 조회합니다. ARG : ALL, 10, 20")
     @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = HomeEventsResponseDto.class)))
     @GetMapping("/api/main-events/rcmn/{eventTypeCd}")
-    public List<HomeEventsResponseDto> getMainRecsList(@PathVariable String eventTypeCd, @CurrentUser CustomUserDetails userDetails) {
+    public ResponseEntity<Map<String, Object>> getMainRecsList(@PathVariable String eventTypeCd, @CurrentUser CustomUserDetails userDetails) {
 
         if (userDetails == null) {
             throw new UnauthorizedException("로그인되지 않았습니다.");
         }
         else {
-            List<HomeEventsResponseDto> events = eventService.getMainRcmnList(eventTypeCd, userDetails);
-            return events;
+//          List<HomeEventsResponseDto> events = eventService.getMainRcmnList(eventTypeCd, userDetails);
+            Map<String, Object> events = eventService.getMainRcmnList(eventTypeCd, userDetails);
+            return ResponseEntity.ok(events);
         }
 
     }
@@ -58,6 +60,7 @@ public class EventController {
     @Operation(summary="메인 오픈임박 리스트 조회", description = "(이벤트) 메인 팝업, 전시 오픈임박 리스트를 조회합니다. eventTypeCd : ALL, 10, 20")
     @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = HomeEventsResponseDto.class)))
     @GetMapping("/api/main-events/operStat/{eventTypeCd}")
+    
     public PagedResponseDto<HomeEventsResponseDto> getMainOperStatList(@RequestParam(defaultValue = "0") int page, @PathVariable String eventTypeCd) {
         List<HomeEventsResponseDto> events = eventService.getMainOperStatList(eventTypeCd);
         return new PagedResponseDto<>(events, 10);
