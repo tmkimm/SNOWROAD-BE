@@ -13,9 +13,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -354,4 +357,18 @@ public Map<String, Object> getMainRcmnList(String eventTypeCd, CustomUserDetails
 
     }
 
+    //매일 자정(00:00:00)에 실행
+    @Scheduled(cron = "0 0 0 * * *")
+    @Transactional
+    public void updateEventStatuses() {
+        String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+
+        // 만료된 이벤트 상태 업데이트
+        int expiredCount = eventsRepository.markEventsAsExpired(today);
+
+        // 진행 중인 이벤트 상태 업데이트
+        int inProgressCount = eventsRepository.markEventsAsInProgress(today);
+
+        System.out.println("이벤트 상태 업데이트 완료: 마감된 이벤트 " + expiredCount + "개, 진행 중 이벤트 " + inProgressCount + "개");
+    }
 }

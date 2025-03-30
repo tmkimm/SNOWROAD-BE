@@ -4,8 +4,10 @@ import com.snowroad.config.auth.dto.CustomUserDetails;
 import com.snowroad.entity.Events;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -154,5 +156,18 @@ public interface EventsRepository extends JpaRepository<Events, Long>, EventsRep
             "ELSE e.OPER_STAT_DT END"
             , nativeQuery = true)
     List<Object[]> getEvntList(@Param("sortType") String sortType);
+
+    // 현재 상태가 'IN_PROGRESS'이며, 운영 종료일자가 오늘 날짜보다 이전인 이벤트를 EXPIRED(마감) 상태로 업데이트
+    @Modifying
+    @Transactional
+    @Query("UPDATE Events e SET e.status = 'EXPIRED' WHERE e.operEndDt < :today AND e.status = 'IN_PROGRESS'")
+    int markEventsAsExpired(String today);
+
+    // 현재 상태가 'NOT_STARTED'이며, 운영 종료일자가 오늘 날짜 이상인 이벤트를 IN_PROGRESS(진행 중) 상태로 업데이트
+    @Modifying
+    @Transactional
+    @Query("UPDATE Events e SET e.status = 'IN_PROGRESS' WHERE e.operStatDt >= :today AND e.status = 'NOT_STARTED'")
+    int markEventsAsInProgress(String today);
+
 
 }

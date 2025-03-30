@@ -1,6 +1,7 @@
 package com.snowroad.entity;
 
 import com.snowroad.common.domain.BaseTimeEntity;
+import com.snowroad.event.domain.EventStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -85,6 +86,11 @@ public class Events extends BaseTimeEntity {
     @Column(name = "EVNT_DTL_URL", length = 2000)
     private String eventDetailUrl;
 
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "EVNT_STS", length = 20, nullable = false)
+    private EventStatus status;
+
     @Builder
     public Events(Long eventId, String eventNm, String eventCntn, String eventAddr, String operStatDt, String operEndDt, String operDttmCntn, String ctgyId, String eventTypeCd, Double addrLttd, Double addrLotd, String ldcd, String rads, String lnad, String eventDetailUrl) {
         this.eventId = eventId;
@@ -127,5 +133,11 @@ public class Events extends BaseTimeEntity {
 
     public void updateEventFile(EventFilesMst eventFilesMst) {
         this.eventFiles = eventFilesMst;
+    }
+
+
+    // 상태 변경 메서드
+    public void updateStatus(EventStatus newStatus) {
+        this.status = newStatus;
     }
 }
