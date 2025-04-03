@@ -36,6 +36,8 @@ public class KomoranConfig {
         Komoran komoran = new Komoran(DEFAULT_MODEL.STABLE);
         try {
             Resource resource = resourceLoader.getResource(komoranProperties.getDictionaryPath());
+            log.info("komoranProperties.getDictionaryPath(): {}", komoranProperties.getDictionaryPath());
+            log.info("리소스 존재 여부: {}", resource.exists());
             File tempFile = File.createTempFile("komoran-dic", ".user");
             InputStream inputStream = resource.getInputStream();
             Files.copy(inputStream, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
