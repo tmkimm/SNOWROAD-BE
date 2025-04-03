@@ -1,5 +1,6 @@
 package com.snowroad.MorphemeAnalyzer.komoran.config;
 
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import kr.co.shineware.nlp.komoran.constant.DEFAULT_MODEL;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.util.Assert;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -35,15 +37,31 @@ public class KomoranConfig {
     public Komoran komoran() {
         Komoran komoran = new Komoran(DEFAULT_MODEL.STABLE);
         try {
-            Resource resource = resourceLoader.getResource(komoranProperties.getDictionaryPath());
-            log.info("komoranProperties.getDictionaryPath(): {}", komoranProperties.getDictionaryPath());
+            String dicPath = komoranProperties.getDictionaryPath();
+            Assert.hasText(dicPath, "Dictionary path must not be empty");
+
+            // classpath 여부 확인 후 적절한 리소스 로딩
+            Resource resource = dicPath.startsWith("classpath:")
+                    ? new ClassPathResource(dicPath.replace("classpath:", ""))
+                    : resourceLoader.getResource(dicPath);
+
+            log.info("사용자 사전 파일 경로: {}", dicPath);
             log.info("리소스 존재 여부: {}", resource.exists());
-            File tempFile = File.createTempFile("komoran-dic", ".user");
-            InputStream inputStream = resource.getInputStream();
-            Files.copy(inputStream, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+            if (!resource.exists()) {
+                throw new IllegalStateException("사용자 사전 리소스를 찾을 수 없음: " + dicPath);
+            }
+
+            // OS에 관계없이 임시 파일 생성 (Windows, Linux, macOS 대응)
+            File tempFile = Files.createTempFile("komoran-dic", ".user").toFile();
+            try (InputStream inputStream = resource.getInputStream()) {
+                Files.copy(inputStream, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            }
+
             komoran.setUserDic(tempFile.getAbsolutePath());
             log.info("사용자 사전 로드 성공: {}", tempFile.getAbsolutePath());
-        }catch (Exception e) {
+
+        } catch (Exception e) {
             throw new IllegalStateException("사용자 사전 로드 실패", e);
         }
         return komoran;
