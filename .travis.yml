@@ -21,6 +21,8 @@ notifications:
     - xoals1417@gmail.com
 dd:
 - openssl aes-256-cbc -K $encrypted_2f692484526a_key -iv $encrypted_2f692484526a_iv
-  -in application.properties.enc -out application.properties -d
+  -in ./src/test/resources/application.properties.enc -out ./src/test/resources/application.properties -d
+- openssl aes-256-cbc -K $encrypted_2f692484526a_key -iv $encrypted_2f692484526a_iv
+  -in ./src/main/resources/application.properties.enc -out ./src/main/resources/application.properties -d
 - openssl aes-256-cbc -K $encrypted_b846c1a3db1c_key -iv $encrypted_b846c1a3db1c_iv
-  -in application-oauth.properties.enc -out application-oauth.properties -d
+  -in ./src/main/resources/application-oauth.properties.enc -out ./src/main/resources/application-oauth.properties -d
