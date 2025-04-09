@@ -11,7 +11,7 @@ before_script:
 - ls -al src/main/resources/dictionary
 - cat src/main/resources/dictionary/komoran-dictionary.user
 - find build -name komoran-dictionary.user
-- unzip -l build/libs/*.jar | grep komoran-dictionary.use
+- unzip -l build/libs/*.jar | grep komoran-dictionary.user
 cache:
   directories:
   - "$HOME/.m2/repository"
