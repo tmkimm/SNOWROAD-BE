@@ -41,5 +41,5 @@ application.properties
 application-oauth.properties
 
 # 암호화된 파일만 포함
-!application.properties.enc
-!application-oauth.properties.enc
+!application.properties-main.enc
+!application-oauth.properties-main.enc
