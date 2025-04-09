@@ -65,6 +65,11 @@ tasks.named('test') {
 
 tasks.named('processResources') {
 	duplicatesStrategy = DuplicatesStrategy.EXCLUDE	// 중복 항목은 제외
+
+	from('src/main/resources/dictionary') {
+		include '**/*'
+		into 'dictionary'
+	}
 }
 
 test {
