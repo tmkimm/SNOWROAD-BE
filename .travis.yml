@@ -1,29 +1,26 @@
 language: java
 jdk:
-  - openjdk17
-
+- openjdk17
 branches:
   only:
-    - main # CI 실행할 브랜치 지정
-
+  - main
 before_install:
-  - chmod +x gradlew
-
+- chmod +x gradlew
 before_script:
-  - echo "==== CHECK DICTIONARY FILE ===="
-  - ls -al src/main/resources/dictionary
-  - cat src/main/resources/dictionary/komoran-dictionary.user
-
-# Travis CI 서버의 Home
-cache: # gradlew로 의존성을 받게되면 해당 디렉토리에 캐시하여, 같은 의존성은 다시 받지 않도록 설정
+- echo "==== CHECK DICTIONARY FILE ===="
+- ls -al src/main/resources/dictionary
+- cat src/main/resources/dictionary/komoran-dictionary.user
+cache:
   directories:
-    - '$HOME/.m2/repository'
-    - '$HOME/.gradle'
-
+  - "$HOME/.m2/repository"
+  - "$HOME/.gradle"
 script: "./gradlew clean build --info"
-
-# CI 실행 완료 시 메일로 알람
 notifications:
   email:
     recipients:
-      - xoals1417@gmail.com
+    - xoals1417@gmail.com
+dd:
+- openssl aes-256-cbc -K $encrypted_2f692484526a_key -iv $encrypted_2f692484526a_iv
+  -in application.properties.enc -out application.properties -d
+- openssl aes-256-cbc -K $encrypted_b846c1a3db1c_key -iv $encrypted_b846c1a3db1c_iv
+  -in application-oauth.properties.enc -out application-oauth.properties -d
