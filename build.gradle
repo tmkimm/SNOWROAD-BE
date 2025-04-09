@@ -63,7 +63,7 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
-tasks.named('processResources') {
+tasks.named('processResources', Copy) {
 	duplicatesStrategy = DuplicatesStrategy.EXCLUDE	// 중복 항목은 제외
 
 	from('src/main/resources/dictionary') {
