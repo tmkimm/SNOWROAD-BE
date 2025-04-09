@@ -9,12 +9,18 @@ branches:
 before_install:
   - chmod +x gradlew
 
+before_script:
+  - echo "==== CHECK DICTIONARY FILE ===="
+  - ls -al src/main/resources/dictionary
+  - cat src/main/resources/dictionary/komoran-dictionary.user
+
 # Travis CI 서버의 Home
 cache: # gradlew로 의존성을 받게되면 해당 디렉토리에 캐시하여, 같은 의존성은 다시 받지 않도록 설정
   directories:
     - '$HOME/.m2/repository'
     - '$HOME/.gradle'
-script: "./gradlew clean build"
+
+script: "./gradlew clean build --info"
 
 # CI 실행 완료 시 메일로 알람
 notifications:
