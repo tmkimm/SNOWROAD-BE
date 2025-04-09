@@ -11,6 +11,7 @@ before_script:
 - ls -al src/main/resources/dictionary
 - cat src/main/resources/dictionary/komoran-dictionary.user
 - find . -name 'komoran-dictionary.user'
+- cat build/resources/main/dictionary/komoran-dictionary.user
 cache:
   directories:
   - "$HOME/.m2/repository"
