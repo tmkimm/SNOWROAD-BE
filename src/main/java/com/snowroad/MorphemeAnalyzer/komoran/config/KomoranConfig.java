@@ -38,7 +38,6 @@ public class KomoranConfig {
         Komoran komoran = new Komoran(DEFAULT_MODEL.STABLE);
         try {
             String dicPath = komoranProperties.getDictionaryPath();
-            dicPath = "classpath:/dictionary/komoran-dictionary.user";
             Assert.hasText(dicPath, "Dictionary path must not be empty");
 
             // classpath 여부 확인 후 적절한 리소스 로딩
