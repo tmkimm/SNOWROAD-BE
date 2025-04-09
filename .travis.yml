@@ -10,6 +10,7 @@ before_script:
 - echo "==== CHECK DICTIONARY FILE ===="
 - ls -al src/main/resources/dictionary
 - cat src/main/resources/dictionary/komoran-dictionary.user
+- find . -name 'komoran-dictionary.user'
 cache:
   directories:
   - "$HOME/.m2/repository"
