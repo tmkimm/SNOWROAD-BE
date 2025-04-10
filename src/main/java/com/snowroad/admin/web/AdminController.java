@@ -59,19 +59,16 @@ public class AdminController {
                 .maxAge(maxAge)
                 .build();
 
-        response.setHeader("Set-Cookie", cookie.toString());
+        response.addHeader("Set-Cookie", cookie.toString());
     }
 
     @Operation(summary="어드민 로그인", description = "(관리자) 어드민 페이지에 로그인합니다.\n로그인 성공 시 쿠키에 Refresh token, Access token이 저장됩니다.")
-    //@ApiResponse(responseCode = "200", description = "수신함 조회 성공", content = @Content(schema = @Schema(implementation = AlarmReceiveDto.class)))
     @PostMapping("/api/admin/login")
     public ResponseEntity<String> login(@RequestBody AdminLoginRequestDTO requestDto, HttpServletResponse response) {
         AdminLoginResponseDTO loginRes = adminService.login(requestDto.getId(), requestDto.getPassword());
-        // CookieUtils를 사용하여 쿠키에 토큰 추가
-
         // 쿠키에 JWT 저장
-        addCookie(response, "access_token", loginRes.getAccessToken(), ACCESS_TOKEN_COOKIE_EXPIRY);
-        addCookie(response, "refresh_token", loginRes.getRefreshToken(), REFRESH_TOKEN_COOKIE_EXPIRY);
+        addCookie(response, "access_token_admin", loginRes.getAccessToken(), ACCESS_TOKEN_COOKIE_EXPIRY);
+        addCookie(response, "refresh_token_admin", loginRes.getRefreshToken(), REFRESH_TOKEN_COOKIE_EXPIRY);
 
         return new ResponseEntity<>("Login success", HttpStatus.OK);
     }
