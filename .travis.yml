@@ -40,6 +40,8 @@ deploy: # S3 파일 업로드 또는 CodeDeploy로 배포 등 외부 서비스�
     acl: private
     local_dir: deploy # before_deploy에서 만든 deploy 디렉토리 지정. 해당 위치 파일만 S3로 전송
     wait-until-deployed: true
+    on:
+      branch: main
 notifications:
   email:
     recipients:
