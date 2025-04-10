@@ -1,4 +1,5 @@
 language: java
+dist: focal  # Ubuntu 20.04
 jdk:
 - openjdk17
 branches:
@@ -6,6 +7,7 @@ branches:
   - main
 before_install:
 - gem install bundler
+- gem install nokogiri --platform=ruby
 - openssl aes-256-cbc -K $encrypted_84feb29e20d8_key -iv $encrypted_84feb29e20d8_iv
   -in application.properties-test.enc -out ./src/test/resources/application.properties
   -d
