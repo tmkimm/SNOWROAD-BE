@@ -31,6 +31,7 @@ public class JwtTokenProvider {
     public String generateAccessToken(String userId) {
         return Jwts.builder()
                 .setSubject(userId)
+                .claim("type", "access")
                 .claim("userId", userId)
                 .setExpiration(new Date(System.currentTimeMillis() + ACCESS_TOKEN_VALIDITY))
                 .signWith(secretKey, SignatureAlgorithm.HS256)
@@ -43,16 +44,22 @@ public class JwtTokenProvider {
     public String generateRefreshToken(String userId) {
         return Jwts.builder()
                 .setSubject(userId)
+                .claim("type", "refresh")
                 .claim("userId", userId)
                 .setExpiration(new Date(System.currentTimeMillis() + REFRESH_TOKEN_VALIDITY))
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    /**
-     * 토큰 검증
-     */
-    public boolean validateToken(String token) {
+    public boolean validateAccessToken(String token) {
+        return validateTokenWithType(token, "access");
+    }
+
+    public boolean validateRefreshToken(String token) {
+        return validateTokenWithType(token, "refresh");
+    }
+
+    private boolean validateTokenWithType(String token, String expectedType) {
         try {
             Claims claims = Jwts.parserBuilder()
                     .setSigningKey(secretKey)
@@ -60,12 +67,13 @@ public class JwtTokenProvider {
                     .parseClaimsJws(token)
                     .getBody();
 
-            // 토큰이 만료되지 않았는지 확인
-            return !claims.getExpiration().before(new Date());
+            return !claims.getExpiration().before(new Date())
+                    && expectedType.equals(claims.get("type"));
         } catch (Exception e) {
             return false;
         }
     }
+
 
     /** ✅ JWT에서 사용자 ID 추출 */
     public String getUserIdFromToken(String token) {

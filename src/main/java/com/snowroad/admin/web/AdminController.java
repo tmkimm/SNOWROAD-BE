@@ -4,6 +4,7 @@ import com.snowroad.admin.web.dto.AdminLoginRequestDTO;
 import com.snowroad.admin.web.dto.AdminLoginResponseDTO;
 import com.snowroad.auth.web.dto.UserInfoResponseDto;
 import com.snowroad.common.exception.UnauthorizedException;
+import com.snowroad.common.util.CookieUtil;
 import com.snowroad.common.util.CurrentUser;
 import com.snowroad.config.auth.dto.CustomUserDetails;
 import com.snowroad.entity.Events;
@@ -39,6 +40,7 @@ import java.util.List;
 @RestController
 @Tag(name = "어드민 API", description = "어드민에서 사용하는 API")
 public class AdminController {
+    private final CookieUtil cookieUtil;
     private final AdminService adminService;
     private final EventService eventService;
     private final FileService fileService;
@@ -59,19 +61,16 @@ public class AdminController {
                 .maxAge(maxAge)
                 .build();
 
-        response.setHeader("Set-Cookie", cookie.toString());
+        response.addHeader("Set-Cookie", cookie.toString());
     }
 
     @Operation(summary="어드민 로그인", description = "(관리자) 어드민 페이지에 로그인합니다.\n로그인 성공 시 쿠키에 Refresh token, Access token이 저장됩니다.")
-    //@ApiResponse(responseCode = "200", description = "수신함 조회 성공", content = @Content(schema = @Schema(implementation = AlarmReceiveDto.class)))
     @PostMapping("/api/admin/login")
     public ResponseEntity<String> login(@RequestBody AdminLoginRequestDTO requestDto, HttpServletResponse response) {
         AdminLoginResponseDTO loginRes = adminService.login(requestDto.getId(), requestDto.getPassword());
-        // CookieUtils를 사용하여 쿠키에 토큰 추가
-
         // 쿠키에 JWT 저장
-        addCookie(response, "access_token", loginRes.getAccessToken(), ACCESS_TOKEN_COOKIE_EXPIRY);
-        addCookie(response, "refresh_token", loginRes.getRefreshToken(), REFRESH_TOKEN_COOKIE_EXPIRY);
+        addCookie(response, "access_token_admin", loginRes.getAccessToken(), ACCESS_TOKEN_COOKIE_EXPIRY);
+        addCookie(response, "refresh_token_admin", loginRes.getRefreshToken(), REFRESH_TOKEN_COOKIE_EXPIRY);
 
         return new ResponseEntity<>("Login success", HttpStatus.OK);
     }
@@ -238,5 +237,15 @@ public class AdminController {
                 null
         );
         return userInfo;
+    }
+    @Operation(
+            summary = "어드민 로그아웃",
+            description = "자동 로그인을 해제하며 로그아웃합니다."
+    )
+    @DeleteMapping("/api/admin/logout")
+    public ResponseEntity<Void> logout(HttpServletResponse response) {
+        // 인증 관련 쿠키 클리어
+        cookieUtil.clearCookiesAdmin(response);
+        return ResponseEntity.noContent().build();
     }
 }

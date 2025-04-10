@@ -37,7 +37,7 @@ public class SecurityConfig {
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/")
-                        .deleteCookies("access_token", "refresh_token")
+                        .deleteCookies("access_token", "refresh_token","access_token_admin", "refresh_token_admin")
                         .clearAuthentication(true))
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo
