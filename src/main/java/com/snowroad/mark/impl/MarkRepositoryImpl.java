@@ -129,7 +129,11 @@ public class MarkRepositoryImpl implements MarkRepository {
 
         if (existingMark == null) {
             // 3) 즐겨찾기 데이터가 없을 시 신규 등록 (INSERT)
-            Mark newMark = requestDto.toEntity();
+            Mark newMark = Mark.builder()
+                    .userAcntNo(userId) // 서비스 레이어에서 userId 설정
+                    .eventId(requestDto.getEventId())
+                    .likeYn(requestDto.getLikeYn())
+                    .build();
             entityManager.merge(newMark);
             return newMark.getEventId();
         } else {
