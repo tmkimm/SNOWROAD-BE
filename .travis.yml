@@ -25,6 +25,21 @@ cache:
   - "$HOME/.m2/repository"
   - "$HOME/.gradle"
 script: "./gradlew clean build --info"
+before_deploy:  # deploy 명령어가 실행되기 전에 수행(CodeDeploy는 jar 파일을 인식하지 못하므로 압축)
+  - zip -r snowroad-webservice *  # 해당 이름으로 압축
+  - mkdir -p deploy # Travis CI가 실행중인 위치에서 생성
+  - mv snowroad-webservice.zip deploy/snowroad-webservice.zip
+
+deploy: # S3 파일 업로드 또는 CodeDeploy로 배포 등 외부 서비스와 연동될 행위들을 선언
+  - provider: s3
+    access_key_id: $AWS_ACCESS_KEY
+    secret_access_key: $AWS_SECRET_KEY
+    bucket: snowroad-be-build
+    region: ap-northeast-2
+    skip_cleanup: true
+    acl: private
+    local_dir: deploy # before_deploy에서 만든 deploy 디렉토리 지정. 해당 위치 파일만 S3로 전송
+    wait-until-deployed: true
 notifications:
   email:
     recipients:
