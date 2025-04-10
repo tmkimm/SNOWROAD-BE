@@ -5,6 +5,7 @@ branches:
   only:
   - main
 before_install:
+- gem install bundler
 - openssl aes-256-cbc -K $encrypted_84feb29e20d8_key -iv $encrypted_84feb29e20d8_iv
   -in application.properties-test.enc -out ./src/test/resources/application.properties
   -d
