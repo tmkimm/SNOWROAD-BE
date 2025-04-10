@@ -4,6 +4,7 @@ import com.snowroad.admin.web.dto.AdminLoginRequestDTO;
 import com.snowroad.admin.web.dto.AdminLoginResponseDTO;
 import com.snowroad.auth.web.dto.UserInfoResponseDto;
 import com.snowroad.common.exception.UnauthorizedException;
+import com.snowroad.common.util.CookieUtil;
 import com.snowroad.common.util.CurrentUser;
 import com.snowroad.config.auth.dto.CustomUserDetails;
 import com.snowroad.entity.Events;
@@ -39,6 +40,7 @@ import java.util.List;
 @RestController
 @Tag(name = "어드민 API", description = "어드민에서 사용하는 API")
 public class AdminController {
+    private final CookieUtil cookieUtil;
     private final AdminService adminService;
     private final EventService eventService;
     private final FileService fileService;
@@ -235,5 +237,15 @@ public class AdminController {
                 null
         );
         return userInfo;
+    }
+    @Operation(
+            summary = "어드민 로그아웃",
+            description = "자동 로그인을 해제하며 로그아웃합니다."
+    )
+    @DeleteMapping("/api/admin/logout")
+    public ResponseEntity<Void> logout(HttpServletResponse response) {
+        // 인증 관련 쿠키 클리어
+        cookieUtil.clearCookiesAdmin(response);
+        return ResponseEntity.noContent().build();
     }
 }
