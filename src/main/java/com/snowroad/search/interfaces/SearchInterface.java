@@ -14,7 +14,7 @@ import java.util.List;
  * @since 2025-03-05
  *
  */
-public interface SearchMapInterface {
+public interface SearchInterface {
     List<Events> getEvents(SearchRequestDTO searchRequestDTO);
 }
 

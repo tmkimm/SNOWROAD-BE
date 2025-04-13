@@ -1,4 +1,4 @@
-package com.snowroad.search.util;
+package com.snowroad.geodata.util;
 
 /**
  *

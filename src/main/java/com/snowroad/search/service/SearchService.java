@@ -8,9 +8,9 @@ import com.snowroad.entity.Events;
 import com.snowroad.search.repository.SearchRepository;
 import com.snowroad.search.dto.SearchRequestDTO;
 import com.snowroad.search.enums.SearchMapEnum;
-import com.snowroad.search.interfaces.SearchMapInterface;
-import com.snowroad.search.util.BoundingBoxCalculator;
-import com.snowroad.search.util.HaversineFormula;
+import com.snowroad.search.interfaces.SearchInterface;
+import com.snowroad.geodata.util.BoundingBoxCalculator;
+import com.snowroad.geodata.util.HaversineFormula;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -31,7 +31,7 @@ import java.util.Map;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class SearchService implements SearchMapInterface {
+public class SearchService implements SearchInterface {
 
     private final SearchRepository searchRepository;
     private final KomoranAnalyzerInterface komoranAnalyzerInterface;
@@ -84,13 +84,6 @@ public class SearchService implements SearchMapInterface {
                     latitude, longitude, events.getAddrLttd(), events.getAddrLotd()
             );
             if (distance <= SearchMapEnum.MAP_DISTANCE_STANDARD.getRate()) {
-                log.info("""
-                                
-                                ========== START LOG ==========
-                                거리 값: {}
-                                이벤트 명: {}
-                                ========== END LOG ==========""",
-                        distance, events.getEventNm());
                 result.add(events);
             }
         }
