@@ -2,7 +2,7 @@ package com.snowroad.search.web;
 
 import com.snowroad.entity.Events;
 import com.snowroad.search.dto.SearchRequestDTO;
-import com.snowroad.search.interfaces.SearchMapInterface;
+import com.snowroad.search.interfaces.SearchInterface;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -33,7 +33,7 @@ import java.util.List;
 @Tag(name = "검색 API", description = "검색과 관련된 API")
 public class SearchController {
 
-    private final SearchMapInterface searchMapInterface;
+    private final SearchInterface searchInterface;
 
     /**
      *
@@ -64,6 +64,6 @@ public class SearchController {
             @Parameter(description = "검색 요청 DTO")
             @Valid
             @ModelAttribute SearchRequestDTO searchRequestDTO) {
-       return searchMapInterface.getEvents(searchRequestDTO);
+       return searchInterface.getEvents(searchRequestDTO);
     }
 }
