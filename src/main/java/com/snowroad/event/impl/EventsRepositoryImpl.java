@@ -10,6 +10,8 @@ import com.snowroad.config.auth.dto.CustomUserDetails;
 import com.snowroad.entity.*;
 import com.snowroad.event.domain.EventsRepositoryCustom;
 import com.snowroad.event.web.dto.*;
+import com.snowroad.geodata.interfaces.GeoDataInterface;
+import com.snowroad.geodata.service.GeoDataService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -17,7 +19,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -27,6 +31,7 @@ import java.util.stream.Collectors;
 public class EventsRepositoryImpl implements EventsRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
+    private final GeoDataInterface geoDataInterface; // GeoDataInterface 의존성 주입, 인근 컨텐츠 조회용
 
     @Override
     public List<HomeEventsResponseDto> getMainRcmnList(String eventTypeCd, CustomUserDetails userDetails) {
@@ -93,39 +98,6 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
                     return evntRcmnList;
                 })
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public List<HomeEventsResponseDto> getMainTestList(String eventTypeCd) {
-        QEvents e = QEvents.events;
-
-        List<Tuple> result = queryFactory
-                .select(
-                        e.eventId,
-                        e.eventNm,
-                        e.operStatDt,
-                        e.operEndDt,
-                        e.ctgyId,
-                        e.eventTypeCd
-                )
-                .from(e)
-//                .where(
-//                        e.operEndDt.goe(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))),
-//                        eventTypeCd.equals("ALL") ? null : e.eventTypeCd.eq(eventTypeCd)
-//                )
-                .limit(10)
-                .fetch();
-        System.out.println(result);
-
-        return result.stream().map(row -> HomeEventsResponseDto.builder()
-                .eventId(row.get(e.eventId))
-                .eventNm(row.get(e.eventNm))
-                .operStatDt(row.get(e.operStatDt))
-                .operEndDt(row.get(e.operEndDt))
-                .ctgyId(row.get(e.ctgyId))
-                .eventTypeCd(row.get(e.eventTypeCd))
-                .build()
-        ).collect(Collectors.toList());
     }
 
     @Override
@@ -297,6 +269,115 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
 
 
         return dto;
+    }
+
+
+    @Override
+    public List<HomeEventsResponseDto> getNearEvntList(Long eventId) {
+
+        List<Events> geoDataList = geoDataInterface.getGeoData(eventId);
+        String targetEventTypeCd;
+
+        // 입력받은 eventId와 같은 이벤트의 eventTypeCd 찾기
+        Optional<Events> targetEventOptional = geoDataList.stream()
+                .filter(event -> eventId.equals(event.getEventId()))
+                .findFirst();
+
+        if (targetEventOptional.isPresent()) {
+            targetEventTypeCd = targetEventOptional.get().getEventTypeCd();
+        } else {
+            // 해당 eventId의 이벤트가 없으면 빈 리스트 반환 또는 예외 처리
+            System.err.println("인근 팝업/전시가 없어요.");
+            return List.of(); // 빈 리스트 반환
+        }
+
+        // 운영종료일 필터링 위한 오늘 날짜 가져오기
+        LocalDate today = LocalDate.now(ZoneId.of("Asia/Seoul"));
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+
+        // 사진파일등 연관 데이터를 가져오기 위한 queryDsl 처리
+        QEvents e = QEvents.events;
+        QEventFilesMst fileMst = QEventFilesMst.eventFilesMst;
+        QEventFilesDtl fileDtl = QEventFilesDtl.eventFilesDtl;
+        
+//        List<HomeEventsResponseDto> nearEventsResponseList = geoDataList.stream()
+//                .filter(geoData -> targetEventTypeCd.equals(geoData.getEventTypeCd())) // eventTypeCd 일치
+//                .filter(geoData -> !eventId.equals(geoData.getEventId())) // eventId가 일치하는 데이터 제외
+//                .filter(geoData -> {
+//                    String operEndDtStr = geoData.getOperEndDt();
+//                    if (operEndDtStr != null && operEndDtStr.length() == 8) {
+//                        try {
+//                            LocalDate endDate = LocalDate.parse(operEndDtStr, dateFormatter);
+//                            return !endDate.isBefore(today); // 종료일이 오늘 이후인 데이터만
+//                        } catch (DateTimeParseException e) {
+//                            System.err.println("operEndDt format error: " + operEndDtStr + " for event ID: " + geoData.getEventId());
+//                            return false;
+//                        }
+//                    }
+//                    return false; // operEndDt가 null이거나 형식이 맞지 않으면 제외
+//                })
+//                .map(geoData -> {
+//                    HomeEventsResponseDto dto = new HomeEventsResponseDto();
+//                    // Events 엔티티에서 필요한 정보를 HomeEventsResponseDto에 매핑
+//                    dto.setEventId(geoData.getEventId());
+//                    dto.setEventNm(geoData.getEventNm());
+//                    dto.setOperStatDt(geoData.getOperStatDt());
+//                    dto.setOperEndDt(geoData.getOperEndDt());
+//                    dto.setCtgyId(geoData.getCtgyId());
+//                    dto.setEventTypeCd(geoData.getEventTypeCd());
+//                    dto.setImageUrl(geoData.getEventFiles().toString());
+//                    dto.setSmallImageUrl(geoData.getEventTumbfile().toString());
+//                    return dto;
+//                })
+//                .limit(10) // 최대 10개의 결과만 가져오기
+//                .collect(Collectors.toList());
+
+        List<HomeEventsResponseDto> nearEventsResponseList = geoDataList.stream()
+                .filter(geoData -> targetEventTypeCd.equals(geoData.getEventTypeCd())) // eventTypeCd 일치
+                .filter(geoData -> !eventId.equals(geoData.getEventId())) // eventId가 일치하는 데이터 제외
+                .filter(geoData -> {
+                    String operEndDtStr = geoData.getOperEndDt();
+                    if (operEndDtStr != null && operEndDtStr.length() == 8) {
+                        try {
+                            LocalDate endDate = LocalDate.parse(operEndDtStr, dateFormatter);
+                            return !endDate.isBefore(today); // 종료일이 오늘 이후인 데이터만
+                        } catch (DateTimeParseException ex) {
+                            System.err.println("operEndDt format error: " + operEndDtStr + " for event ID: " + geoData.getEventId());
+                            return false;
+                        }
+                    }
+                    return false; // operEndDt가 null이거나 형식이 맞지 않으면 제외
+                })
+                .map(geoData -> {
+                    HomeEventsResponseDto dto = new HomeEventsResponseDto();
+                    dto.setEventId(geoData.getEventId());
+                    dto.setEventNm(geoData.getEventNm());
+                    dto.setOperStatDt(geoData.getOperStatDt());
+                    dto.setOperEndDt(geoData.getOperEndDt());
+                    dto.setCtgyId(geoData.getCtgyId());
+                    dto.setEventTypeCd(geoData.getEventTypeCd());
+
+                    // 이미지 URL 및 썸네일 URL 추가 조회 (각 이벤트별로 쿼리 실행)
+                    if (geoData.getEventTumbfile() != null) { // NullPointerException 방지
+                        Tuple fileInfo = queryFactory
+                                .select(fileDtl.fileUrl, fileDtl.fileThumbUrl)
+                                .from(fileMst)
+                                .leftJoin(fileDtl).on(fileMst.fileMstId.eq(fileDtl.fileMst.fileMstId))
+                                .where(fileMst.fileMstId.eq(geoData.getEventTumbfile().getFileMstId()))
+                                .fetchOne();
+
+                        if (fileInfo != null) {
+                            dto.setImageUrl(fileInfo.get(fileDtl.fileUrl));
+                            dto.setSmallImageUrl(fileInfo.get(fileDtl.fileThumbUrl));
+                        }
+                    }
+                    return dto;
+                })
+                .limit(10)
+                .collect(Collectors.toList());
+
+        return nearEventsResponseList;
+
     }
 
 }
