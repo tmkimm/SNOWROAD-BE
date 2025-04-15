@@ -15,7 +15,7 @@ public interface EventsRepositoryCustom{
 
     Page<DetailEventsResponseDto> getEvntList(Pageable page, String eventTypeCd, String sortType, List<String> ctgyId, String fromDate, String toDate, List<String> geo, Long userId);
 
-    EventContentsResponseDto findEvntData(Long eventId);
+    EventContentsResponseDto findEvntData(Long eventId, Long userId);
 
     List<HomeEventsResponseDto> getNearEvntList(Long eventId);
 }

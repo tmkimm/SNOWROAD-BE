@@ -209,7 +209,7 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
         return new PageImpl<>(result, page, total); // 페이징된 결과 반환
     }
 
-    public EventContentsResponseDto findEvntData(Long evntId){
+    public EventContentsResponseDto findEvntData(Long evntId, Long userId){
 
         QEvents e = QEvents.events;
         QMark mark = QMark.mark;
@@ -219,6 +219,11 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
 
         LocalDate today = LocalDate.now();
         String todayStr = today.format(DateTimeFormatter.ofPattern("yyyyMMdd")); // 현재일자를 yyyyMMdd 포맷으로 변환
+
+        BooleanBuilder likeCondition = new BooleanBuilder();
+        if (userId != null) {
+            likeCondition.and(mark.userAcntNo.eq(userId));
+        }
 
         Tuple tupleResult = queryFactory
                 .select(
@@ -233,21 +238,23 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
                         e.operDttmCntn,
                         e.ctgyId,
                         e.eventTypeCd,
-                        mark.likeYn.coalesce("N"),
+                        Expressions.cases()
+                                .when(mark.likeYn.isNotNull()).then(mark.likeYn.stringValue())
+                                .otherwise("N").as("likeYn"),
                         view.viewNwvl.coalesce(0),
                         fileDtl.fileUrl,
                         fileDtl.fileThumbUrl
                 )
                 .from(e)
                 .leftJoin(view).on(e.eventId.eq(view.eventId)) // JOIN TB_EVNT_VIEW_D
-                .leftJoin(mark).on(e.eventId.eq(mark.eventId)) // JOIN TB_EVNT_LIKE_D
+                .leftJoin(mark).on(e.eventId.eq(mark.eventId).and(likeCondition))
                 .leftJoin(fileMst).on(e.eventTumbfile.fileMstId.eq(fileMst.fileMstId)) // JOIN TB_EVNT_FILE_M
                 .leftJoin(fileDtl).on(fileMst.fileMstId.eq(fileDtl.fileMst.fileMstId)) // JOIN TB_EVNT_FILE_D
                 .where(
                         e.eventId.eq(evntId)
                 )
                 .fetchOne();
-        String likeYn = tupleResult.get(mark.likeYn.coalesce("N"));
+//        String likeYn = tupleResult.get(mark.likeYn.coalesce("N"));
 
         EventContentsResponseDto dto = (tupleResult != null) ? new EventContentsResponseDto(
                 tupleResult.get(e.eventId),
@@ -261,7 +268,7 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
                 tupleResult.get(e.operDttmCntn),
                 tupleResult.get(e.ctgyId),
                 tupleResult.get(e.eventTypeCd),
-                tupleResult.get(mark.likeYn),
+                tupleResult.get(Expressions.stringPath("likeYn")),
                 (tupleResult.get(view.viewNwvl) != null) ? tupleResult.get(view.viewNwvl) : 0, // Null 체크 추가
                 tupleResult.get(fileDtl.fileUrl),
                 tupleResult.get(fileDtl.fileThumbUrl)
@@ -297,6 +304,7 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
 
         // 사진파일등 연관 데이터를 가져오기 위한 queryDsl 처리
         QEvents e = QEvents.events;
+        QMark mark = QMark.mark; // QMark 추가
         QEventFilesMst fileMst = QEventFilesMst.eventFilesMst;
         QEventFilesDtl fileDtl = QEventFilesDtl.eventFilesDtl;
         
@@ -371,6 +379,7 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
                             dto.setSmallImageUrl(fileInfo.get(fileDtl.fileThumbUrl));
                         }
                     }
+
                     return dto;
                 })
                 .limit(10)

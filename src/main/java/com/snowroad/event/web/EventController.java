@@ -102,9 +102,15 @@ public class EventController {
     @Operation(summary="상세 컨텐츠 및 인근 리스트 조회", description = "(이벤트) 상세페이지 개별 팝업/전시 항목 및 인근 항목을 조회합니다.")
     @ApiResponse(responseCode = "200", description = "상세 조회 성공", content = @Content(schema = @Schema(implementation = EventContentsResponseDto.class)))
     @GetMapping("/api/events/cntn/{eventId}")
-    public EventDetailWithNearEvents getEvnt(@PathVariable Long eventId) {
+    public EventDetailWithNearEvents getEvnt(@PathVariable Long eventId, @CurrentUser CustomUserDetails userDetails) {
+
+        Long userId = null;
+        if (userDetails != null) {
+            userId =userDetails.getUserId();
+        }
+
         // 개별 event 반환
-        EventDetailWithNearEvents events = eventService.findEvntData(eventId);
+        EventDetailWithNearEvents events = eventService.findEvntData(eventId, userId);
         return events;
     }
 

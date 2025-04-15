@@ -125,9 +125,9 @@ public class EventService {
     }
 
 
-    public EventDetailWithNearEvents findEvntData(Long eventId) {
+    public EventDetailWithNearEvents findEvntData(Long eventId, Long userId) {
    //     return eventsRepositoryCustom.findEvntData(eventId);
-        EventContentsResponseDto eventDetails = eventsRepositoryCustom.findEvntData(eventId);
+        EventContentsResponseDto eventDetails = eventsRepositoryCustom.findEvntData(eventId, userId);
         List<HomeEventsResponseDto> nearEvents = eventsRepositoryCustom.getNearEvntList(eventId);
         return new EventDetailWithNearEvents(eventDetails, nearEvents);
     }
