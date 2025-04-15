@@ -11,14 +11,11 @@ import java.util.List;
 
 public interface EventsRepositoryCustom{
 
-
-    // 쿼리dsl 테스트
-    List<HomeEventsResponseDto> getMainTestList(String eventTypeCd);
     List<HomeEventsResponseDto> getMainRcmnList(String eventTypeCd, CustomUserDetails userDetails);
 
     Page<DetailEventsResponseDto> getEvntList(Pageable page, String eventTypeCd, String sortType, List<String> ctgyId, String fromDate, String toDate, List<String> geo, Long userId);
 
-    // 상세 페이지
     EventContentsResponseDto findEvntData(Long eventId);
 
+    List<HomeEventsResponseDto> getNearEvntList(Long eventId);
 }
