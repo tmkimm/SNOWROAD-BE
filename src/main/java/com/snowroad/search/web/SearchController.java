@@ -12,8 +12,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -61,9 +61,9 @@ public class SearchController {
     )
     @GetMapping(value = "/api/search/events")
     List<Events> getEvents(
-            @Parameter(description = "검색 요청 DTO")
+            @Parameter(description = "검색")
             @Valid
-            @ModelAttribute SearchRequestDTO searchRequestDTO) {
+            @ParameterObject SearchRequestDTO searchRequestDTO) {
        return searchInterface.getEvents(searchRequestDTO);
     }
 }
