@@ -15,4 +15,5 @@ import java.util.List;
  */
 public interface GeoDataInterface {
     List<Events> getGeoData(Long eventId);
+    List<Events> getGeoDataByLocation(double latitude, double longitude);
 }

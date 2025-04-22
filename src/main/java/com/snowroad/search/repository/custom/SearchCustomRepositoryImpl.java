@@ -33,20 +33,12 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
         QEvents qEvents = QEvents.events;
         BooleanBuilder builder = new BooleanBuilder();
 
-        //이벤트 텍스트 검색 데이터 - IN을 통한 이벤트 ID 전제 검색
+        // step.1 사전 데이터 in 구성(Text 검색, 거리표준)
         if (requestDTO.getKeyword() != null) {
             builder.and(qEvents.eventId.in(requestDTO.getEventIds()));
         }
 
-        //지도 거리 계산
-        if(requestDTO.getLatitude() != null && requestDTO.getLongitude() != null){
-            BooleanExpression latCondition = qEvents.addrLttd.between(requestDTO.getMinLat(), requestDTO.getMaxLat());
-            BooleanExpression lonCondition = qEvents.addrLotd.between(requestDTO.getMinLon(), requestDTO.getMaxLon());
-            BooleanTemplate locationGroupedCondition = Expressions.booleanTemplate("(({0}) AND ({1}))", latCondition, lonCondition);
-            builder.and(locationGroupedCondition);
-        }
-
-        //시작일자, 종료일자
+        // step.2 시작일자, 종료일자
         if (requestDTO.getOperStatDt() != null && requestDTO.getOperEndDt() != null) {
             BooleanExpression statCondition = qEvents.operStatDt.loe(requestDTO.getOperEndDt());
             BooleanExpression endCondition = qEvents.operEndDt.goe(requestDTO.getOperStatDt());
@@ -54,7 +46,7 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
             builder.and(dateGroupedCondition);
         }
 
-        //이벤트 구분 코드
+        // step.2 이벤트 구분 코드
         if (requestDTO.getEventTypeCd() != null) {
             builder.and(qEvents.eventTypeCd.eq(requestDTO.getEventTypeCd()));
         }
