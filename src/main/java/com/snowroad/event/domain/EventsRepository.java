@@ -155,4 +155,21 @@ public interface EventsRepository extends JpaRepository<Events, Long>, EventsRep
             , nativeQuery = true)
     List<Object[]> getEvntList(@Param("sortType") String sortType);
 
+
+    // 리스트 페이지 컨텐츠 목록 조회
+    @Query(value = "SELECT " +
+            "   TRC.RGNT_CD " +
+            "   ,TRC.RGNT_NM " +
+            "   ,COUNT(TLC.LDCD_NM) AS CNT " +
+            "   ,GROUP_CONCAT(TLC.LDCD_NM) AS LDCD_NM " +
+            "FROM TB_RGNT_C AS TRC " +
+            "INNER JOIN TB_LDCD_C AS TLC " +
+            "ON TLC.RGNT_CD = TRC.RGNT_CD " +
+            "WHERE  TLC.RGNT_CD = TRC.RGNT_CD " +
+            "GROUP BY TRC.RGNT_CD "
+            , nativeQuery = true)
+    List<Object[]> getEventGeoFilter(@Param("rgntTypeCd") String rgntTypeCd);
+
+
+
 }

@@ -74,11 +74,19 @@ public class EventController {
         return new PagedResponseDto<>(events, 10);
     }
 
+    @Operation(summary="리스트 필터링-지역", description = "(이벤트) 리스트페이지의 지역 필터링 선택 항목. 현재 작업중으로 서울 8개 지역만 return중")
+    @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = HomeEventsResponseDto.class)))
+    @GetMapping("/api/main-events/list/geoData/{geoTypeCd}")
+    public List<EventsGeoFilterDto> getEventGeoFilter(@RequestParam(defaultValue = "0") int page, @RequestParam(required = false) String geoTypeCd) {
+        List<EventsGeoFilterDto> events = eventService.getEventGeoFilter(geoTypeCd);
+        return events;
+    }
+
     @Operation(summary="리스트 팝업/전시 조회", description = "(이벤트) 리스트페이지 등록된 팝업, 전시 리스트를 조회합니다.<br>" +
-            "sortType-10:조회순 20:최신순 30:마감순 40/50:미완<br>  " +
-            "ctgyId-category enum 내부 코드(FANDB,DESIGN 등)<br>  " +
-            " geo-미완<br>" +
-            "eventTypeCd : ALL, 10, 20")
+            " sortType-10:조회순 20:최신순 30:마감순 40/50:미완<br>  " +
+            " ctgyId-category enum 내부 코드(FANDB,DESIGN 등)<br>  " +
+            " geo-10:홍대 20:성수 30:여의도 40:잠실 50:종로 60:명동 70:한남 80:강남<br>" +
+            " eventTypeCd : ALL, 10, 20")
     @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = HomeEventsResponseDto.class)))
     @GetMapping("/api/events/list/{eventTypeCd}")
     public ResponseEntity<PagedResponseDto<DetailEventsResponseDto>> getEventList(
@@ -102,9 +110,15 @@ public class EventController {
     @Operation(summary="상세 컨텐츠 및 인근 리스트 조회", description = "(이벤트) 상세페이지 개별 팝업/전시 항목 및 인근 항목을 조회합니다.")
     @ApiResponse(responseCode = "200", description = "상세 조회 성공", content = @Content(schema = @Schema(implementation = EventContentsResponseDto.class)))
     @GetMapping("/api/events/cntn/{eventId}")
-    public EventDetailWithNearEvents getEvnt(@PathVariable Long eventId) {
+    public EventDetailWithNearEvents getEvnt(@PathVariable Long eventId, @CurrentUser CustomUserDetails userDetails) {
+
+        Long userId = null;
+        if (userDetails != null) {
+            userId =userDetails.getUserId();
+        }
+
         // 개별 event 반환
-        EventDetailWithNearEvents events = eventService.findEvntData(eventId);
+        EventDetailWithNearEvents events = eventService.findEvntData(eventId, userId);
         return events;
     }
 

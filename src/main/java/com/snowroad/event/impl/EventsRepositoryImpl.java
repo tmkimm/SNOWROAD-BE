@@ -108,6 +108,8 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
         QView view = QView.view;
         QEventFilesMst fileMst = QEventFilesMst.eventFilesMst;
         QEventFilesDtl fileDtl = QEventFilesDtl.eventFilesDtl;
+        QRegion region = QRegion.region;
+        QLocalDistrict district = QLocalDistrict.localDistrict;
 
         LocalDate today = LocalDate.now();
         String todayStr = today.format(DateTimeFormatter.ofPattern("yyyyMMdd")); // 현재일자를 yyyyMMdd 포맷으로 변환
@@ -130,13 +132,14 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
         if (ctgyId != null && !ctgyId.isEmpty()) {
             whereCondition.and(e.ctgyId.in(ctgyId));
         }
-        // geoList 값이 존재할 때만 IN 조건 추가
-        if (geo != null && !geo.isEmpty()) {
-            whereCondition.and(e.ldcd.in(geo));
-        }
+
         // fromDate & toDate 값이 존재할 때만 BETWEEN 조건 추가
         if (fromDate != null && toDate != null) {
             whereCondition.and(e.operStatDt.between(fromDate, toDate));
+        }
+        // geoList 값이 존재할 때만 IN 조건 추가
+        if (geo != null && !geo.isEmpty()) {
+            whereCondition.and(region.rgntCd.in(geo));
         }
         // sortType 10:조회순 20:최신순(오픈일순) 30:마감순(마감임박순) 40:지역별(지역명칭)-미완 50:거리순-미완
         // sortType = 30일 때는 `operEndDt`가 현재일자 이후여야 함
@@ -152,15 +155,17 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
         } else if ("30".equals(sortType)) {
             orderBy = e.operEndDt.asc();
         } else if ("40".equals(sortType)) {
-        //    orderBy = e.operEndDt.asc();
+            //    orderBy = e.operEndDt.asc();
         } else if ("50".equals(sortType)) {
-        //    orderBy = e.operEndDt.asc();
+            //    orderBy = e.operEndDt.asc();
         }
 
         // 전체 데이터 개수 조회 (페이징을 위한 count 쿼리)
         Long total = Optional.ofNullable(queryFactory
                         .select(e.count())
                         .from(e)
+                        .leftJoin(district).on(e.ldcd.eq(district.ldcd))
+                        .innerJoin(region).on(district.region.eq(region))  // << 추가
                         .where(whereCondition)
                         .fetchOne())
                 .orElse(0L);
@@ -200,6 +205,8 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
                 .leftJoin(mark).on(e.eventId.eq(mark.eventId).and(userId != null ? mark.userAcntNo.eq(userId) : Expressions.FALSE))
                 .leftJoin(fileMst).on(e.eventTumbfile.fileMstId.eq(fileMst.fileMstId))
                 .leftJoin(fileDtl).on(fileMst.fileMstId.eq(fileDtl.fileMst.fileMstId))
+                .leftJoin(district).on(e.ldcd.eq(district.ldcd))
+                .innerJoin(region).on(district.region.eq(region))
                 .where(whereCondition)
                 .orderBy(orderBy)
                 .offset(page.getOffset())
@@ -209,16 +216,23 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
         return new PageImpl<>(result, page, total); // 페이징된 결과 반환
     }
 
-    public EventContentsResponseDto findEvntData(Long evntId){
+    public EventContentsResponseDto findEvntData(Long evntId, Long userId){
 
         QEvents e = QEvents.events;
         QMark mark = QMark.mark;
         QView view = QView.view;
+        QRegion region = QRegion.region;
         QEventFilesMst fileMst = QEventFilesMst.eventFilesMst;
         QEventFilesDtl fileDtl = QEventFilesDtl.eventFilesDtl;
 
+
         LocalDate today = LocalDate.now();
         String todayStr = today.format(DateTimeFormatter.ofPattern("yyyyMMdd")); // 현재일자를 yyyyMMdd 포맷으로 변환
+
+        BooleanBuilder likeCondition = new BooleanBuilder();
+        if (userId != null) {
+            likeCondition.and(mark.userAcntNo.eq(userId));
+        }
 
         Tuple tupleResult = queryFactory
                 .select(
@@ -233,21 +247,23 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
                         e.operDttmCntn,
                         e.ctgyId,
                         e.eventTypeCd,
-                        mark.likeYn.coalesce("N"),
+                        Expressions.cases()
+                                .when(mark.likeYn.isNotNull()).then(mark.likeYn.stringValue())
+                                .otherwise("N").as("likeYn"),
                         view.viewNwvl.coalesce(0),
                         fileDtl.fileUrl,
                         fileDtl.fileThumbUrl
                 )
                 .from(e)
                 .leftJoin(view).on(e.eventId.eq(view.eventId)) // JOIN TB_EVNT_VIEW_D
-                .leftJoin(mark).on(e.eventId.eq(mark.eventId)) // JOIN TB_EVNT_LIKE_D
+                .leftJoin(mark).on(e.eventId.eq(mark.eventId).and(likeCondition))
                 .leftJoin(fileMst).on(e.eventTumbfile.fileMstId.eq(fileMst.fileMstId)) // JOIN TB_EVNT_FILE_M
                 .leftJoin(fileDtl).on(fileMst.fileMstId.eq(fileDtl.fileMst.fileMstId)) // JOIN TB_EVNT_FILE_D
                 .where(
                         e.eventId.eq(evntId)
                 )
                 .fetchOne();
-        String likeYn = tupleResult.get(mark.likeYn.coalesce("N"));
+//        String likeYn = tupleResult.get(mark.likeYn.coalesce("N"));
 
         EventContentsResponseDto dto = (tupleResult != null) ? new EventContentsResponseDto(
                 tupleResult.get(e.eventId),
@@ -261,7 +277,7 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
                 tupleResult.get(e.operDttmCntn),
                 tupleResult.get(e.ctgyId),
                 tupleResult.get(e.eventTypeCd),
-                tupleResult.get(mark.likeYn),
+                tupleResult.get(Expressions.stringPath("likeYn")),
                 (tupleResult.get(view.viewNwvl) != null) ? tupleResult.get(view.viewNwvl) : 0, // Null 체크 추가
                 tupleResult.get(fileDtl.fileUrl),
                 tupleResult.get(fileDtl.fileThumbUrl)
@@ -297,6 +313,7 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
 
         // 사진파일등 연관 데이터를 가져오기 위한 queryDsl 처리
         QEvents e = QEvents.events;
+        QMark mark = QMark.mark; // QMark 추가
         QEventFilesMst fileMst = QEventFilesMst.eventFilesMst;
         QEventFilesDtl fileDtl = QEventFilesDtl.eventFilesDtl;
         
@@ -371,6 +388,7 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
                             dto.setSmallImageUrl(fileInfo.get(fileDtl.fileThumbUrl));
                         }
                     }
+
                     return dto;
                 })
                 .limit(10)

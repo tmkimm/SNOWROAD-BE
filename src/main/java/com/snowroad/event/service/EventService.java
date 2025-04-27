@@ -125,9 +125,9 @@ public class EventService {
     }
 
 
-    public EventDetailWithNearEvents findEvntData(Long eventId) {
+    public EventDetailWithNearEvents findEvntData(Long eventId, Long userId) {
    //     return eventsRepositoryCustom.findEvntData(eventId);
-        EventContentsResponseDto eventDetails = eventsRepositoryCustom.findEvntData(eventId);
+        EventContentsResponseDto eventDetails = eventsRepositoryCustom.findEvntData(eventId, userId);
         List<HomeEventsResponseDto> nearEvents = eventsRepositoryCustom.getNearEvntList(eventId);
         return new EventDetailWithNearEvents(eventDetails, nearEvents);
     }
@@ -208,32 +208,25 @@ public class EventService {
         return eventRankListData;
     }
 
-//    @Transactional(readOnly = true)
-//    public List<HomeEventsResponseDto> getMainRcmnList(String eventTypeCd, CustomUserDetails userDetails) {
-//        // Native Query 호출
-////        List<Object[]> result =  eventsRepository.getMainRcmnList(eventTypeCd, userDetails.getUserId());
-//        List<Object[]> result =  eventsRepositoryCustom.getMainRcmnList(eventTypeCd, userDetails);
-//
-//        // Object[]에서 데이터를 추출하여 필요한 형태로 가공
-//        List<HomeEventsResponseDto> eventRcmnListData = result.stream().map(row -> {
-//                    HomeEventsResponseDto evntRcmnList = new HomeEventsResponseDto();
-//                    evntRcmnList.setEventId((Long) row[0]);
-//                    evntRcmnList.setEventNm((String) row[1]);
-//                    evntRcmnList.setOperStatDt((String) row[2]);
-//                    evntRcmnList.setOperEndDt((String) row[3]);
-//                    evntRcmnList.setCtgyId((String) row[4]);
-//                    evntRcmnList.setEventTypeCd((String) row[5]);
-//                    // likeYn이 Character로 인식될 가능성이 있으므로, String으로 변환
-//                    evntRcmnList.setLikeYn(row[6] != null ? row[6].toString() : "N");
-//                    evntRcmnList.setImageUrl((String) row[7]);
-//                    evntRcmnList.setSmallImageUrl((String) row[8]);
-//                    return evntRcmnList;
-//                })
-//                .collect(Collectors.toList());
-//
-//        return eventRcmnListData;
-//
-//    }
+    @Transactional(readOnly = true)
+    public List<EventsGeoFilterDto> getEventGeoFilter(String rgntTypeCd) {
+        // Native Query 호출
+        List<Object[]> result =  eventsRepository.getEventGeoFilter(rgntTypeCd); // 지역그룹단위구분코드
+
+        // Object[]에서 데이터를 추출하여 필요한 형태로 가공
+        List<EventsGeoFilterDto> eventGeoFilterData = result.stream().map(row -> {
+                    EventsGeoFilterDto evntGeoList = new EventsGeoFilterDto();
+                    evntGeoList.setRgntCd((String) row[0]);
+                    evntGeoList.setRegionName((String) row[1]);
+                    evntGeoList.setCnt((Long) row[2]);
+                    evntGeoList.setLcdcNm((String) row[3]);
+                    return evntGeoList;
+                })
+                .collect(Collectors.toList());
+
+        return eventGeoFilterData;
+
+    }
 
 @Transactional(readOnly = true)
 public Map<String, Object> getMainRcmnList(String eventTypeCd, CustomUserDetails userDetails) {
