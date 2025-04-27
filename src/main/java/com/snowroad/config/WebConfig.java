@@ -44,6 +44,8 @@ public class WebConfig  implements WebMvcConfigurer {
                         , "http://localhost:3000/"
                         , "http://127.0.0.1:3000"
                         , "http://ec2-13-125-216-97.ap-northeast-2.compute.amazonaws.com"
+                        , "http://noongil.org"
+                        , "https://noongil.org"
                         , "http://ec2-3-36-23-213.ap-northeast-2.compute.amazonaws.com:8080")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // 허용할 HTTP 메서드
                 .allowedHeaders("*") // 모든 헤더 허용
