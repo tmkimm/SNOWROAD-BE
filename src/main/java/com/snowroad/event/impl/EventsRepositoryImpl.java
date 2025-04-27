@@ -108,6 +108,8 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
         QView view = QView.view;
         QEventFilesMst fileMst = QEventFilesMst.eventFilesMst;
         QEventFilesDtl fileDtl = QEventFilesDtl.eventFilesDtl;
+        QRegion region = QRegion.region;
+        QLocalDistrict district = QLocalDistrict.localDistrict;
 
         LocalDate today = LocalDate.now();
         String todayStr = today.format(DateTimeFormatter.ofPattern("yyyyMMdd")); // 현재일자를 yyyyMMdd 포맷으로 변환
@@ -130,13 +132,14 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
         if (ctgyId != null && !ctgyId.isEmpty()) {
             whereCondition.and(e.ctgyId.in(ctgyId));
         }
-        // geoList 값이 존재할 때만 IN 조건 추가
-        if (geo != null && !geo.isEmpty()) {
-            whereCondition.and(e.ldcd.in(geo));
-        }
+
         // fromDate & toDate 값이 존재할 때만 BETWEEN 조건 추가
         if (fromDate != null && toDate != null) {
             whereCondition.and(e.operStatDt.between(fromDate, toDate));
+        }
+        // geoList 값이 존재할 때만 IN 조건 추가
+        if (geo != null && !geo.isEmpty()) {
+            whereCondition.and(region.rgntCd.in(geo));
         }
         // sortType 10:조회순 20:최신순(오픈일순) 30:마감순(마감임박순) 40:지역별(지역명칭)-미완 50:거리순-미완
         // sortType = 30일 때는 `operEndDt`가 현재일자 이후여야 함
@@ -152,15 +155,17 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
         } else if ("30".equals(sortType)) {
             orderBy = e.operEndDt.asc();
         } else if ("40".equals(sortType)) {
-        //    orderBy = e.operEndDt.asc();
+            //    orderBy = e.operEndDt.asc();
         } else if ("50".equals(sortType)) {
-        //    orderBy = e.operEndDt.asc();
+            //    orderBy = e.operEndDt.asc();
         }
 
         // 전체 데이터 개수 조회 (페이징을 위한 count 쿼리)
         Long total = Optional.ofNullable(queryFactory
                         .select(e.count())
                         .from(e)
+                        .leftJoin(district).on(e.ldcd.eq(district.ldcd))
+                        .innerJoin(region).on(district.region.eq(region))  // << 추가
                         .where(whereCondition)
                         .fetchOne())
                 .orElse(0L);
@@ -200,6 +205,8 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
                 .leftJoin(mark).on(e.eventId.eq(mark.eventId).and(userId != null ? mark.userAcntNo.eq(userId) : Expressions.FALSE))
                 .leftJoin(fileMst).on(e.eventTumbfile.fileMstId.eq(fileMst.fileMstId))
                 .leftJoin(fileDtl).on(fileMst.fileMstId.eq(fileDtl.fileMst.fileMstId))
+                .leftJoin(district).on(e.ldcd.eq(district.ldcd))
+                .innerJoin(region).on(district.region.eq(region))
                 .where(whereCondition)
                 .orderBy(orderBy)
                 .offset(page.getOffset())
@@ -214,8 +221,10 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
         QEvents e = QEvents.events;
         QMark mark = QMark.mark;
         QView view = QView.view;
+        QRegion region = QRegion.region;
         QEventFilesMst fileMst = QEventFilesMst.eventFilesMst;
         QEventFilesDtl fileDtl = QEventFilesDtl.eventFilesDtl;
+
 
         LocalDate today = LocalDate.now();
         String todayStr = today.format(DateTimeFormatter.ofPattern("yyyyMMdd")); // 현재일자를 yyyyMMdd 포맷으로 변환
