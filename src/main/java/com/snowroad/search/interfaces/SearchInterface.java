@@ -15,4 +15,3 @@ import com.snowroad.search.dto.SearchRequestDTO;
 public interface SearchInterface {
     SearchPagedResponse getEvents(SearchRequestDTO searchRequestDTO);
 }
-

@@ -53,7 +53,6 @@ public class SearchService implements SearchInterface {
     @Override
     @Transactional(readOnly = true)
     public SearchPagedResponse getEvents(SearchRequestDTO searchRequestDTO) {
-
         // step.1 : Text 검색
         List<Long> keywordEventIds = null;
         if(searchRequestDTO.getKeyword() != null && !searchRequestDTO.getKeyword().trim().isEmpty()) {
