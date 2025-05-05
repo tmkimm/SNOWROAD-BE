@@ -1,6 +1,7 @@
 package com.snowroad.search.web;
 
 import com.snowroad.entity.Events;
+import com.snowroad.search.dto.SearchPagedResponse;
 import com.snowroad.search.dto.SearchRequestDTO;
 import com.snowroad.search.interfaces.SearchInterface;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,10 +14,9 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 /**
  *
@@ -60,10 +60,10 @@ public class SearchController {
         }
     )
     @GetMapping(value = "/api/search/events")
-    List<Events> getEvents(
+    public ResponseEntity<SearchPagedResponse> getEvents(
             @Parameter(description = "검색")
             @Valid
             @ParameterObject SearchRequestDTO searchRequestDTO) {
-       return searchInterface.getEvents(searchRequestDTO);
+       return ResponseEntity.ok(searchInterface.getEvents(searchRequestDTO));
     }
 }

@@ -1,9 +1,7 @@
 package com.snowroad.search.interfaces;
 
-import com.snowroad.entity.Events;
+import com.snowroad.search.dto.SearchPagedResponse;
 import com.snowroad.search.dto.SearchRequestDTO;
-
-import java.util.List;
 
 /**
  *
@@ -15,6 +13,5 @@ import java.util.List;
  *
  */
 public interface SearchInterface {
-    List<Events> getEvents(SearchRequestDTO searchRequestDTO);
+    SearchPagedResponse getEvents(SearchRequestDTO searchRequestDTO);
 }
-
