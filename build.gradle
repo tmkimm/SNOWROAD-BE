@@ -63,6 +63,15 @@ tasks.named('test') {
 	useJUnitPlatform()
 }
 
+tasks.named('processResources', Copy) {
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE	// 중복 항목은 제외
+
+	from('src/main/resources/dictionary') {
+		include '**/*'
+		into 'dictionary'
+	}
+}
+
 test {
 	useJUnitPlatform()
 }
@@ -71,7 +80,15 @@ test {
 def querydslDir = "$buildDir/generated/querydsl"
 
 sourceSets {
-	main.java.srcDirs += [ querydslDir ]
+	main {
+		java {
+			srcDirs += [querydslDir]
+		}
+		// resources는 기본 경로이므로 생략 가능하지만 커스터마이징 했을 경우엔 명시
+		resources {
+			srcDir 'src/main/resources'
+		}
+	}
 }
 
 clean {

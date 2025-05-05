@@ -31,40 +31,33 @@ import java.io.InputStream;
 public class KomoranConfig {
 
     private final KomoranProperties komoranProperties;
-    private final ResourceLoader resourceLoader;
 
     @Bean
     public Komoran komoran() {
         Komoran komoran = new Komoran(DEFAULT_MODEL.STABLE);
+
         try {
-            String dicPath = komoranProperties.getDictionaryPath();
+            // 사용자 사전 파일을 리소스에서 가져와서 실제 File 객체로 변환
+            String dicPath = komoranProperties.getDictionaryPath(); // 예: "dictionary/komoran-dictionary.user"
+            dicPath = "dictionary/komoran-dictionary.user";
             Assert.hasText(dicPath, "Dictionary path must not be empty");
 
-            // classpath 여부 확인 후 적절한 리소스 로딩
-            Resource resource = dicPath.startsWith("classpath:")
-                    ? new ClassPathResource(dicPath.replace("classpath:", ""))
-                    : resourceLoader.getResource(dicPath);
-
-            log.info("사용자 사전 파일 경로: {}", dicPath);
-            log.info("리소스 존재 여부: {}", resource.exists());
-
-            if (!resource.exists()) {
-                throw new IllegalStateException("사용자 사전 리소스를 찾을 수 없음: " + dicPath);
+            InputStream inputStream = getClass().getClassLoader().getResourceAsStream(dicPath);
+            if (inputStream == null) {
+                throw new FileNotFoundException("사용자 사전 리소스를 찾을 수 없음: " + dicPath);
             }
 
-            // OS에 관계없이 임시 파일 생성 (Windows, Linux, macOS 대응)
+            // 임시 파일로 저장 (모든 OS 대응)
             File tempFile = Files.createTempFile("komoran-dic", ".user").toFile();
-            try (InputStream inputStream = resource.getInputStream()) {
-                Files.copy(inputStream, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            }
-
+            Files.copy(inputStream, tempFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
             komoran.setUserDic(tempFile.getAbsolutePath());
+
             log.info("사용자 사전 로드 성공: {}", tempFile.getAbsolutePath());
 
         } catch (Exception e) {
             throw new IllegalStateException("사용자 사전 로드 실패", e);
         }
+
         return komoran;
     }
 }
-

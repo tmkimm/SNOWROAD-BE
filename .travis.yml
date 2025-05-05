@@ -1,23 +1,50 @@
 language: java
+dist: focal  # Ubuntu 20.04
 jdk:
-  - openjdk17
-
+- openjdk17
 branches:
   only:
-    - main # CI 실행할 브랜치 지정
-
+  - main
 before_install:
-  - chmod +x gradlew
-
-# Travis CI 서버의 Home
-cache: # gradlew로 의존성을 받게되면 해당 디렉토리에 캐시하여, 같은 의존성은 다시 받지 않도록 설정
+- gem install bundler
+- gem install nokogiri --platform=ruby
+- openssl aes-256-cbc -K $encrypted_84feb29e20d8_key -iv $encrypted_84feb29e20d8_iv
+  -in application.properties-test.enc -out ./src/test/resources/application.properties
+  -d
+- openssl aes-256-cbc -K $encrypted_8d56ecc3da0e_key -iv $encrypted_8d56ecc3da0e_iv
+  -in application-oauth.properties-main.enc -out ./src/main/resources/application-oauth.properties
+  -d
+- openssl aes-256-cbc -K $encrypted_8fd383601570_key -iv $encrypted_8fd383601570_iv
+  -in application.properties-main.enc -out ./src/main/resources/application.properties
+  -d
+- chmod +x gradlew
+before_script:
+- echo "==== CHECK DICTIONARY FILE ===="
+- ls -al src/main/resources/dictionary
+- cat src/main/resources/dictionary/komoran-dictionary.user
+- find build -name komoran-dictionary.user
+cache:
   directories:
-    - '$HOME/.m2/repository'
-    - '$HOME/.gradle'
-script: "./gradlew clean build"
+  - "$HOME/.m2/repository"
+  - "$HOME/.gradle"
+script: "./gradlew clean build --info"
+before_deploy:  # deploy 명령어가 실행되기 전에 수행(CodeDeploy는 jar 파일을 인식하지 못하므로 압축)
+  - zip -r snowroad-webservice *  # 해당 이름으로 압축
+  - mkdir -p deploy # Travis CI가 실행중인 위치에서 생성
+  - mv snowroad-webservice.zip deploy/snowroad-webservice.zip
 
-# CI 실행 완료 시 메일로 알람
+deploy: # S3 파일 업로드 또는 CodeDeploy로 배포 등 외부 서비스와 연동될 행위들을 선언
+  - provider: s3
+    access_key_id: $AWS_ACCESS_KEY
+    secret_access_key: $AWS_SECRET_KEY
+    bucket: snowroad-be-build
+    region: ap-northeast-2
+    skip_cleanup: true
+    acl: private
+    local_dir: deploy # before_deploy에서 만든 deploy 디렉토리 지정. 해당 위치 파일만 S3로 전송
+    on:
+      branch: main
 notifications:
   email:
     recipients:
-      - xoals1417@gmail.com
+    - xoals1417@gmail.com

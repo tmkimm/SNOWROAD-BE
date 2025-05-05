@@ -44,6 +44,7 @@ public class MarkController {
         if (userDetails == null) {
             throw new UnauthorizedException("인증 정보가 존재하지 않습니다. 로그인이 필요합니다.");
         }
+
         markService.addMarkEvent(requestDto, userDetails.getUserId());
 
         // likeYn이 N일 경우는 삭제 처리된 것으로 판단하여 메시지 반환
