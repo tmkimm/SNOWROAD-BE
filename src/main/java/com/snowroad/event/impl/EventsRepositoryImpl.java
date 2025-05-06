@@ -3,9 +3,11 @@ package com.snowroad.event.impl;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.snowroad.common.exception.EventNotFoundException;
 import com.snowroad.config.auth.dto.CustomUserDetails;
 import com.snowroad.entity.*;
 import com.snowroad.event.domain.EventsRepositoryCustom;
@@ -216,77 +218,141 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
         return new PageImpl<>(result, page, total); // 페이징된 결과 반환
     }
 
-    public EventContentsResponseDto findEvntData(Long evntId, Long userId){
+//    public EventContentsResponseDto findEvntData(Long evntId, Long userId){
+//
+//        QEvents e = QEvents.events;
+//        QMark mark = QMark.mark;
+//        QView view = QView.view;
+//        QRegion region = QRegion.region;
+//        QEventFilesMst fileMst = QEventFilesMst.eventFilesMst;
+//        QEventFilesDtl fileDtl = QEventFilesDtl.eventFilesDtl;
+//
+//
+//        LocalDate today = LocalDate.now();
+//        String todayStr = today.format(DateTimeFormatter.ofPattern("yyyyMMdd")); // 현재일자를 yyyyMMdd 포맷으로 변환
+//
+//        BooleanExpression likeCondition;
+//        if (userId != null) {
+//            likeCondition = mark.userAcntNo.eq(userId);
+//        }
+//        else likeCondition = Expressions.FALSE;
+//
+//        Tuple tupleResult = queryFactory
+//                .select(
+//                        e.eventId,
+//                        e.eventNm,
+//                        e.eventCntn,
+//                        e.eventAddr,
+//                        e.rads,
+//                        e.lnad,
+//                        e.operStatDt,
+//                        e.operEndDt,
+//                        e.operDttmCntn,
+//                        e.ctgyId,
+//                        e.eventTypeCd,
+//                        Expressions.cases()
+//                                .when(mark.likeYn.isNotNull()).then(mark.likeYn.stringValue())
+//                                .otherwise("N").as("likeYn"),
+//                        view.viewNwvl.coalesce(0),
+//                        fileDtl.fileUrl,
+//                        fileDtl.fileThumbUrl
+//                )
+//                .from(e)
+//                .leftJoin(view).on(e.eventId.eq(view.eventId)) // JOIN TB_EVNT_VIEW_D
+//                .leftJoin(mark).on(e.eventId.eq(mark.eventId).and(likeCondition))
+//                .leftJoin(fileMst).on(e.eventTumbfile.fileMstId.eq(fileMst.fileMstId)) // JOIN TB_EVNT_FILE_M
+//                .leftJoin(fileDtl).on(fileMst.fileMstId.eq(fileDtl.fileMst.fileMstId)) // JOIN TB_EVNT_FILE_D
+//                .where(
+//                        e.eventId.eq(evntId)
+//                )
+//                .fetchOne();
+//        System.out.println(tupleResult.get(view.viewNwvl));
+//        System.out.println(tupleResult.get(view.eventId));
+////        String likeYn = tupleResult.get(mark.likeYn.coalesce("N"));
+//
+//        EventContentsResponseDto dto = (tupleResult != null) ? new EventContentsResponseDto(
+//                tupleResult.get(e.eventId),
+//                tupleResult.get(e.eventNm),
+//                tupleResult.get(e.eventCntn),
+//                tupleResult.get(e.eventAddr),
+//                tupleResult.get(e.rads),
+//                tupleResult.get(e.lnad),
+//                tupleResult.get(e.operStatDt),
+//                tupleResult.get(e.operEndDt),
+//                tupleResult.get(e.operDttmCntn),
+//                tupleResult.get(e.ctgyId),
+//                tupleResult.get(e.eventTypeCd),
+//                tupleResult.get(Expressions.stringPath("likeYn")),
+//                (tupleResult.get(view.viewNwvl) != null) ? tupleResult.get(view.viewNwvl) : 0, // Null 체크 추가
+//                tupleResult.get(fileDtl.fileUrl),
+//                tupleResult.get(fileDtl.fileThumbUrl)
+//        ) : null;
+//
+//
+//        return dto;
+//    }
 
-        QEvents e = QEvents.events;
-        QMark mark = QMark.mark;
-        QView view = QView.view;
-        QRegion region = QRegion.region;
-        QEventFilesMst fileMst = QEventFilesMst.eventFilesMst;
-        QEventFilesDtl fileDtl = QEventFilesDtl.eventFilesDtl;
+public EventContentsResponseDto findEvntData(Long evntId, Long userId){
 
+    QEvents e = QEvents.events;
+    QMark mark = QMark.mark;
+    QView view = QView.view;
+    QEventFilesMst fileMst = QEventFilesMst.eventFilesMst;
+    QEventFilesDtl fileDtl = QEventFilesDtl.eventFilesDtl;
 
-        LocalDate today = LocalDate.now();
-        String todayStr = today.format(DateTimeFormatter.ofPattern("yyyyMMdd")); // 현재일자를 yyyyMMdd 포맷으로 변환
-
-        BooleanBuilder likeCondition = new BooleanBuilder();
-        if (userId != null) {
-            likeCondition.and(mark.userAcntNo.eq(userId));
-        }
-
-        Tuple tupleResult = queryFactory
-                .select(
-                        e.eventId,
-                        e.eventNm,
-                        e.eventCntn,
-                        e.eventAddr,
-                        e.rads,
-                        e.lnad,
-                        e.operStatDt,
-                        e.operEndDt,
-                        e.operDttmCntn,
-                        e.ctgyId,
-                        e.eventTypeCd,
-                        Expressions.cases()
-                                .when(mark.likeYn.isNotNull()).then(mark.likeYn.stringValue())
-                                .otherwise("N").as("likeYn"),
-                        view.viewNwvl.coalesce(0),
-                        fileDtl.fileUrl,
-                        fileDtl.fileThumbUrl
-                )
-                .from(e)
-                .leftJoin(view).on(e.eventId.eq(view.eventId)) // JOIN TB_EVNT_VIEW_D
-                .leftJoin(mark).on(e.eventId.eq(mark.eventId).and(likeCondition))
-                .leftJoin(fileMst).on(e.eventTumbfile.fileMstId.eq(fileMst.fileMstId)) // JOIN TB_EVNT_FILE_M
-                .leftJoin(fileDtl).on(fileMst.fileMstId.eq(fileDtl.fileMst.fileMstId)) // JOIN TB_EVNT_FILE_D
-                .where(
-                        e.eventId.eq(evntId)
-                )
-                .fetchOne();
-//        String likeYn = tupleResult.get(mark.likeYn.coalesce("N"));
-
-        EventContentsResponseDto dto = (tupleResult != null) ? new EventContentsResponseDto(
-                tupleResult.get(e.eventId),
-                tupleResult.get(e.eventNm),
-                tupleResult.get(e.eventCntn),
-                tupleResult.get(e.eventAddr),
-                tupleResult.get(e.rads),
-                tupleResult.get(e.lnad),
-                tupleResult.get(e.operStatDt),
-                tupleResult.get(e.operEndDt),
-                tupleResult.get(e.operDttmCntn),
-                tupleResult.get(e.ctgyId),
-                tupleResult.get(e.eventTypeCd),
-                tupleResult.get(Expressions.stringPath("likeYn")),
-                (tupleResult.get(view.viewNwvl) != null) ? tupleResult.get(view.viewNwvl) : 0, // Null 체크 추가
-                tupleResult.get(fileDtl.fileUrl),
-                tupleResult.get(fileDtl.fileThumbUrl)
-        ) : null;
-
-
-        return dto;
+    BooleanExpression likeCondition;
+    if (userId != null) {
+        likeCondition = mark.userAcntNo.eq(userId);
+    }
+    else {
+        // userId가 null이면 좋아요 정보는 가져오지 않도록 조건을 FALSE로
+        // 이렇게 해야 LEFT JOIN 시 userAcntNo = null 조건이 아닌 항상 FALSE로 처리
+        likeCondition = Expressions.FALSE; // 기존 로직 유지
     }
 
+
+    EventContentsResponseDto resultDto = queryFactory
+            .select(
+                    Projections.constructor(EventContentsResponseDto.class, // DTO 생성자를 사용한 프로젝션
+                            e.eventId,           // eventId
+                            e.eventNm,           // eventNm
+                            e.eventCntn,         // eventCntn
+                            e.eventAddr,         // eventAddr
+                            e.rads,              // rads
+                            e.lnad,              // lnad
+                            e.operStatDt,        // operStatDt
+                            e.operEndDt,         // operEndDt
+                            e.operDttmCntn,      // operDttmCntn
+                            e.ctgyId,            // ctgyId
+                            e.eventTypeCd,       // eventTypeCd
+                            Expressions.cases()  // likeYn 필드에 매핑
+                                    .when(mark.likeYn.isNotNull()).then(mark.likeYn.stringValue())
+                                    .otherwise("N"),
+                            view.viewNwvl.coalesce(0), // viewNwvl 필드에 매핑 (null이면 0)
+                            fileDtl.fileUrl,       // imageUrl 필드에 매핑
+                            fileDtl.fileThumbUrl   // smallImageUrl 필드에 매핑
+                    )
+            )
+            .from(e)
+            .leftJoin(view).on(e.eventId.eq(view.eventId)) // JOIN TB_EVNT_VIEW_D
+            // userId가 null이 아니면 해당 userAcntNo로, null이면 항상 FALSE 조건을 사용
+            .leftJoin(mark).on(e.eventId.eq(mark.eventId).and(likeCondition))
+            .leftJoin(fileMst).on(e.eventTumbfile.fileMstId.eq(fileMst.fileMstId)) // JOIN TB_EVNT_FILE_M
+            .leftJoin(fileDtl).on(fileMst.fileMstId.eq(fileDtl.fileMst.fileMstId)) // JOIN TB_EVNT_FILE_D
+            .where(
+                    e.eventId.eq(evntId)
+            )
+            .fetchOne(); // 결과가 하나임을 기대하므로 fetchOne 사용
+
+    // 결과가 null인 경우 예외 발생
+    if (resultDto == null) {
+        throw new EventNotFoundException("해당하는 컨텐츠가 존재하지 않습니다.");
+        // 또는 JPA를 사용한다면 javax.persistence.EntityNotFoundException 등을 사용할 수도 있습니다.
+    }
+
+    // DTO 객체가 바로 반환되므로 별도의 매핑 과정이 필요 없습니다.
+    return resultDto;
+}
 
     @Override
     public List<HomeEventsResponseDto> getNearEvntList(Long eventId) {
