@@ -17,7 +17,6 @@ public class View extends BaseTimeEntity {
     @Schema(description = "이벤트ID")
     @Column(name = "EVNT_ID")
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long eventId;
 
     @Schema(description = "조회수")

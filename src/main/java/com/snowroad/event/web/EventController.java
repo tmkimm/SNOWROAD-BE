@@ -83,7 +83,7 @@ public class EventController {
     }
 
     @Operation(summary="리스트 팝업/전시 조회", description = "(이벤트) 리스트페이지 등록된 팝업, 전시 리스트를 조회합니다.<br>" +
-            " sortType-10:조회순 20:최신순 30:마감순 40/50:미완<br>  " +
+            " sortType-10:조회순 20:최신순 30:마감순 40:미완(지역별)<br>  " +
             " ctgyId-category enum 내부 코드(FANDB,DESIGN 등)<br>  " +
             " geo-10:홍대 20:성수 30:여의도 40:잠실 50:종로 60:명동 70:한남 80:강남<br>" +
             " eventTypeCd : ALL, 10, 20")
