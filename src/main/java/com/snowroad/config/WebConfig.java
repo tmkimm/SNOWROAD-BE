@@ -4,6 +4,7 @@ import com.snowroad.config.auth.LoginUserArgumentResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
+import org.springframework.web.filter.ForwardedHeaderFilter;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -56,5 +57,9 @@ public class WebConfig  implements WebMvcConfigurer {
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolver) {
         argumentResolver.add(loginUserArgumentResolver);
+    }
+    // Spring MVC/Security가 X-Forwarded-Proto, X-Forwarded-Host, X-Forwarded-Port 등의 헤더를 읽도록 설정
+    public ForwardedHeaderFilter forwardedHeaderFilter() {
+        return new ForwardedHeaderFilter();
     }
 }
