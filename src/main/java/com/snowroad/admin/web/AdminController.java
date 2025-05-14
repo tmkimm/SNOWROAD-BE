@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -52,25 +53,38 @@ public class AdminController {
     private int REFRESH_TOKEN_COOKIE_EXPIRY;
 
 
-    private void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
-        ResponseCookie cookie = ResponseCookie.from(name, value)
+    private void addCookie(HttpServletRequest request, HttpServletResponse response, String name, String value, int maxAge) {
+        String serverName = request.getServerName();  // ex: localhost, api.noongil.org
+
+        boolean isLocal = serverName.equals("localhost") || serverName.equals("127.0.0.1");
+
+        ResponseCookie.ResponseCookieBuilder cookieBuilder = ResponseCookie.from(name, value)
                 .path("/")
                 .httpOnly(true)
-                .secure(true)
-                .sameSite("None")
-                .maxAge(maxAge)
-                .build();
+                .maxAge(maxAge);
 
+        if (isLocal) {
+            // 로컬 개발 환경
+            cookieBuilder.sameSite("Lax");      // 로컬에서는 Lax로도 충분
+            cookieBuilder.secure(false);        // HTTPS 사용 안 하므로 false
+        } else {
+            // 운영 환경
+            cookieBuilder.sameSite("None");     // cross-site 쿠키 허용
+            cookieBuilder.secure(true);         // HTTPS 필수
+            cookieBuilder.domain(".noongil.org");
+        }
+
+        ResponseCookie cookie = cookieBuilder.build();
         response.addHeader("Set-Cookie", cookie.toString());
     }
 
     @Operation(summary="어드민 로그인", description = "(관리자) 어드민 페이지에 로그인합니다.\n로그인 성공 시 쿠키에 Refresh token, Access token이 저장됩니다.")
     @PostMapping("/api/admin/login")
-    public ResponseEntity<String> login(@RequestBody AdminLoginRequestDTO requestDto, HttpServletResponse response) {
+    public ResponseEntity<String> login(@RequestBody AdminLoginRequestDTO requestDto, HttpServletRequest request, HttpServletResponse response) {
         AdminLoginResponseDTO loginRes = adminService.login(requestDto.getId(), requestDto.getPassword());
         // 쿠키에 JWT 저장
-        addCookie(response, "access_token_admin", loginRes.getAccessToken(), ACCESS_TOKEN_COOKIE_EXPIRY);
-        addCookie(response, "refresh_token_admin", loginRes.getRefreshToken(), REFRESH_TOKEN_COOKIE_EXPIRY);
+        addCookie(request, response, "access_token_admin", loginRes.getAccessToken(), ACCESS_TOKEN_COOKIE_EXPIRY);
+        addCookie(request, response, "refresh_token_admin", loginRes.getRefreshToken(), REFRESH_TOKEN_COOKIE_EXPIRY);
 
         return new ResponseEntity<>("Login success", HttpStatus.OK);
     }
