@@ -51,19 +51,19 @@ public class SearchService implements SearchInterface {
     @Override
     @Transactional(readOnly = true)
     public SearchPagedResponse getEvents(SearchRequestDTO searchRequestDTO) {
-        // step.1 : Text 검색
+        // Search-step.2 : Text 검색
         List<Long> keywordEventIds = null;
         if(searchRequestDTO.getKeyword() != null && !searchRequestDTO.getKeyword().trim().isEmpty()) {
             keywordEventIds = getKeywordSearchResult(searchRequestDTO);
         }
 
-        // step.2 : 거리 표준
+        // Search-step.3 : 거리 표준
         List<Long> locationEventIds = null;
         if(searchRequestDTO.getLatitude() != null && searchRequestDTO.getLongitude() != null) {
             locationEventIds = getMapDistance(searchRequestDTO);
         }
 
-        // step.3 : 교집합 구성
+        // Search-step.4 : 교집합 구성
         // Text 검색과 거리표준에서 중복된 부분을 제거한다
         List<Long> filteredEventIds = null;
         if (keywordEventIds != null && locationEventIds != null) {
@@ -76,11 +76,11 @@ public class SearchService implements SearchInterface {
             filteredEventIds = locationEventIds;
         }
 
-        // step.4 : 검색 조건 설정
+        // Search-step.5 : 검색 조건 설정
         searchRequestDTO.setEventIds(filteredEventIds);
         Page<SearchResponseDTO> events = searchRepository.findSearchEventDataList(searchRequestDTO);
 
-        // step.7 : 반환
+        // Search-step.10 : 반환
         // 데이터, 전체 페이지수, 전체 데이터 건수
         return new SearchPagedResponse(
                 events.getContent(),

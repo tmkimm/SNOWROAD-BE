@@ -49,11 +49,11 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
      */
     @Override
     public Page<SearchResponseDTO> findSearchEventDataList(SearchRequestDTO requestDTO) {
-        // step.1 이벤트 조건 설정
+        // Search-step.5 이벤트 조건 설정
         QEvents qEvents = QEvents.events;
         BooleanBuilder builder = setSearchCondition(qEvents, requestDTO);
 
-        // step.2 공통 쿼리 구성
+        // Search-step.6 공통 쿼리 구성
         JPAQuery<SearchResponseDTO> searchQuery = queryFactory
                 .select(new QSearchResponseDTO(
                         qEvents.eventId,
@@ -77,7 +77,7 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
                 .from(qEvents)
                 .where(builder);
 
-        // step.3 정렬 설정
+        // Search-step.7 정렬 설정
         String sortType;
         if (requestDTO.hasSortType()) {
             sortType = requestDTO.getSortType();
@@ -95,13 +95,13 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
         List<SearchResponseDTO> events = searchQuery.fetch();
         Stream<SearchResponseDTO> eventStream = events.stream();
 
-        // step.3-1 거리순 정렬 설정
+        // Search-step.7-1 거리순 정렬 설정
         boolean isDistanceSort = "거리순".equalsIgnoreCase(sortType);
         if (!isDistanceSort) {
             processDefaultSort(searchQuery, pageable);
         }
 
-        // step.4 거리 값 처리
+        // Search-step.8 거리 값 처리
         if (requestDTO.hasCoordinate()) {
             double latitude = requestDTO.getLatitude();
             double longitude = requestDTO.getLongitude();
@@ -111,7 +111,7 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
                     double dist = HaversineFormula.calculateDistance(latitude, longitude, dto.getAddrLttd(), dto.getAddrLotd());
                     dto.setDistanceKm(dist);
 
-                    // step.4-1 사용자 표시 거리 표기
+                    // Search-step.8-1 사용자 표시 거리 표기
                     String displayDistance;
                     if (dist < 1.0) {
                         displayDistance = Math.round(dist * 1000) + "m";
@@ -122,8 +122,8 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
                 });
         }
 
-        // step.3-2, 4-1 거리순 정렬 조건인 경우 필터 적용
-        // 3-1과 연계 로직
+        // Search-step.7-2, 8-2 거리순 정렬 조건인 경우 필터 적용
+        // 7-1과 연계 로직
         if (isDistanceSort) {
             eventStream = eventStream
                 // 기본 거리 표준 필터 해제
@@ -131,7 +131,7 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
                 .sorted(Comparator.comparingDouble(SearchResponseDTO::getDistanceKm).reversed());
         }
 
-        // step.5 결과
+        // Search-step.9 결과 반환
         List<SearchResponseDTO> sortedList = eventStream.toList();
         if (isDistanceSort) {
             int start = Math.min((int) pageable.getOffset(), sortedList.size());
