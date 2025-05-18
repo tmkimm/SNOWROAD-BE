@@ -64,6 +64,7 @@ public class SearchController {
             @Parameter(description = "검색")
             @Valid
             @ParameterObject SearchRequestDTO searchRequestDTO) {
-       return ResponseEntity.ok(searchInterface.getEvents(searchRequestDTO));
+        // Search-step.1 검색 시행
+        return ResponseEntity.ok(searchInterface.getEvents(searchRequestDTO));
     }
 }
