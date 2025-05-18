@@ -1,9 +1,8 @@
 package com.snowroad.search.repository.custom;
 
-import com.snowroad.entity.Events;
 import com.snowroad.search.dto.SearchRequestDTO;
+import com.snowroad.search.dto.SearchResponseDTO;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 /**
  *
@@ -15,5 +14,5 @@ import org.springframework.data.domain.Pageable;
  *
  */
 public interface SearchCustomRepository {
-    Page<Events> findSearchEventDataList(Pageable pageable, SearchRequestDTO requestDTO);
+    Page<SearchResponseDTO> findSearchEventDataList(SearchRequestDTO requestDTO);
 }

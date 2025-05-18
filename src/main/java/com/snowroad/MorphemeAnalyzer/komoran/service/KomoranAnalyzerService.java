@@ -39,7 +39,7 @@ public class KomoranAnalyzerService implements KomoranAnalyzerInterface {
         List<KomoranDTO> komoranDTOList = new LinkedList<>();
         List<Token> tokenList = analyzeResultList.getTokenList();
         for (Token token : tokenList) {
-            log.debug("({} , {}) {}/{}_{}"
+            log.info("({} , {}) {}/{}_{}"
                     , token.getBeginIndex()
                     , token.getEndIndex()
                     , token.getMorph()
@@ -62,5 +62,4 @@ public class KomoranAnalyzerService implements KomoranAnalyzerInterface {
         }
         return komoranDTOList.stream().collect(Collectors.groupingBy(KomoranDTO::getPosCode));
     }
-
 }
