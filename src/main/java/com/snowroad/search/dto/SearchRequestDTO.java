@@ -58,12 +58,40 @@ public class SearchRequestDTO {
     @Schema(description = "이벤트구분코드", example = "10")
     private String eventTypeCd;
 
-    @Schema(description = "카테고리 [ex: categories=10&categories=20]" , example = "10", nullable = true)
+    @Schema(description = "카테고리 [ex: categories=BEAU&categories=CHAR]" , nullable = true)
     private List<String> categories;
 
-    @Schema(description = "지역그룹단위필터 [ex: regionGroups=10&regionGroups=20]" , example = "10", nullable = true )
+    @Schema(description = "지역그룹단위필터 [ex: regionGroups=10&regionGroups=20]" , nullable = true )
     private List<String> regionGroups;
 
     @Schema(hidden = true)
     private List<Long> eventIds;
+
+    public boolean hasKeyword() {
+        return keyword != null;
+    }
+
+    public boolean hasSortType() {
+        return sortType != null;
+    }
+
+    public boolean hasCoordinate() {
+        return latitude != null && longitude != null;
+    }
+
+    public boolean hasEventTypeCd() {
+        return eventTypeCd != null;
+    }
+
+    public boolean hasDateAllBoolean() {
+        return operStatDt != null && operEndDt != null;
+    }
+
+    public boolean hasCategories() {
+        return categories != null && !categories.isEmpty();
+    }
+
+    public boolean hasRegionGroups() {
+        return regionGroups != null && !regionGroups.isEmpty();
+    }
 }

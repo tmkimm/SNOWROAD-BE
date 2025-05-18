@@ -1,6 +1,5 @@
 package com.snowroad.search.dto;
 
-import com.snowroad.entity.Events;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,7 +15,7 @@ import java.util.List;
 public class SearchPagedResponse {
 
     @Schema(description = "이벤트 List 데이터")
-    private List<Events> events;
+    private List<SearchResponseDTO> events;
 
     @Schema(description = "전체 페이지수")
     private long totalPageCount;
