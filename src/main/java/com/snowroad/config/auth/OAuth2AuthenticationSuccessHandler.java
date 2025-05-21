@@ -51,7 +51,6 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
                 .secure(true)
                 .sameSite("None")
                 .maxAge(maxAge)
-                .domain(".noongil.org")
                 .build();
         response.addHeader("Set-Cookie", cookie.toString());
     }
