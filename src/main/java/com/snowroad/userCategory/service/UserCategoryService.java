@@ -37,7 +37,7 @@ public class UserCategoryService {
         return new UserCategoriesResponseDto(categories);
     }
     /**
-     * 관심 카테고리 여러 개 추가 (최대 4개 제한)
+     * 관심 카테고리 여러 개 추가 (최대 6개 제한)
      */
     @Transactional
     public void addUserCategories(Long userId, Set<Category> categories) {
@@ -52,8 +52,8 @@ public class UserCategoryService {
                 .collect(Collectors.toSet());
 
         // 전체 카테고리 수가 제한을 넘는지 체크
-        if (existingCategories.size() + newCategories.size() > 4) {
-            throw new BadRequestException("사용자는 최대 4개의 관심 카테고리만 설정할 수 있습니다.");
+        if (existingCategories.size() + newCategories.size() > 6) {
+            throw new BadRequestException("사용자는 최대 6개의 관심 카테고리만 설정할 수 있습니다.");
         }
 
         saveUserCategories(user, newCategories);
@@ -62,8 +62,8 @@ public class UserCategoryService {
     @Transactional
     public void updateUserCategories(Long userId, Set<Category> categories) {
         // 수정 시에는 전달받은 카테고리 목록만 저장하므로 개수 체크만 수행
-        if (categories.size() > 4) {
-            throw new BadRequestException("사용자는 최대 4개의 관심 카테고리만 설정할 수 있습니다.");
+        if (categories.size() > 6) {
+            throw new BadRequestException("사용자는 최대 6개의 관심 카테고리만 설정할 수 있습니다.");
         }
 
         User user = findUserById(userId);
