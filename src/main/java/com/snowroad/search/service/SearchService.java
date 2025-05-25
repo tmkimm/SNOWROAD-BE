@@ -51,7 +51,13 @@ public class SearchService implements SearchInterface {
     @Override
     @Transactional(readOnly = true)
     public SearchPagedResponse getEvents(SearchRequestDTO searchRequestDTO) {
-        // Search-step.2 : Text 검색
+
+        // step.1 : 조회 값 보정
+        if(!searchRequestDTO.hasSortType()) {
+            searchRequestDTO.setSortType("최신순");
+        }
+        
+        // step.2 : Text 검색
         List<Long> keywordEventIds = null;
         if(searchRequestDTO.getKeyword() != null && !searchRequestDTO.getKeyword().trim().isEmpty()) {
             keywordEventIds = getKeywordSearchResult(searchRequestDTO);
