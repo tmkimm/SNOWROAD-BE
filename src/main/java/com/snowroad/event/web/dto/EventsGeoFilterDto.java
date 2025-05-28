@@ -20,6 +20,10 @@ public class EventsGeoFilterDto {
     @Schema(description = "지역그룹단위명")
     private String regionName; // DTO 양식에 없던 필드, SQL 결과에 맞춰 추가
 
+    // SQL: TRC.RGNT_CD -> DTO: 지역그룹단위구분코드 (rgntCd)
+    @Schema(description = "지역그룹단위구분코드")
+    private String rgntTypeCd;
+
     // SQL: COUNT(TLC.LDCD_NM) AS CNT -> DTO: 연결법정동코드수 (cnt)
     @Schema(description = "연결법정동코드수")
     private Long cnt; // DTO 양식과 동일
