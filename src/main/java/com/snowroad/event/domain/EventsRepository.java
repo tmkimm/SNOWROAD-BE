@@ -144,7 +144,7 @@ public interface EventsRepository extends JpaRepository<Events, Long>, EventsRep
             "WHERE  TLC.RGNT_CD = TRC.RGNT_CD " +
             "GROUP BY TRC.RGNT_CD "
             , nativeQuery = true)
-    List<Object[]> getEventGeoFilter(@Param("rgntTypeCd") String rgntTypeCd);
+    List<Object[]> getEventGeoFilter();
 
 
 
