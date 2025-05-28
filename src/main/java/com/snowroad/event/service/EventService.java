@@ -210,20 +210,22 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
-    public List<EventsGeoFilterDto> getEventGeoFilter(String rgntTypeCd) {
+    public Map<String, List<EventsGeoFilterDto>> getEventGeoFilter() {
         // Native Query 호출
-        List<Object[]> result =  eventsRepository.getEventGeoFilter(rgntTypeCd); // 지역그룹단위구분코드
+        List<Object[]> result =  eventsRepository.getEventGeoFilter(); // 지역그룹단위구분코드
 
         // Object[]에서 데이터를 추출하여 필요한 형태로 가공
-        List<EventsGeoFilterDto> eventGeoFilterData = result.stream().map(row -> {
+        Map<String, List<EventsGeoFilterDto>> eventGeoFilterData = result.stream().map(row -> {
                     EventsGeoFilterDto evntGeoList = new EventsGeoFilterDto();
                     evntGeoList.setRgntCd((String) row[0]);
                     evntGeoList.setRegionName((String) row[1]);
-                    evntGeoList.setCnt((Long) row[2]);
-                    evntGeoList.setLcdcNm((String) row[3]);
+                    evntGeoList.setRgntTypeCd((String) row[2]);
+                    evntGeoList.setCnt((Long) row[3]);
+                    evntGeoList.setLcdcNm((String) row[4]);
                     return evntGeoList;
                 })
-                .collect(Collectors.toList());
+                .collect(Collectors.groupingBy(EventsGeoFilterDto::getRgntTypeCd));
+
 
         return eventGeoFilterData;
 
