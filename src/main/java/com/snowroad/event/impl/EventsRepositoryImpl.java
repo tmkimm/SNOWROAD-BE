@@ -3,6 +3,7 @@ package com.snowroad.event.impl;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
@@ -74,7 +75,7 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
                         e.deleteYn.eq("N"),
                         e.operEndDt.goe(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))),
                         e.operStatDt.loe(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))),
-                        eventTypeCd.equals("ALL") ? null : e.eventTypeCd.eq(eventTypeCd),
+                        eventTypeCd.equalsIgnoreCase("ALL") ? null : e.eventTypeCd.eq(eventTypeCd),
                         userId == null ? null : e.ctgyId.in(
                                 queryFactory
                                         .select(uct.category.stringValue())
@@ -119,6 +120,13 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
         // WHERE 조건 동적 추가
         BooleanBuilder whereCondition = new BooleanBuilder();
         whereCondition.and(e.deleteYn.eq("N")); // 기본 조건 유지 (삭제여부)
+
+        // eventTypeCd 조건 생성
+        Predicate eventTypePredicate = null;
+        if (!eventTypeCd.equalsIgnoreCase("ALL")) {
+            eventTypePredicate = e.eventTypeCd.eq(eventTypeCd);
+            whereCondition.and(eventTypePredicate);
+        }
 
         // categoryList 값이 존재할 때만 IN 조건 추가
         if (ctgyId != null && !ctgyId.isEmpty()) {
@@ -247,7 +255,8 @@ public EventContentsResponseDto findEvntData(Long evntId, Long userId){
                                     .otherwise("N"),
                             view.viewNwvl.coalesce(0), // viewNwvl 필드에 매핑 (null이면 0)
                             fileDtl.fileUrl,       // imageUrl 필드에 매핑
-                            fileDtl.fileThumbUrl   // smallImageUrl 필드에 매핑
+                            fileDtl.fileThumbUrl,   // smallImageUrl 필드에 매핑
+                            e.eventDetailUrl
                     )
             )
             .from(e)
