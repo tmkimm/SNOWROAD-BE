@@ -180,10 +180,8 @@ public class EventService {
                     evntBannerList.setOperEndDt((String) row[3]);
                     evntBannerList.setCtgyId((String) row[4]);
                     evntBannerList.setEventTypeCd((String) row[5]);
-                    // likeYn이 Character로 인식될 가능성이 있으므로, String으로 변환
-                    evntBannerList.setLikeYn(row[6] != null ? row[6].toString() : "N");
-                    evntBannerList.setImageUrl((String) row[7]);
-                    evntBannerList.setSmallImageUrl((String) row[8]);
+                    evntBannerList.setImageUrl((String) row[6]);
+                    evntBannerList.setSmallImageUrl((String) row[7]);
                     return evntBannerList;
                 })
                 .collect(Collectors.toList());
@@ -204,10 +202,8 @@ public class EventService {
                     evntRankList.setOperEndDt((String) row[3]);
                     evntRankList.setCtgyId((String) row[4]);
                     evntRankList.setEventTypeCd((String) row[5]);
-                    // likeYn이 Character로 인식될 가능성이 있으므로, String으로 변환
-                    evntRankList.setLikeYn(row[6] != null ? row[6].toString() : "N");
-                    evntRankList.setImageUrl((String) row[7]);
-                    evntRankList.setSmallImageUrl((String) row[8]);
+                    evntRankList.setImageUrl((String) row[6]);
+                    evntRankList.setSmallImageUrl((String) row[7]);
                     return evntRankList;
                 })
                 .collect(Collectors.toList());
@@ -216,20 +212,22 @@ public class EventService {
     }
 
     @Transactional(readOnly = true)
-    public List<EventsGeoFilterDto> getEventGeoFilter(String rgntTypeCd) {
+    public Map<String, List<EventsGeoFilterDto>> getEventGeoFilter() {
         // Native Query 호출
-        List<Object[]> result =  eventsRepository.getEventGeoFilter(rgntTypeCd); // 지역그룹단위구분코드
+        List<Object[]> result =  eventsRepository.getEventGeoFilter(); // 지역그룹단위구분코드
 
         // Object[]에서 데이터를 추출하여 필요한 형태로 가공
-        List<EventsGeoFilterDto> eventGeoFilterData = result.stream().map(row -> {
+        Map<String, List<EventsGeoFilterDto>> eventGeoFilterData = result.stream().map(row -> {
                     EventsGeoFilterDto evntGeoList = new EventsGeoFilterDto();
                     evntGeoList.setRgntCd((String) row[0]);
                     evntGeoList.setRegionName((String) row[1]);
-                    evntGeoList.setCnt((Long) row[2]);
-                    evntGeoList.setLcdcNm((String) row[3]);
+                    evntGeoList.setRgntTypeCd((String) row[2]);
+                    evntGeoList.setCnt((Long) row[3]);
+                    evntGeoList.setLcdcNm((String) row[4]);
                     return evntGeoList;
                 })
-                .collect(Collectors.toList());
+                .collect(Collectors.groupingBy(EventsGeoFilterDto::getRgntTypeCd));
+
 
         return eventGeoFilterData;
 
@@ -265,11 +263,9 @@ public Map<String, Object> getMainRcmnList(String eventTypeCd, CustomUserDetails
                     evntOperDateList.setOperEndDt((String) row[3]);
                     evntOperDateList.setCtgyId((String) row[4]);
                     evntOperDateList.setEventTypeCd((String) row[5]);
-                    // likeYn이 Character로 인식될 가능성이 있으므로, String으로 변환
-                    evntOperDateList.setLikeYn(row[6] != null ? row[6].toString() : "N");
-                    evntOperDateList.setImageUrl((String) row[7]);
-                    evntOperDateList.setSmallImageUrl((String) row[8]);
-                    evntOperDateList.setDDay((String) row[9]);
+                    evntOperDateList.setImageUrl((String) row[6]);
+                    evntOperDateList.setSmallImageUrl((String) row[7]);
+                    evntOperDateList.setDDay((String) row[8]);
                     return evntOperDateList;
                 })
                 .collect(Collectors.toList());
@@ -292,11 +288,9 @@ public Map<String, Object> getMainRcmnList(String eventTypeCd, CustomUserDetails
                     evntOperDateList.setOperEndDt((String) row[3]);
                     evntOperDateList.setCtgyId((String) row[4]);
                     evntOperDateList.setEventTypeCd((String) row[5]);
-                    // likeYn이 Character로 인식될 가능성이 있으므로, String으로 변환
-                    evntOperDateList.setLikeYn(row[6] != null ? row[6].toString() : "N");
-                    evntOperDateList.setImageUrl((String) row[7]);
-                    evntOperDateList.setSmallImageUrl((String) row[8]);
-                    evntOperDateList.setDDay((String) row[9]);
+                    evntOperDateList.setImageUrl((String) row[6]);
+                    evntOperDateList.setSmallImageUrl((String) row[7]);
+                    evntOperDateList.setDDay((String) row[8]);
                     return evntOperDateList;
                 })
                 .collect(Collectors.toList());

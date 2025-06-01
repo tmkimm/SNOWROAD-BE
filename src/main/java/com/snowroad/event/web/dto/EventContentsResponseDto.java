@@ -43,4 +43,7 @@ public class EventContentsResponseDto {
     @Schema(description = "모바일 이미지 URL")
     private String smallImageUrl;
 
+    @Schema(description = "이벤트 상세 URL")
+    private String eventDetailUrl;
+
 }
