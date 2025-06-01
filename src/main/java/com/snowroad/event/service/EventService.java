@@ -1,5 +1,6 @@
 package com.snowroad.event.service;
 
+import com.snowroad.MorphemeAnalyzer.annotation.MorphIndexing;
 import com.snowroad.admin.web.dto.AdminEventsListResponseDto;
 import com.snowroad.common.exception.EventNotFoundException;
 import com.snowroad.config.auth.dto.CustomUserDetails;
@@ -31,6 +32,7 @@ public class EventService {
     @Qualifier("eventsRepositoryImpl")  // 명확하게 지정하여 Spring이 올바른 빈을 주입하도록 함
     private final EventsRepositoryCustom eventsRepositoryCustom;
 
+    @MorphIndexing
     @Transactional
     public Long save(EventsSaveRequestDto requestDto) {
         return eventsRepository.save(requestDto.toEntity()).getEventId();

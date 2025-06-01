@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import java.time.LocalDateTime;
 
 @Entity(name="TB_EVNT_NOUN_MRAN_M")
 @Data
@@ -14,6 +15,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class EventNounMran {
+
     @Id
     @Column(name="EVNT_ID")
     Long evntId;
@@ -21,8 +23,12 @@ public class EventNounMran {
     @Column(name="MRAN_CNTN")
     String mranCntn;
 
+    @Column(name = "DATA_CRTN_DTTM", nullable = false, updatable = false)
+    private LocalDateTime createdDate;
+
     public EventNounMran(Long evntId, String mranCntn) {
         this.evntId = evntId;
         this.mranCntn = mranCntn;
+        this.createdDate = LocalDateTime.now();
     }
 }
