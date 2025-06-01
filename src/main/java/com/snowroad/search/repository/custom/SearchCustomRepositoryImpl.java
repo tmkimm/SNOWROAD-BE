@@ -116,15 +116,9 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
             }
         }
 
-
-        log.info("page = {}", pageable.getPageNumber());
-        log.info("events.size = {}", events.size());
-        log.info("isDistanceSort = {}", isDistanceSort);
-        log.info("sortType = {}", searchRequest.getSortType());
-
         if (isDistanceSort) {
             List<SearchResponseDTO> sortedList = events.stream()
-                    .filter(dto -> dto.getDistanceKm() != null) // 이건 거리 계산 완료된 객체만
+                    .filter(dto -> dto.getDistanceKm() != null)
                     .sorted(Comparator.comparingDouble(SearchResponseDTO::getDistanceKm).reversed())
                     .toList();
 
