@@ -1,6 +1,7 @@
 package com.snowroad.event.service;
 
 import com.snowroad.admin.web.dto.AdminEventsListResponseDto;
+import com.snowroad.common.exception.EventNotFoundException;
 import com.snowroad.config.auth.dto.CustomUserDetails;
 import com.snowroad.event.domain.EventsRepositoryCustom;
 import com.snowroad.event.web.dto.*;
@@ -126,8 +127,12 @@ public class EventService {
 
 
     public EventDetailWithNearEvents findEvntData(Long eventId, Long userId) {
-   //     return eventsRepositoryCustom.findEvntData(eventId);
         EventContentsResponseDto eventDetails = eventsRepositoryCustom.findEvntData(eventId, userId);
+        // 결과가 null인 경우 예외 발생
+        if (eventDetails == null) {
+            throw new EventNotFoundException("해당하는 컨텐츠가 존재하지 않습니다.");
+            // 또는 JPA를 사용한다면 javax.persistence.EntityNotFoundException 등을 사용할 수도 있습니다.
+        }
         List<HomeEventsResponseDto> nearEvents = eventsRepositoryCustom.getNearEvntList(eventId);
         return new EventDetailWithNearEvents(eventDetails, nearEvents);
     }

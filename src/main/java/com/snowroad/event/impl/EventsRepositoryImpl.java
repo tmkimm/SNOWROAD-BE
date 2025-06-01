@@ -261,12 +261,6 @@ public EventContentsResponseDto findEvntData(Long evntId, Long userId){
             )
             .fetchOne(); // 결과가 하나임을 기대하므로 fetchOne 사용
 
-    // 결과가 null인 경우 예외 발생
-    if (resultDto == null) {
-        throw new EventNotFoundException("해당하는 컨텐츠가 존재하지 않습니다.");
-        // 또는 JPA를 사용한다면 javax.persistence.EntityNotFoundException 등을 사용할 수도 있습니다.
-    }
-
     // DTO 객체가 바로 반환되므로 별도의 매핑 과정이 필요 없습니다.
     return resultDto;
 }
