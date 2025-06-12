@@ -276,7 +276,7 @@ public EventContentsResponseDto findEvntData(Long evntId, Long userId){
 
     // Tuple 결과를 순회하며 DTO를 만들고 이미지 URL 리스트를 채웁니다.
     EventContentsResponseDto resultDto = null;
-    List<String> imageUrl = new ArrayList<>();
+    List<String> imageUrls = new ArrayList<>();
 
     for (Tuple row : results) {
         // 첫 번째 행에서 Event 기본 정보와 단일 필드들을 추출하여 DTO를 초기화합니다.
@@ -307,14 +307,14 @@ public EventContentsResponseDto findEvntData(Long evntId, Long userId){
 
         // 모든 행에서 fileDtlMain.fileUrl을 수집합니다.
         String currentFileUrl = row.get(3, String.class); // fileUrl은 4번째 컬럼 (인덱스 3)
-        if (currentFileUrl != null && !imageUrl.contains(currentFileUrl)) { // 중복 방지
-            imageUrl.add(currentFileUrl);
+        if (currentFileUrl != null && !imageUrls.contains(currentFileUrl)) { // 중복 방지
+            imageUrls.add(currentFileUrl);
         }
     }
 
     // DTO에 이미지 URL 리스트를 설정합니다.
     if (resultDto != null) {
-        resultDto.setImageUrl(imageUrl);
+        resultDto.setImageUrls(imageUrls);
     }
 
     System.out.println("Result DTO: " + resultDto);
