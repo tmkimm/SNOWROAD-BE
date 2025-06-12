@@ -45,7 +45,7 @@ public class EventContentsResponseDto {
 //    private String imageUrls;
 
     // 추가된 필드: 메인 이미지 URL 리스트
-    private List<String> imageUrl; // 또는 List<String> mainImageUrls;
+    private List<String> imageUrls; // 또는 List<String> mainImageUrls;
 
     @Schema(description = "모바일 이미지 URL")
     private String smallImageUrl;
