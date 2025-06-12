@@ -78,9 +78,9 @@ public class Events extends BaseTimeEntity {
     @JoinColumn(name = "TUMB_FILE_ID")
     private EventFilesMst eventTumbfile; // EventFilesMst와 1:1 관계 설정
 
-    @ManyToOne(fetch = FetchType.LAZY) // 대부분의 경우 ManyToOne
+    @OneToOne
     @JoinColumn(name = "EVNT_FILE_ID")
-    private EventFilesMst eventFiles; // EventFilesMst와 1:다 관계 설정
+    private EventFilesMst eventFiles; // EventFilesMst와 1:1 관계 설정
 
     @Column(name = "EVNT_DTL_URL", length = 2000)
     private String eventDetailUrl;
