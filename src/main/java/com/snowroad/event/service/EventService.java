@@ -180,8 +180,9 @@ public class EventService {
                     evntBannerList.setOperEndDt((String) row[3]);
                     evntBannerList.setCtgyId((String) row[4]);
                     evntBannerList.setEventTypeCd((String) row[5]);
-                    evntBannerList.setImageUrl((String) row[6]);
-                    evntBannerList.setSmallImageUrl((String) row[7]);
+                    evntBannerList.setLnad((String) row[6]);
+                    evntBannerList.setImageUrl((String) row[7]);
+                    evntBannerList.setSmallImageUrl((String) row[8]);
                     return evntBannerList;
                 })
                 .collect(Collectors.toList());
