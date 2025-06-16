@@ -36,6 +36,13 @@ public interface EventsRepository extends JpaRepository<Events, Long>, EventsRep
     // 현재는 가장 최근 등록된 컨텐츠순 조회, 추후 해당 배너 활용방법 따라 재조정 필요
     @Query(value = "SELECT e.EVNT_ID as eventId, e.EVNT_NM AS eventNm, OPER_STAT_DT as operStatDt, OPER_END_DT as operEndDt, " +
             "e.CTGY_ID as ctgyId, e.EVNT_TYPE_CD as eventTypeCd, " +
+            "CASE " +
+            "    WHEN e.lnad LIKE '%동%' THEN LEFT(e.lnad, CHAR_LENGTH(e.lnad) - LOCATE('동', REVERSE(e.lnad)) + 1) " +
+            "    WHEN e.lnad LIKE '%구%' THEN LEFT(e.lnad, CHAR_LENGTH(e.lnad) - LOCATE('구', REVERSE(e.lnad)) + 1) " +
+            "    WHEN e.lnad LIKE '%시%' THEN LEFT(e.lnad, CHAR_LENGTH(e.lnad) - LOCATE('시', REVERSE(e.lnad)) + 1) " +
+            "    WHEN e.lnad LIKE '%도%' THEN LEFT(e.lnad, CHAR_LENGTH(e.lnad) - LOCATE('도', REVERSE(e.lnad)) + 1) " +
+            "    ELSE e.lnad " +
+            "END AS land, " +
             "efd.FILE_URL as imageUrl, efd.FILE_THUB_URL as smALLImageUrl " +
             "from TB_EVNT_M e " +
             "LEFT OUTER JOIN TB_EVNT_VIEW_D evd ON e.EVNT_ID = evd.EVNT_ID " +
