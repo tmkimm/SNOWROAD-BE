@@ -18,6 +18,7 @@ import com.snowroad.admin.service.AdminService;
 import com.snowroad.event.service.EventService;
 import com.snowroad.user.domain.Role;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -28,6 +29,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -127,23 +129,19 @@ public class AdminController {
     @Operation(
             summary = "(상세)이벤트 첨부파일 추가",
             description = "(관리자) 이벤트에 첨부된 파일을 추가합니다.",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    content = @Content(
-                            mediaType = "multipart/form-data",
-                            schema = @Schema(implementation = EventsFileUpdateRequestDTO.class)
-                    )
-            ),
             responses = {
-                    @ApiResponse(responseCode = "200", description = "파일 수정 성공"),
+                    @ApiResponse(responseCode = "200", description = "파일 업로드 성공"),
                     @ApiResponse(responseCode = "400", description = "잘못된 요청")
             }
     )
-    @PostMapping("/api/admin/events/{eventId}/file/detail")
+    @PostMapping(value = "/api/admin/events/{eventId}/file/detail", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> addFileDetail(
             @PathVariable Long eventId,
-            @RequestParam("file") MultipartFile file) {
+            @Parameter(description = "첨부파일 목록 (최대 10개)", content = @Content(mediaType = MediaType.APPLICATION_OCTET_STREAM_VALUE))
+            @RequestPart("files") MultipartFile[] files) {
+
         try {
-            fileService.addFileDetail(eventId, file);
+            fileService.addFileDetail(eventId, files);
             return ResponseEntity.ok("파일 업로드 성공");
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
