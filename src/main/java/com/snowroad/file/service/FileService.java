@@ -1,5 +1,6 @@
 package com.snowroad.file.service;
 
+import com.snowroad.common.exception.BadRequestException;
 import com.snowroad.entity.Events;
 import com.snowroad.event.domain.EventsRepository;
 import com.snowroad.entity.EventFilesDtl;
@@ -68,6 +69,11 @@ public class FileService {
         if(tumbFileMst == null) {
             tumbFileMst = this.saveEventFilesMst();
             event.updateTumbFile(tumbFileMst);
+        }
+
+        boolean existsDtl = filesDtlRepository.existsByFileMst(tumbFileMst);
+        if (existsDtl) {
+            throw new BadRequestException("대표 파일은 이미 업로드되어 있습니다.");
         }
 
         // 고유한 UUID로 파일 이름 생성
