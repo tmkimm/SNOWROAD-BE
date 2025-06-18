@@ -18,6 +18,7 @@ jobs:
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_KEY }}
+      AWS_REGION: ap-northeast-2
 
     steps:
     - uses: actions/checkout@v4
@@ -54,7 +55,7 @@ jobs:
     # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
     # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
     - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
+      uses: gradle/actions/setup-gradle@v4
 
     - name: Build with Gradle
       run: ./gradlew clean build --info
@@ -75,29 +76,18 @@ jobs:
         SOURCE_DIR: deploy
         DEST_DIR: /
 
-    - name: Deploy with CodeDeploy
-      uses: webfactory/create-aws-codedeploy-deployment@v1.4.0
+
+    - name: Deploy with AWS CodeDeploy
+      uses: aws-actions/aws-codedeploy@v0.4.1
       with:
         application-name: noongil-webservice
         deployment-group: noongil-webservice-group
         deployment-description: GitHub Actions deployment
-        bundle-location: snowroad-webservice.zip
-        bucket: snowroad-be-build
-        region: ap-northeast-2      
+        s3-location: snowroad-be-build/snowroad-webservice.zip
+        wait: true
 
-    # NOTE: The Gradle Wrapper is the default and recommended way to run Gradle (https://docs.gradle.org/current/userguide/gradle_wrapper.html).
-    # If your project does not have the Gradle Wrapper configured, you can use the following configuration to run Gradle with a specified version.
-    #
-    # - name: Setup Gradle
-    #   uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
-    #   with:
-    #     gradle-version: '8.9'
-    #
-    # - name: Build with Gradle 8.9
-    #   run: gradle build
 
   dependency-submission:
-
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -110,7 +100,5 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    # Generates and submits a dependency graph, enabling Dependabot Alerts for all project dependencies.
-    # See: https://github.com/gradle/actions/blob/main/dependency-submission/README.md
     - name: Generate and submit dependency graph
-      uses: gradle/actions/dependency-submission@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
+      uses: gradle/actions/dependency-submission@v4
