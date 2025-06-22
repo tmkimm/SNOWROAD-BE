@@ -22,10 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  *
@@ -154,12 +151,12 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
     private BooleanBuilder setSearchCondition(QEvents qEvents, SearchRequestDTO searchRequestDTO) {
         BooleanBuilder builder = new BooleanBuilder();
 
-        // step.1 사전 데이터 in 구성(Text 검색, 거리표준)
+        // 사전 데이터 in 구성(Text 검색, 거리표준)
         if (searchRequestDTO.hasKeyword()) {
             builder.and(qEvents.eventId.in(searchRequestDTO.getEventIds()));
         }
 
-        // step.2 시작일자, 종료일자
+        // 시작일자, 종료일자
         if (searchRequestDTO.hasDateAllBoolean()) {
             BooleanExpression statCondition = qEvents.operStatDt.loe(searchRequestDTO.getOperEndDt());
             BooleanExpression endCondition = qEvents.operEndDt.goe(searchRequestDTO.getOperStatDt());
@@ -167,20 +164,20 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
             builder.and(dateGroupedCondition);
         }
 
-        // step.3 이벤트 구분 코드
-        if (searchRequestDTO.hasEventTypeCd()) {
+        // 이벤트 구분 코드
+        if (searchRequestDTO.hasEventTypeCd() && !Objects.equals(searchRequestDTO.getEventTypeCd(), "all")) {
             builder.and(qEvents.eventTypeCd.eq(searchRequestDTO.getEventTypeCd()));
         }
 
-        // step.4 이벤트 삭제 여부
+        // 이벤트 삭제 여부
         builder.and(qEvents.deleteYn.eq("N"));
 
-        // step.5 카테고리
+        // 카테고리
         if (searchRequestDTO.hasCategories()) {
             builder.and(qEvents.ctgyId.in(searchRequestDTO.getCategories()));
         }
 
-        // step.6 지역그룹단위필터
+        // 지역그룹단위필터
         if (searchRequestDTO.hasRegionGroups()) {
             //builder.and(qEvents.ctgyId.in(searchRequestDTO.getRegionGroups()));
         }
