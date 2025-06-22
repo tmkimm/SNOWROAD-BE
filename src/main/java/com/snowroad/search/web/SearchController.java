@@ -1,8 +1,10 @@
 package com.snowroad.search.web;
 
 import com.snowroad.entity.Events;
+import com.snowroad.search.dto.PopularSearchResponse;
 import com.snowroad.search.dto.SearchPagedResponse;
 import com.snowroad.search.dto.SearchRequestDTO;
+import com.snowroad.search.interfaces.PopularSearchInterface;
 import com.snowroad.search.interfaces.SearchInterface;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,6 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class SearchController {
 
     private final SearchInterface searchInterface;
+    private final PopularSearchInterface popularSearchInterface;
 
     /**
      *
@@ -49,7 +52,7 @@ public class SearchController {
         , responses = {
             @ApiResponse(
                 responseCode = "200"
-                , description = "Map Custom Markers Search Successful"
+                , description = "Search Success"
                 , content = @Content(schema = @Schema(implementation = Events.class))
             )
             , @ApiResponse(
@@ -65,5 +68,33 @@ public class SearchController {
             @Valid
             @ParameterObject SearchRequestDTO searchRequestDTO) {
         return ResponseEntity.ok(searchInterface.getEvents(searchRequestDTO));
+    }
+
+    /**
+     *
+     * 인기검색목록 조회
+     *
+     * @author hyo298, 김재효
+     * @return List
+     */
+    @Operation(
+            summary="인기검색목록 조회"
+            , description = "인기검색목록을 조회합니다."
+            , responses = {
+                @ApiResponse(
+                        responseCode = "200"
+                        , description = "Popular Search Success"
+                        , content = @Content(schema = @Schema(implementation = Events.class))
+                )
+                , @ApiResponse(
+                responseCode = "500"
+                , description = "Server Error"
+                , content = @Content()
+                )
+            }
+    )
+    @GetMapping(value = "/api/search/popular")
+    public ResponseEntity<PopularSearchResponse> getPopularSearch() {
+        return ResponseEntity.ok(popularSearchInterface.getPopularSearch());
     }
 }
