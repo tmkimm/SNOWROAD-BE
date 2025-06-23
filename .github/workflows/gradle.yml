@@ -52,8 +52,6 @@ jobs:
     - name: Grant execute permission to gradlew
       run: chmod +x ./gradlew
 
-    # Configure Gradle for optimal use in GitHub Actions, including caching of downloaded dependencies.
-    # See: https://github.com/gradle/actions/blob/main/setup-gradle/README.md
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@v4
 
@@ -66,26 +64,37 @@ jobs:
         mkdir -p deploy
         mv snowroad-webservice.zip deploy/snowroad-webservice.zip
 
+    #- name: Upload to S3
+    #  uses: jakejarvis/s3-sync-action@master
+    #  with:
+    #    args: --acl private
+    #  env:
+    #    AWS_S3_BUCKET: snowroad-be-build
+    #    AWS_REGION: ap-northeast-2
+    #    SOURCE_DIR: deploy
+    #    DEST_DIR: /
+    # gpt 버전
     - name: Upload to S3
-      uses: jakejarvis/s3-sync-action@master
-      with:
-        args: --acl private
-      env:
-        AWS_S3_BUCKET: snowroad-be-build
-        AWS_REGION: ap-northeast-2
-        SOURCE_DIR: deploy
-        DEST_DIR: /
+      run: |
+        aws s3 cp deploy/snowroad-webservice.zip s3://snowroad-be-build/snowroad-webservice.zip
 
-
-    - name: Deploy with AWS CodeDeploy
-      uses: aws-actions/aws-codedeploy@v0.4.1
-      with:
-        application-name: noongil-webservice
-        deployment-group: noongil-webservice-group
-        deployment-description: GitHub Actions deployment
-        s3-location: snowroad-be-build/snowroad-webservice.zip
-        wait: true
-
+    #- name: Deploy with AWS CodeDeploy
+    #  uses: aws-actions/aws-codedeploy@v0.4.1
+    #  with:
+    #    application-name: noongil-webservice
+    #    deployment-group: noongil-webservice-group
+    #    deployment-description: GitHub Actions deployment
+    #    s3-location: snowroad-be-build/snowroad-webservice.zip
+    #    wait: true
+    # gpt 버전
+    - name: Deploy with AWS CLI & CodeDeploy
+      run: |
+        aws deploy create-deployment \
+          --application-name noongil-webservice \
+          --deployment-group-name noongil-webservice-group \
+          --deployment-config-name CodeDeployDefault.AllAtOnce \
+          --s3-location bucket=snowroad-be-build,key=snowroad-webservice.zip,bundleType=zip \
+          --description "GitHub Actions deployment"
 
   dependency-submission:
     runs-on: ubuntu-latest
