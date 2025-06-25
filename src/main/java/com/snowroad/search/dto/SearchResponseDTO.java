@@ -53,7 +53,7 @@ public class SearchResponseDTO {
     private String ldcd;
 
     @Schema(description = "이미지 URL")
-    private String fileThumbUrl;
+    private String thubImageUrl;
 
     @Schema(description = "파일")
     private Long evntFileId;
@@ -71,7 +71,7 @@ public class SearchResponseDTO {
     public SearchResponseDTO(Long eventId, String eventNm, String eventCntn, String eventAddr, String rads,
                              String lnad, String operStatDt, String operEndDt, String operDttmCntn,
                              String ctgyId, String eventTypeCd, Double addrLttd, Double addrLotd,
-                             String ldcd, String fileThumbUrl, Long evntFileId, int viewNmvl) {
+                             String ldcd, String thubImageUrl, Long evntFileId, int viewNmvl) {
         this.eventId = eventId;
         this.eventNm = eventNm;
         this.eventCntn = eventCntn;
@@ -85,7 +85,7 @@ public class SearchResponseDTO {
         this.eventTypeCd = eventTypeCd;
         this.addrLttd = addrLttd;
         this.addrLotd = addrLotd;
-        this.fileThumbUrl = fileThumbUrl;
+        this.thubImageUrl = thubImageUrl;
         this.ldcd = ldcd;
         this.evntFileId = evntFileId;
         this.viewNmvl = viewNmvl;
