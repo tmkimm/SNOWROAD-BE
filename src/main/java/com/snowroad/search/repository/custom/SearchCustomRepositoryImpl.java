@@ -9,10 +9,7 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.snowroad.entity.Events;
-import com.snowroad.entity.QEventFilesMst;
-import com.snowroad.entity.QEventView;
-import com.snowroad.entity.QEvents;
+import com.snowroad.entity.*;
 import com.snowroad.geodata.util.HaversineFormula;
 import com.snowroad.search.dto.QSearchResponseDTO;
 import com.snowroad.search.dto.SearchRequestDTO;
@@ -50,7 +47,8 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
     @Override
     public Page<SearchResponseDTO> findSearchEventDataList(SearchRequestDTO searchRequest) {
         QEvents qEvents = QEvents.events;
-        QEventFilesMst qTumbFile  = new QEventFilesMst("tumbFile");
+        QEventFilesMst qTumbFileMst = new QEventFilesMst("qTumbFileMst");
+        QEventFilesDtl qTumbFileDtl = new QEventFilesDtl("qTumbFileDtl");
         QEventFilesMst qEventFile = new QEventFilesMst("eventFile");
         QEventView qEventView = QEventView.eventView;
 
@@ -71,12 +69,13 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
                         qEvents.addrLttd,
                         qEvents.addrLotd,
                         qEvents.ldcd,
-                        qTumbFile.fileMstId,
+                        qTumbFileDtl.fileUrl,
                         qEventFile.fileMstId,
                         qEventView.viewNmvl
                 ))
                 .from(qEvents)
-                .leftJoin(qEvents.eventTumbfile, qTumbFile)
+                .leftJoin(qEvents.eventTumbfile, qTumbFileMst) // 이벤트 → 썸네일 마스터
+                .leftJoin(qTumbFileMst.eventFilesDtlList, qTumbFileDtl)
                 .leftJoin(qEvents.eventFiles, qEventFile)
                 .leftJoin(qEvents.eventView, qEventView)
                 .where(builder);
@@ -153,7 +152,14 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
 
         // 사전 데이터 in 구성(Text 검색, 거리표준)
         if (searchRequestDTO.hasKeyword()) {
-            builder.and(qEvents.eventId.in(searchRequestDTO.getEventIds()));
+            builder.and(eventIdInIfPresent(qEvents, searchRequestDTO.getEventIds()));
+
+            String keyword = searchRequestDTO.getKeyword();
+            BooleanBuilder orBuilder = new BooleanBuilder();
+            orBuilder.or(qEvents.eventNm.contains(keyword));
+            orBuilder.or(qEvents.eventCntn.contains(keyword));
+            orBuilder.or(qEvents.eventAddr.contains(keyword));
+            builder.and(orBuilder);
         }
 
         // 시작일자, 종료일자
@@ -219,5 +225,9 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
         );
 
         return orderSpecifiers.toArray(new OrderSpecifier<?>[0]);
+    }
+
+    private BooleanExpression eventIdInIfPresent(QEvents qEvents, List<Long> ids) {
+        return (ids == null || ids.isEmpty()) ? null : qEvents.eventId.in(ids);
     }
 }

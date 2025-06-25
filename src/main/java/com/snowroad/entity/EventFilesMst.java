@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter
 @NoArgsConstructor
 @Entity
@@ -17,6 +20,8 @@ public class EventFilesMst extends BaseTimeEntity {
     @Column(name = "FILE_MST_ID")
     private Long fileMstId;
 
+    @OneToMany(mappedBy = "fileMst", fetch = FetchType.LAZY)
+    private final List<EventFilesDtl> eventFilesDtlList = new ArrayList<>();
 
     @Builder
     public EventFilesMst(Long fileMstId) {
