@@ -69,7 +69,7 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
                         qEvents.addrLttd,
                         qEvents.addrLotd,
                         qEvents.ldcd,
-                        qTumbFileDtl.fileThumbUrl,
+                        qTumbFileDtl.fileUrl,
                         qEventFile.fileMstId,
                         qEventView.viewNmvl
                 ))
