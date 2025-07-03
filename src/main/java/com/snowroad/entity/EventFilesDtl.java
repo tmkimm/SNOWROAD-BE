@@ -1,5 +1,6 @@
 package com.snowroad.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.snowroad.common.domain.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -18,6 +19,7 @@ public class EventFilesDtl extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "FILE_MST_ID")
+    @JsonBackReference
     private EventFilesMst fileMst;
 
     @Column(name = "FILE_PATH")
