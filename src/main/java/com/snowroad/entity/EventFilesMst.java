@@ -1,5 +1,6 @@
 package com.snowroad.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.snowroad.common.domain.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.Builder;
@@ -21,6 +22,7 @@ public class EventFilesMst extends BaseTimeEntity {
     private Long fileMstId;
 
     @OneToMany(mappedBy = "fileMst", fetch = FetchType.LAZY)
+    @JsonManagedReference
     private final List<EventFilesDtl> eventFilesDtlList = new ArrayList<>();
 
     @Builder
