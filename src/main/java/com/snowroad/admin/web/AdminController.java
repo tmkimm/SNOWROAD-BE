@@ -67,7 +67,7 @@ public class AdminController {
 
         if (isLocal) {
             // 로컬 개발 환경
-            cookieBuilder.sameSite("None");
+            cookieBuilder.sameSite("Lax");
             cookieBuilder.secure(false);        // HTTPS 사용 안 하므로 false
         } else {
             // 운영 환경
