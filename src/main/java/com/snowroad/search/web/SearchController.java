@@ -1,6 +1,8 @@
 package com.snowroad.search.web;
 
 import com.snowroad.entity.Events;
+import com.snowroad.search.annotation.SearchIndexing;
+import com.snowroad.search.aspect.SearchIndexingAspect;
 import com.snowroad.search.dto.PopularSearchResponse;
 import com.snowroad.search.dto.SearchPagedResponse;
 import com.snowroad.search.dto.SearchRequestDTO;
@@ -37,6 +39,7 @@ public class SearchController {
 
     private final SearchInterface searchInterface;
     private final PopularSearchInterface popularSearchInterface;
+    private final SearchIndexingAspect searchIndexingAspect;
 
     /**
      *
@@ -46,6 +49,7 @@ public class SearchController {
      * @param searchRequestDTO 이벤트 검색 DTO
      * @return List
      */
+    @SearchIndexing(entity = Events.class)
     @Operation(
         summary="이벤트 검색"
         , description = "설정된 조회 조건으로 이벤트를 조회합니다."
