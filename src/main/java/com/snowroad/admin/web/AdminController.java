@@ -2,6 +2,7 @@ package com.snowroad.admin.web;
 
 import com.snowroad.admin.web.dto.AdminLoginRequestDTO;
 import com.snowroad.admin.web.dto.AdminLoginResponseDTO;
+import com.snowroad.admin.web.dto.EventSimpleListResponseDto;
 import com.snowroad.auth.web.dto.UserInfoResponseDto;
 import com.snowroad.common.exception.UnauthorizedException;
 import com.snowroad.common.util.CookieUtil;
@@ -93,7 +94,7 @@ public class AdminController {
 
     @Operation(summary="팝업, 전시 리스트 조회", description = "(관리자) 등록된 팝업, 전시 리스트를 조회합니다.")
     @GetMapping("/api/admin/events")
-    public ResponseEntity<PagedResponseDto<Events>> getList(@RequestParam(defaultValue = "0") int page) {
+    public ResponseEntity<PagedResponseDto<EventSimpleListResponseDto>> getList(@RequestParam(defaultValue = "0") int page) {
         return ResponseEntity.ok(eventService.getEventByPagination(page));
     }
 

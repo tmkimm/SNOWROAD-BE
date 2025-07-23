@@ -1,8 +1,12 @@
 package com.snowroad.event.domain;
 
+import com.snowroad.admin.web.dto.EventSimpleListResponseDto;
 import com.snowroad.config.auth.dto.CustomUserDetails;
 import com.snowroad.entity.Events;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -153,6 +157,16 @@ public interface EventsRepository extends JpaRepository<Events, Long>, EventsRep
             , nativeQuery = true)
     List<Object[]> getEventGeoFilter();
 
-
+    @Query("""
+        SELECT new com.snowroad.admin.web.dto.EventSimpleListResponseDto(
+            e.eventId, e.eventNm, e.eventCntn, e.eventAddr, e.rads, e.lnad,
+            e.operStatDt, e.operEndDt, e.operDttmCntn, e.ctgyId,
+            e.eventTypeCd, e.addrLttd, e.addrLotd, e.deleteYn,
+            e.ldcd, e.eventDetailUrl
+        )
+        FROM Events e
+        ORDER BY e.eventId DESC
+    """)
+    Page<EventSimpleListResponseDto> findSimpleEvents(Pageable pageable);
 
 }
