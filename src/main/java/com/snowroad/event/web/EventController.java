@@ -50,7 +50,6 @@ public class EventController {
             throw new UnauthorizedException("로그인되지 않았습니다.");
         }
         else {
-//          List<HomeEventsResponseDto> events = eventService.getMainRcmnList(eventTypeCd, userDetails);
             Map<String, Object> events = eventService.getMainRcmnList(eventTypeCd, userDetails);
             return ResponseEntity.ok(events);
         }
