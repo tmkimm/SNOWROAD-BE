@@ -2,6 +2,7 @@ package com.snowroad.event.service;
 
 import com.snowroad.MorphemeAnalyzer.annotation.MorphIndexing;
 import com.snowroad.admin.web.dto.AdminEventsListResponseDto;
+import com.snowroad.admin.web.dto.EventSimpleListResponseDto;
 import com.snowroad.common.exception.EventNotFoundException;
 import com.snowroad.config.auth.dto.CustomUserDetails;
 import com.snowroad.event.domain.EventsRepositoryCustom;
@@ -299,12 +300,11 @@ public Map<String, Object> getMainRcmnList(String eventTypeCd, CustomUserDetails
     }
 
     @Transactional(readOnly = true)
-    public PagedResponseDto<Events> getEventByPagination(int page) {
+    public PagedResponseDto<EventSimpleListResponseDto> getEventByPagination(int page) {
         int size = 20;
-        Sort sort = Sort.by(Sort.Direction.DESC, "eventId");
-        Pageable pageable = PageRequest.of(page, size, sort);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "eventId"));
 
-        Page<Events> eventsPage = eventsRepository.findAll(pageable);
+        Page<EventSimpleListResponseDto> eventsPage = eventsRepository.findSimpleEvents(pageable);
         return new PagedResponseDto<>(
                 eventsPage.getContent(),
                 eventsPage.getTotalPages()
