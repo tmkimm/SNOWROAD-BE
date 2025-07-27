@@ -1,7 +1,8 @@
 package com.snowroad.search.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
@@ -30,9 +31,9 @@ public class SearchRequestDTO {
     @Schema(description = "정렬 유형" , nullable = true)
     private String sortType;
 
-    @NotEmpty
-    @Schema(description = "페이지" , example = "0")
-    private int page;
+    @Min(0)
+    @Schema(description = "페이지", example = "0")
+    private Integer page;
 
     @Schema(description = "위도" , nullable = true , example = "37.527097226615")
     private Double latitude;  //위도
@@ -54,7 +55,7 @@ public class SearchRequestDTO {
     @Schema(description = "종료일자 (YYYYMMDD 형식)", nullable = true , example = "20250331")
     private String operEndDt;
 
-    @NotEmpty
+    @NotBlank
     @Schema(description = "이벤트구분코드", example = "10")
     private String eventTypeCd;
 
