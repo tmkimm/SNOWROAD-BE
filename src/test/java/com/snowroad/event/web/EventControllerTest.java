@@ -2,6 +2,7 @@ package com.snowroad.event.web;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.snowroad.config.H2FunctionConfig;
 import com.snowroad.entity.EventFilesDtl;
 import com.snowroad.entity.EventFilesMst;
 import com.snowroad.entity.View;
@@ -17,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -25,6 +27,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList; // List 사용을 위해 추가
@@ -45,6 +48,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Import(H2FunctionConfig.class)
 class EventControllerTest {
     @LocalServerPort
     private int port;
@@ -86,6 +90,8 @@ class EventControllerTest {
         for (int i = 0; i < 5; i++) {
             createdEvents.add(createAndSaveEvent(i, "10")); // 5개 생성
         }
+        System.out.println(eventsRepository.count());
+        System.out.println("Every Table Added");
     }
 
     @AfterEach
@@ -94,6 +100,7 @@ class EventControllerTest {
         eventFilesDtlRepository.deleteAll();
         eventFilesMstRepository.deleteAll();
         eventViewRepository.deleteAll();
+        System.out.println("Every Table Deleted");
     }
 
 
@@ -131,11 +138,11 @@ class EventControllerTest {
         String rads = "서울시 강남구 테스트로 " + index;
         String lnad = "서울 강남구 역삼동 " + (800 + index);
 
-        // 날짜를 현재 날짜보다 충분히 이후로 설정하여 모든 이벤트가 조회되도록 함
-        // 예: 모든 이벤트가 오늘부터 시작하여 며칠 뒤에 종료되도록
-        LocalDate startDate = LocalDate.now().plusDays(1 + index); // 현재 날짜 + (1 + index) 일
-        LocalDate endDate = LocalDate.now().plusDays(2 + index);   // startDate + 1일
+        // index = 0이면 오늘-5일 / 오늘+1일
+        // index = 1이면 오늘-4일 / 오늘+2일
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        LocalDate startDate = LocalDate.now().minusDays(5 - index);
+        LocalDate endDate = LocalDate.now().plusDays(1 + index);
         String operStatDt = startDate.format(formatter);
         String operEndDt = endDate.format(formatter);
 
@@ -145,7 +152,7 @@ class EventControllerTest {
         Double addrLotd = 127.0 + (0.001 * index);
         String ldcd = "1168010100";
         String eventDetailUrl = "https://www.example.com/test-event-" + index;
-
+        String deltYn = "N";
 
         // 1. Events 엔티티 생성 및 저장
         Events newEvent = Events.builder()
@@ -171,7 +178,6 @@ class EventControllerTest {
         // 2. EventFilesMst 데이터 생성 및 저장
         EventFilesMst tumbFileMst = EventFilesMst.builder().build(); // ID만 필요하므로 빈 빌더 사용
         tumbFileMst = eventFilesMstRepository.save(tumbFileMst); // EventFilesMst 저장
-        System.out.println("생성된 EventFilesMstId: " + tumbFileMst.getFileMstId());
 
         // 3. Events 엔티티와 EventFilesMst 연결 (updateTumbFile 메소드 활용)
         savedEvents.updateTumbFile(tumbFileMst);
@@ -188,7 +194,6 @@ class EventControllerTest {
                 .fileUrl("http://test.image.com/event_" + index + "_main.jpg")
                 .build();
         eventFilesDtlRepository.save(tumbFileDtl); // EventFilesDtl 저장
-        System.out.println("생성된 EventFilesDtlId: " + tumbFileDtl.getFileDtlId());
 
         // 2. 이벤트 ID 가져오기
         Long eventId = savedEvents.getEventId(); // ID가 null이면 save 안 된 것!
@@ -206,8 +211,93 @@ class EventControllerTest {
 //                .event(savedEvents) // ✨ savedEvents 객체를 builder에 전달
 //                .build();
         eventViewRepository.save(eventView); // EventView 저장
-        System.out.println("생성된 EventViewId: " + eventView.getEventId()); // EventView의 ID는 Events의 ID와 같음
 
+        // 6. 업데이트된 Events 객체를 다시 저장하여 db 반영
+        return eventsRepository.save(savedEvents); // 업데이트된 Events 객체를 다시 저장
+    }
+
+
+    private Events createAndSaveFutureEvent(int index, String eventTypeCd) {
+
+        String eventNm = "테스트 이벤트 " + index;
+        String eventCntn = "테스트 이벤트 내용 " + index;
+        String eventAddr = "서울시 성동구 테스트로 " + index;
+        String rads = "서울시 성동구 테스트로 " + index;
+        String lnad = "서울 성동구 성수동1가 " + (800 + index);
+
+        // index = 0이면 오늘-5일 / 오늘+1일
+        // index = 1이면 오늘-4일 / 오늘+2일
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        LocalDate startDate = LocalDate.now().plusDays(1 + index);
+        LocalDate endDate = LocalDate.now().plusDays(7 + index);
+        String operStatDt = startDate.format(formatter);
+        String operEndDt = endDate.format(formatter);
+
+        String operDttmCntn = "주말 " + (8 + index) + ":00 ~ " + (18 + index) + ":00";
+        String ctgyId = "CATEGORY_" + index;
+        Double addrLttd = 37.5 + (0.001 * index);
+        Double addrLotd = 127.0 + (0.001 * index);
+        String ldcd = "1168010100";
+        String eventDetailUrl = "https://www.example2.com/test-event-" + index;
+        String deltYn = "N";
+
+        // 1. Events 엔티티 생성 및 저장
+        Events newEvent = Events.builder()
+                .eventNm(eventNm)
+                .eventCntn(eventCntn)
+                .eventAddr(eventAddr)
+                .rads(rads)
+                .lnad(lnad)
+                .operStatDt(operStatDt)
+                .operEndDt(operEndDt)
+                .operDttmCntn(operDttmCntn)
+                .ctgyId(ctgyId)
+                .eventTypeCd(eventTypeCd)
+                .addrLttd(addrLttd)
+                .addrLotd(addrLotd)
+                .ldcd(ldcd)
+                .eventDetailUrl(eventDetailUrl)
+                .build();
+
+        Events savedEvents = eventsRepository.save(newEvent);
+        System.out.println("생성된 EventId: " + savedEvents.getEventId());
+
+        // 2. EventFilesMst 데이터 생성 및 저장
+        EventFilesMst tumbFileMst = EventFilesMst.builder().build(); // ID만 필요하므로 빈 빌더 사용
+        tumbFileMst = eventFilesMstRepository.save(tumbFileMst); // EventFilesMst 저장
+
+        // 3. Events 엔티티와 EventFilesMst 연결 (updateTumbFile 메소드 활용)
+        savedEvents.updateTumbFile(tumbFileMst);
+
+        // 4. EventFilesDtl 데이터 생성 및 저장
+        EventFilesDtl tumbFileDtl = EventFilesDtl.builder()
+                .fileMst(tumbFileMst) // EventFilesDtl이 EventFilesMst를 참조하도록 설정
+                .filePath("/test/event/" + index + "/")
+                .fileNm("test_event_" + index + ".jpg")
+                .origFileNm("original_test_event_" + index + ".jpg")
+                .fileThumbUrl("http://test.image.com/thumb/event_" + index + "_small.jpg")
+                .fileSize(10000L + index)
+                .fileType("image/jpeg")
+                .fileUrl("http://test.image.com/event_" + index + "_main.jpg")
+                .build();
+        eventFilesDtlRepository.save(tumbFileDtl); // EventFilesDtl 저장
+
+        // 2. 이벤트 ID 가져오기
+        Long eventId = savedEvents.getEventId(); // ID가 null이면 save 안 된 것!
+        System.out.println("eventId 조회: " + eventId);
+
+        // 5. EventView 데이터 생성 및 저장
+        View eventView = eventViewRepository.save(View.builder()
+                .eventId(eventId)
+                .viewNwvl(100 + index)
+                .build());
+//        View eventView = View.builder()
+//                   // 250721 해당 부분에서 getEventId를 제대로 세팅하지 못하는 문제, @Id 어노테이션 때문에 jpa가 인식을...
+////                .eventId(savedEvents.getEventId()) // Events의 ID를 EventView의 ID로 설정 (중요!)
+//                .viewNwvl(100+index) // 조회수 값 설정
+//                .event(savedEvents) // ✨ savedEvents 객체를 builder에 전달
+//                .build();
+        eventViewRepository.save(eventView); // EventView 저장
 
         // 6. 업데이트된 Events 객체를 다시 저장하여 db 반영
         return eventsRepository.save(savedEvents); // 업데이트된 Events 객체를 다시 저장
@@ -228,74 +318,233 @@ class EventControllerTest {
                 .andReturn();
 
         // then
+        // ⭐ MvcResult.getResponse().getContentAsString() 대신 바이트 배열로 가져와 UTF-8로 명시적 디코딩
+        String responseBody = new String(result.getResponse().getContentAsByteArray(), StandardCharsets.UTF_8);
+
+        // JSON 응답을 JsonNode로 파싱하여 eventNm만 추출
+        JsonNode rootNode = objectMapper.readTree(responseBody);
+
+        List<String> actualEventNms = new ArrayList<>();
+
+        if (rootNode.isArray()) {
+            for (JsonNode node : rootNode) {
+                if (node.has("eventNm")) {
+                    actualEventNms.add(node.get("eventNm").asText());
+                }
+            }
+        }
+        System.out.println("Response Body (eventNm 추출 완료): " + actualEventNms);
+
+        assertThat(actualEventNms).hasSize(5);
+
+        // ✨ 하드코딩된 예상 조회수 순서를 직접 비교
+        // 예상되는 eventId 순서 (가장 큰 값부터 내림차순)
+        assertThat(actualEventNms.get(0)).isEqualTo("테스트 이벤트 4");
+        assertThat(actualEventNms.get(1)).isEqualTo("테스트 이벤트 3");
+        assertThat(actualEventNms.get(2)).isEqualTo("테스트 이벤트 2");
+        assertThat(actualEventNms.get(3)).isEqualTo("테스트 이벤트 1");
+        assertThat(actualEventNms.get(4)).isEqualTo("테스트 이벤트 0");
+
+        System.out.println("Events_인기순으로_조회된다 테스트 성공");
+    }
+
+    @Test
+    @WithMockUser(roles="USER")
+    void Events_배너_조회된다() throws Exception {
+
+        // given
+        String eventTypeCd = "10";
+        String url = "http://localhost:" + port + "/api/main-event/banner/" + eventTypeCd;
+
+        // when
+        MvcResult result = mvc.perform(get(url)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        System.out.println("\n--- 쿼리 실행 완료, H2 콘솔에서 데이터 확인 시작 ---");
+        System.out.println("\n--- H2 콘솔 확인 시간 종료 ---");
+        // then
         String responseBody = result.getResponse().getContentAsString();
-        System.out.println("Response Body (인기순 조회): " + responseBody);
 
         // JSON 응답을 JsonNode로 파싱하여 eventId만 추출
         JsonNode rootNode = objectMapper.readTree(responseBody);
-        List<Long> actualEventIds = new ArrayList<>();
+        List<String> actualEventIds = new ArrayList<>();
 
         if (rootNode.isArray()) {
             for (JsonNode node : rootNode) {
                 // 각 객체에서 "eventId" 필드의 값을 Long 타입으로 추출
-                if (node.has("eventId")) {
-                    actualEventIds.add(node.get("eventId").asLong());
+                if (node.has("operEndDt")) {
+                    actualEventIds.add(node.get("operEndDt").asText());
                 }
             }
         }
-        System.out.println("Response Body (eventId 추출 완료): " + actualEventIds);
+        System.out.println("Response Body (operEndDt 추출 완료): " + actualEventIds);
 
         assertThat(actualEventIds).hasSize(5);
 
-        // ✨ 하드코딩된 예상 조회수 순서를 직접 비교
-        // 예상되는 eventId 순서 (가장 큰 값부터 내림차순)
-        // @BeforeEach에서 1부터 5까지 생성되었다면, 기대값은 5, 4, 3, 2, 1
-        assertThat(actualEventIds.get(0)).isEqualTo(5L);
-        assertThat(actualEventIds.get(1)).isEqualTo(4L);
-        assertThat(actualEventIds.get(2)).isEqualTo(3L);
-        assertThat(actualEventIds.get(3)).isEqualTo(2L);
-        assertThat(actualEventIds.get(4)).isEqualTo(1L);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        LocalDate endDate1 = LocalDate.now().plusDays(1);
+        LocalDate endDate2 = LocalDate.now().plusDays(2);
+        LocalDate endDate3 = LocalDate.now().plusDays(3);
+        LocalDate endDate4 = LocalDate.now().plusDays(4);
+        LocalDate endDate5 = LocalDate.now().plusDays(5);
 
-        System.out.println("인기순 조회 테스트 성공: 예상 순서대로 내림차순 정렬");
+        assertThat(actualEventIds.get(0)).isEqualTo(endDate5.format(formatter));
+        assertThat(actualEventIds.get(1)).isEqualTo(endDate4.format(formatter));
+        assertThat(actualEventIds.get(2)).isEqualTo(endDate3.format(formatter));
+        assertThat(actualEventIds.get(3)).isEqualTo(endDate2.format(formatter));
+        assertThat(actualEventIds.get(4)).isEqualTo(endDate1.format(formatter));
+
+        System.out.println("Events_배너_조회된다 테스트 성공");
+    }
+
+
+    @Test
+    @WithMockUser(roles="USER")
+    void Events_마감임박순_조회된다() throws Exception {
+
+        // given
+        String eventTypeCd = "10";
+        String url = "http://localhost:" + port + "/api/main-events/operEnd/" + eventTypeCd;
+
+        // when
+        System.out.println("bf start ========= ");
+        MvcResult result = mvc.perform(get(url)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+        // then
+        String responseBody = result.getResponse().getContentAsString();
+        System.out.println("af start ========= ");
+        System.out.println(responseBody);
+
+        // JSON 응답을 JsonNode로 파싱하여 eventId만 추출
+        JsonNode rootNode = objectMapper.readTree(responseBody);
+        List<String> actualEventIds = new ArrayList<>();
+
+        JsonNode dataNode = rootNode.get("data");
+
+        if (dataNode != null && dataNode.isArray()) {
+            for (JsonNode node : dataNode) {
+                if (node.has("operEndDt")) {
+                    actualEventIds.add(node.get("operEndDt").asText());
+                }
+            }
+        }
+        System.out.println("Response Body (operEndDt 추출 완료): " + actualEventIds);
+
+        assertThat(actualEventIds).hasSize(5);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        LocalDate endDate1 = LocalDate.now().plusDays(1);
+        LocalDate endDate2 = LocalDate.now().plusDays(2);
+        LocalDate endDate3 = LocalDate.now().plusDays(3);
+        LocalDate endDate4 = LocalDate.now().plusDays(4);
+        LocalDate endDate5 = LocalDate.now().plusDays(5);
+
+        assertThat(actualEventIds.get(0)).isEqualTo(endDate1.format(formatter));
+        assertThat(actualEventIds.get(1)).isEqualTo(endDate2.format(formatter));
+        assertThat(actualEventIds.get(2)).isEqualTo(endDate3.format(formatter));
+        assertThat(actualEventIds.get(3)).isEqualTo(endDate4.format(formatter));
+        assertThat(actualEventIds.get(4)).isEqualTo(endDate5.format(formatter));
+
+        System.out.println("Events_마감임박순_조회된다 테스트 성공");
+    }
+
+    @Test
+    @WithMockUser(roles="USER")
+    void Events_오픈임박순_조회된다() throws Exception {
+
+        // 오픈임박건 날짜 위해 5개의 이벤트 데이터를 추가로 생성하고 리스트에 저장
+        createdEvents = new ArrayList<>(); // 리스트 초기화
+        for (int i = 0; i < 5; i++) {
+            createdEvents.add(createAndSaveFutureEvent(i, "20")); // 5개 생성
+        }
+
+        // given
+        String eventTypeCd = "20";
+        String url = "http://localhost:" + port + "/api/main-events/operStat/" + eventTypeCd;
+
+        // when
+        MvcResult result = mvc.perform(get(url)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+        // then
+        String responseBody = result.getResponse().getContentAsString();
+
+        // JSON 응답을 JsonNode로 파싱하여 eventId만 추출
+        JsonNode rootNode = objectMapper.readTree(responseBody);
+        List<String> actualEventIds = new ArrayList<>();
+
+        JsonNode dataNode = rootNode.get("data");
+
+        if (dataNode != null && dataNode.isArray()) {
+            for (JsonNode node : dataNode) {
+                System.out.println(node);
+                if (node.has("operStatDt")) {
+                    actualEventIds.add(node.get("operStatDt").asText());
+                }
+            }
+        }
+        System.out.println("Response Body (operStatDt 추출 완료): " + actualEventIds);
+
+        assertThat(actualEventIds).hasSize(5);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        LocalDate endDate1 = LocalDate.now().plusDays(1);
+        LocalDate endDate2 = LocalDate.now().plusDays(2);
+        LocalDate endDate3 = LocalDate.now().plusDays(3);
+        LocalDate endDate4 = LocalDate.now().plusDays(4);
+        LocalDate endDate5 = LocalDate.now().plusDays(5);
+
+        assertThat(actualEventIds.get(0)).isEqualTo(endDate1.format(formatter));
+        assertThat(actualEventIds.get(1)).isEqualTo(endDate2.format(formatter));
+        assertThat(actualEventIds.get(2)).isEqualTo(endDate3.format(formatter));
+        assertThat(actualEventIds.get(3)).isEqualTo(endDate4.format(formatter));
+        assertThat(actualEventIds.get(4)).isEqualTo(endDate5.format(formatter));
+
+        System.out.println("Events_오픈임박순_조회된다 테스트 성공");
     }
 
 //    @Test
 //    @WithMockUser(roles="USER")
-//    void Events_리스트조회순으로_조회된다() throws Exception {
+//    void Events_상세컨텐츠_조회된다() throws Exception {
 //
-//        String eventTypeCd = "10"; // eventTypeCd "10"으로 필터링 (5개 이벤트)
+//        // given
+//        String eventId = "1";
+//        String url = "http://localhost:" + port + "/api/events/cntn/" + eventId;
 //
-//        // --- 1. 조회순 (sortType=10): viewNmvl DESC
-//        System.out.println("\n--- 테스트 시작: 조회순 (sortType=10) ---");
-//        String urlViewCount = "http://localhost:" + port + "/api/events/list/" + eventTypeCd + "?sortType=10";
-//        // when
-//        MvcResult resultViewCount = mvc.perform(get(urlViewCount)
+//        System.out.println("bf start ========= ");
+//        MvcResult result = mvc.perform(get(url)
 //                        .contentType(MediaType.APPLICATION_JSON))
 //                .andExpect(status().isOk())
 //                .andReturn();
+//        // then
+//        String responseBody = result.getResponse().getContentAsString();
+//        System.out.println("af start ========= ");
+//        System.out.println(responseBody);
 //
-//        String responseBodyViewCount = resultViewCount.getResponse().getContentAsString();
-//        System.out.println("Response Body (조회순): " + responseBodyViewCount);
+//        // JSON 응답을 JsonNode로 파싱하여 eventId만 추출
+//        JsonNode rootNode = objectMapper.readTree(responseBody);
+//        List<String> actualEventIds = new ArrayList<>();
 //
-//        PagedResponseDto<DetailEventsResponseDto> pagedResponseViewCount = objectMapper.readValue(
-//                responseBodyViewCount,
-//                objectMapper.getTypeFactory().constructParametricType(PagedResponseDto.class, DetailEventsResponseDto.class)
-//        );
-//        // ⭐ 수정 부분: getContent() -> getData()
-//        List<DetailEventsResponseDto> actualEventsViewCount = pagedResponseViewCount.getData();
+//        JsonNode dataNode = rootNode.get("data");
 //
-//        assertThat(actualEventsViewCount).isNotNull().hasSize(5); // eventTypeCd "10" 5개
-//        assertThat(pagedResponseViewCount.getTotal()).isEqualTo(5L); // ⭐ totalElements -> total
-//
-//        // viewNmvl 내림차순 검증 (109, 108, 107, 106, 105)
-//        for (int i = 0; i < actualEventsViewCount.size() - 1; i++) {
-//            assertThat(actualEventsViewCount.get(i).getViewNmvl())
-//                    .as("ViewNmvl at index %d should be >= ViewNmvl at index %d", i, i + 1)
-//                    .isGreaterThanOrEqualTo(actualEventsViewCount.get(i + 1).getViewNmvl());
+//        if (dataNode != null && dataNode.isArray()) {
+//            for (JsonNode node : dataNode) {
+//                System.out.println(node);
+//                if (node.has("operStatDt")) {
+//                    actualEventIds.add(node.get("operStatDt").asText());
+//                }
+//            }
 //        }
-//        // 정확한 순서 검증: index가 작을수록 viewNmvl이 크도록 설정했으므로 eventId 1 -> 2 -> 3 -> 4 -> 5 순서 기대
-//        assertThat(actualEventsViewCount.stream().map(DetailEventsResponseDto::getEventId).collect(Collectors.toList()))
-//                .containsExactly(1L, 2L, 3L, 4L, 5L);
-//        System.out.println("조회순 테스트 성공!");
+//        System.out.println("Response Body (operStatDt 추출 완료): " + actualEventIds);
+//
+//        assertThat(actualEventIds).hasSize(1);
+//
+//        System.out.println("Events_상세컨텐츠_조회된다 테스트 성공");
 //    }
+
 }

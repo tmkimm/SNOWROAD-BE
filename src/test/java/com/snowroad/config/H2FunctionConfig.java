@@ -20,8 +20,33 @@ public class H2FunctionConfig {
             stmt.execute(
                     "CREATE ALIAS IF NOT EXISTS STR_TO_DATE FOR \"com.snowroad.util.H2Functions.strToDate\""
             );
+            // FIND_LAST_POSITION 함수 등록 (기존)
+            stmt.execute(
+                    "CREATE ALIAS IF NOT EXISTS FIND_LAST_POSITION FOR \"com.snowroad.util.H2Functions.findLastPosition\""
+            );
+
+            stmt.execute(
+                    "CREATE ALIAS IF NOT EXISTS REVERSE FOR \"com.snowroad.util.H2Functions.reverse\""
+            );
+            stmt.execute(
+                    "CREATE ALIAS IF NOT EXISTS CURDATE FOR \"com.snowroad.util.H2Functions.curDate\""
+            );
+//            // DATEDIFF 함수 등록
+//            stmt.execute(
+//                    "CREATE ALIAS IF NOT EXISTS DATEDIFF FOR \"com.snowroad.util.H2Functions.datediff\""
+//            );
+//            // CONCAT 함수 등록
+//            stmt.execute(
+//                    "CREATE ALIAS IF NOT EXISTS CONCAT FOR \"com.snowroad.util.H2Functions.concat\""
+//            );
+//            // CURRENT_DATE() 함수 등록
+//            stmt.execute(
+//                    "CREATE ALIAS IF NOT EXISTS CURRENT_DATE FOR \"com.snowroad.util.H2Functions.current_date\""
+//            );
+
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
 }
