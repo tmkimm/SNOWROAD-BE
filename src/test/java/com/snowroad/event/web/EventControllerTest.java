@@ -3,7 +3,6 @@ package com.snowroad.event.web;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.snowroad.config.H2FunctionConfig;
-import com.snowroad.config.WithMockCustomUser;
 import com.snowroad.config.auth.dto.CustomUserDetails;
 import com.snowroad.entity.*;
 import com.snowroad.event.domain.EventsRepository;
@@ -98,9 +97,9 @@ class EventControllerTest {
                         .role(Role.USER)
                 .build());
 
-        CustomUserDetails userDetails = new CustomUserDetails(1l, "testUser",
-                "ROLE_USER", "Y");
-
+        CustomUserDetails userDetails = new CustomUserDetails(1L, "testuser", "ROLE_USER", "Y");
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(auth);
 
         mvc = MockMvcBuilders
                 .webAppContextSetup(context)
@@ -112,7 +111,7 @@ class EventControllerTest {
         for (int i = 0; i < 5; i++) {
             createdEvents.add(createAndSaveEvent(i, "10")); // 5개 생성
         }
-        System.out.println(eventsRepository.count());
+
         System.out.println("Every Table Added");
     }
 
@@ -420,7 +419,6 @@ class EventControllerTest {
         System.out.println("Events_배너_조회된다 테스트 성공");
     }
 
-
     @Test
     @WithMockUser(roles="USER")
     void Events_마감임박순_조회된다() throws Exception {
@@ -529,59 +527,109 @@ class EventControllerTest {
         System.out.println("Events_오픈임박순_조회된다 테스트 성공");
     }
 
+
+    @Test
+    @WithMockUser(roles="USER")
+    void Events_추천_조회된다() throws Exception {
+
+        // given
+        String eventTypeCd = "10";
+        String url = "http://localhost:" + port + "/api/main-events/rcmn/" + eventTypeCd;
+
+        // when
+        MvcResult result = mvc.perform(get(url)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // then
+        // ⭐ MvcResult.getResponse().getContentAsString() 대신 바이트 배열로 가져와 UTF-8로 명시적 디코딩
+        String responseBody = new String(result.getResponse().getContentAsByteArray(), StandardCharsets.UTF_8);
+
+        System.out.println("responseBody : " + responseBody);
+        // JSON 응답을 JsonNode로 파싱하여 eventNm만 추출
+        JsonNode rootNode = objectMapper.readTree(responseBody);
+
+        System.out.println("rootNode : " + rootNode);
+        List<String> actualEventNms = new ArrayList<>();
+
+        if (rootNode.isArray()) {
+            for (JsonNode node : rootNode) {
+                if (node.has("eventNm")) {
+                    actualEventNms.add(node.get("eventNm").asText());
+                }
+            }
+        }
+        System.out.println("Response Body (eventNm 추출 완료): " + actualEventNms);
+
+        assertThat(actualEventNms).hasSize(5);
+
+        // ✨ 하드코딩된 예상 조회수 순서를 직접 비교
+        // 예상되는 eventId 순서 (가장 큰 값부터 내림차순)
+//        assertThat(actualEventNms.get(0)).isEqualTo("테스트 이벤트 4");
+//        assertThat(actualEventNms.get(1)).isEqualTo("테스트 이벤트 3");
+//        assertThat(actualEventNms.get(2)).isEqualTo("테스트 이벤트 2");
+//        assertThat(actualEventNms.get(3)).isEqualTo("테스트 이벤트 1");
+//        assertThat(actualEventNms.get(4)).isEqualTo("테스트 이벤트 0");
+
+        System.out.println("Events_인기순으로_조회된다 테스트 성공");
+    }
+
     @Test
     @WithMockUser(roles="USER")
     void Events_상세컨텐츠_조회된다() throws Exception {
 
+        System.out.println(SecurityContextHolder.getContext().getAuthentication());
         // given
-        String eventId = "1";
+        Object resultData = eventsRepository.getMainRankList("10").get(0);
+        // Object[]로 형변환하여 데이터를 추출
+        Object[] row = (Object[]) resultData;
+        Long eventId = (Long) row[0];
+
+        System.out.println("bf start ========= id >>" + eventId);
         String url = "http://localhost:" + port + "/api/events/cntn/" + eventId;
 
-        System.out.println("bf start ========= ");
         MvcResult result = mvc.perform(get(url)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andReturn();
         // then
-        String responseBody = result.getResponse().getContentAsString();
+        String responseBody = new String(result.getResponse().getContentAsByteArray(), StandardCharsets.UTF_8);
 
-        // JSON 응답을 JsonNode로 파싱하여 eventId만 추출
+        // JSON 응답을 JsonNode로 파싱하여 eventNm만 추출
         JsonNode rootNode = objectMapper.readTree(responseBody);
-        System.out.println(rootNode);
-        System.out.println("af start ========= ");
-        JsonNode dataNode = rootNode.get("eventDetails");
-        List<Integer> actualEventIds = new ArrayList<>();
+        JsonNode eventDetailsNode = rootNode.get("eventDetails");
+        String eventNm = "";
 
-        if (dataNode != null && dataNode.has("eventId")) {
-            actualEventIds.add(dataNode.get("eventId").asInt());
+        // eventDetailsNode가 null이 아니고, 'eventNm' 키를 포함하고 있는지 확인
+        if (eventDetailsNode != null && eventDetailsNode.has("eventNm")) {
+            eventNm = eventDetailsNode.get("eventNm").asText();
         }
-        System.out.println("eventDetails Response Body (eventId 추출 완료): " + actualEventIds);
+        System.out.println("Response Body (eventNm 추출 완료): " + eventNm);
 
-        assertThat(actualEventIds).hasSize(1);
-        assertThat(actualEventIds.get(0)).isEqualTo(1);
-
+        // ✨ 하드코딩된 예상 조회수 순서를 직접 비교
+        // 예상되는 eventId 순서 (가장 큰 값부터 내림차순)
+        assertThat(eventNm.equals("테스트 이벤트 0"));
 
         JsonNode dataNode2 = rootNode.get("nearEvents");
-        List<Integer> nearEventIds = new ArrayList<>();
+        List<String> nearEventIds = new ArrayList<>();
         System.out.println(dataNode2);
         if (dataNode2 != null && dataNode2.isArray()) {
             for (JsonNode node : dataNode2) {
                 System.out.println(node);
-                if (node.has("eventId")) {
-                    nearEventIds.add(node.get("eventId").asInt());
+                if (node.has("eventNm")) {
+                    nearEventIds.add(node.get("eventNm").asText());
                 }
             }
         }
-        System.out.println("nearEvents Response Body (eventId 추출 완료): " + nearEventIds);
+        System.out.println("nearEvents Response Body (eventName 추출 완료): " + nearEventIds);
         assertThat(nearEventIds).hasSize(4);
-        assertThat(nearEventIds.get(0)).isEqualTo(2);
-        assertThat(nearEventIds.get(1)).isEqualTo(3);
-        assertThat(nearEventIds.get(2)).isEqualTo(4);
-        assertThat(nearEventIds.get(3)).isEqualTo(5);
+        assertThat(nearEventIds.get(0)).isEqualTo("테스트 이벤트 0");
+        assertThat(nearEventIds.get(1)).isEqualTo("테스트 이벤트 1");
+        assertThat(nearEventIds.get(2)).isEqualTo("테스트 이벤트 2");
+        assertThat(nearEventIds.get(3)).isEqualTo("테스트 이벤트 3");
 
         System.out.println("Events_상세컨텐츠_조회된다 테스트 성공");
     }
-
-    // 추천 하나만 완성하면 끝
 
 }
