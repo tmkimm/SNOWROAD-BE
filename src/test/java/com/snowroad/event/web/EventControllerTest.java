@@ -3,14 +3,15 @@ package com.snowroad.event.web;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.snowroad.config.H2FunctionConfig;
-import com.snowroad.entity.EventFilesDtl;
-import com.snowroad.entity.EventFilesMst;
-import com.snowroad.entity.View;
-import com.snowroad.entity.Events;
+import com.snowroad.config.WithMockCustomUser;
+import com.snowroad.config.auth.dto.CustomUserDetails;
+import com.snowroad.entity.*;
 import com.snowroad.event.domain.EventsRepository;
 import com.snowroad.event.web.dto.DetailEventsResponseDto;
 import com.snowroad.event.web.dto.EventsSaveRequestDto;
 import com.snowroad.event.web.dto.PagedResponseDto;
+import com.snowroad.user.domain.Role;
+import com.snowroad.user.domain.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,13 +21,21 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.context.support.WithSecurityContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -66,6 +75,8 @@ class EventControllerTest {
     private EventFilesDtlRepository eventFilesDtlRepository;
     @Autowired // ✨ EventViewRepository 주입
     private EventViewRepository eventViewRepository;
+    @Autowired // ✨ EventViewRepository 주입
+    private UserRepository userRepository;
 
     @Autowired
     private WebApplicationContext context;
@@ -77,9 +88,20 @@ class EventControllerTest {
     private List<Events> createdEvents;
 
     private String filePath = "event-test-images";
+    private User savedUser;
 
     @BeforeEach
     public void setup() {
+
+        savedUser = userRepository.save(User.builder()
+                        .nickname("테스트유저")
+                        .role(Role.USER)
+                .build());
+
+        CustomUserDetails userDetails = new CustomUserDetails(1l, "testUser",
+                "ROLE_USER", "Y");
+
+
         mvc = MockMvcBuilders
                 .webAppContextSetup(context)
                 .apply(springSecurity())
@@ -102,7 +124,6 @@ class EventControllerTest {
         eventViewRepository.deleteAll();
         System.out.println("Every Table Deleted");
     }
-
 
     public EventFilesMst saveEventFilesMst() {
         EventFilesMst fileMst = EventFilesMst.builder()
@@ -508,43 +529,59 @@ class EventControllerTest {
         System.out.println("Events_오픈임박순_조회된다 테스트 성공");
     }
 
-//    @Test
-//    @WithMockUser(roles="USER")
-//    void Events_상세컨텐츠_조회된다() throws Exception {
-//
-//        // given
-//        String eventId = "1";
-//        String url = "http://localhost:" + port + "/api/events/cntn/" + eventId;
-//
-//        System.out.println("bf start ========= ");
-//        MvcResult result = mvc.perform(get(url)
-//                        .contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk())
-//                .andReturn();
-//        // then
-//        String responseBody = result.getResponse().getContentAsString();
-//        System.out.println("af start ========= ");
-//        System.out.println(responseBody);
-//
-//        // JSON 응답을 JsonNode로 파싱하여 eventId만 추출
-//        JsonNode rootNode = objectMapper.readTree(responseBody);
-//        List<String> actualEventIds = new ArrayList<>();
-//
-//        JsonNode dataNode = rootNode.get("data");
-//
-//        if (dataNode != null && dataNode.isArray()) {
-//            for (JsonNode node : dataNode) {
-//                System.out.println(node);
-//                if (node.has("operStatDt")) {
-//                    actualEventIds.add(node.get("operStatDt").asText());
-//                }
-//            }
-//        }
-//        System.out.println("Response Body (operStatDt 추출 완료): " + actualEventIds);
-//
-//        assertThat(actualEventIds).hasSize(1);
-//
-//        System.out.println("Events_상세컨텐츠_조회된다 테스트 성공");
-//    }
+    @Test
+    @WithMockUser(roles="USER")
+    void Events_상세컨텐츠_조회된다() throws Exception {
+
+        // given
+        String eventId = "1";
+        String url = "http://localhost:" + port + "/api/events/cntn/" + eventId;
+
+        System.out.println("bf start ========= ");
+        MvcResult result = mvc.perform(get(url)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andReturn();
+        // then
+        String responseBody = result.getResponse().getContentAsString();
+
+        // JSON 응답을 JsonNode로 파싱하여 eventId만 추출
+        JsonNode rootNode = objectMapper.readTree(responseBody);
+        System.out.println(rootNode);
+        System.out.println("af start ========= ");
+        JsonNode dataNode = rootNode.get("eventDetails");
+        List<Integer> actualEventIds = new ArrayList<>();
+
+        if (dataNode != null && dataNode.has("eventId")) {
+            actualEventIds.add(dataNode.get("eventId").asInt());
+        }
+        System.out.println("eventDetails Response Body (eventId 추출 완료): " + actualEventIds);
+
+        assertThat(actualEventIds).hasSize(1);
+        assertThat(actualEventIds.get(0)).isEqualTo(1);
+
+
+        JsonNode dataNode2 = rootNode.get("nearEvents");
+        List<Integer> nearEventIds = new ArrayList<>();
+        System.out.println(dataNode2);
+        if (dataNode2 != null && dataNode2.isArray()) {
+            for (JsonNode node : dataNode2) {
+                System.out.println(node);
+                if (node.has("eventId")) {
+                    nearEventIds.add(node.get("eventId").asInt());
+                }
+            }
+        }
+        System.out.println("nearEvents Response Body (eventId 추출 완료): " + nearEventIds);
+        assertThat(nearEventIds).hasSize(4);
+        assertThat(nearEventIds.get(0)).isEqualTo(2);
+        assertThat(nearEventIds.get(1)).isEqualTo(3);
+        assertThat(nearEventIds.get(2)).isEqualTo(4);
+        assertThat(nearEventIds.get(3)).isEqualTo(5);
+
+        System.out.println("Events_상세컨텐츠_조회된다 테스트 성공");
+    }
+
+    // 추천 하나만 완성하면 끝
 
 }
