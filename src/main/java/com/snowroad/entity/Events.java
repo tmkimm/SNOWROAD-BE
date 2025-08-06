@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @NoArgsConstructor
 @Entity
@@ -81,6 +83,10 @@ public class Events extends BaseTimeEntity {
     @OneToOne
     @JoinColumn(name = "EVNT_FILE_ID")
     private EventFilesMst eventFiles; // EventFilesMst와 1:1 관계 설정
+
+    @OneToMany
+    @JoinColumn(name = "EVNT_ID")
+    private List<Mark> mark;
 
     @Column(name = "EVNT_DTL_URL", length = 2000)
     private String eventDetailUrl;

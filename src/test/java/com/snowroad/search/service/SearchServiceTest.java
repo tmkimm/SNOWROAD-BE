@@ -113,7 +113,7 @@ class SearchServiceTest {
         SearchResponseDTO dto = new SearchResponseDTO(
                 100L, "거리 이벤트", "내용", "서울시", "도로명", "지번",
                 "20250101", "20250110", "10:00~20:00",
-                "CTGY01", "10", 37.55, 127.00, "11680101", "http://img.url", 111L, 50
+                "CTGY01", "10", 37.55, 127.00, "11680101", "http://img.url", 111L, 50, "Y"
         );
         dto.setDistanceKm(0.5);
         dto.setDisplayDistance("0.5km");

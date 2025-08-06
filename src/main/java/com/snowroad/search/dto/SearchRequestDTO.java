@@ -68,6 +68,9 @@ public class SearchRequestDTO {
     @Schema(hidden = true)
     private List<Long> eventIds;
 
+    @Schema(hidden = true)
+    private Long userAcntNo;
+
     public boolean hasKeyword() {
         return keyword != null;
     }
