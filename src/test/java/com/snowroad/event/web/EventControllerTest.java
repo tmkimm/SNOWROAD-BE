@@ -11,6 +11,7 @@ import com.snowroad.event.web.dto.EventsSaveRequestDto;
 import com.snowroad.event.web.dto.PagedResponseDto;
 import com.snowroad.user.domain.Role;
 import com.snowroad.user.domain.UserRepository;
+import com.snowroad.userCategory.web.dto.UserCategoriesResponseDto;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,7 +31,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-
+import com.snowroad.event.domain.Category;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -41,11 +42,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList; // List 사용을 위해 추가
 import java.util.Comparator; // 객체간 비교를 위해 추가
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get; // GET 요청
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.snowroad.file.domain.eventFilesMst.EventFilesMstRepository;
@@ -167,7 +170,13 @@ class EventControllerTest {
         String operEndDt = endDate.format(formatter);
 
         String operDttmCntn = "매일 " + (10 + index) + ":00 ~ " + (18 + index) + ":00";
-        String ctgyId = "CATEGORY_" + index;
+        String ctgyId = "";
+        if (index % 2 != 0) {
+            ctgyId = "PASH";
+        }
+        else{
+            ctgyId = "SPORT";
+        }
         Double addrLttd = 37.5 + (0.001 * index);
         Double addrLotd = 127.0 + (0.001 * index);
         String ldcd = "1168010100";
@@ -533,6 +542,24 @@ class EventControllerTest {
     void Events_추천_조회된다() throws Exception {
 
         // given
+        Set<Category> addCategories = Set.of(Category.PASH, Category.BEAU);
+        Set<Category> updateCategories = Set.of(Category.IT, Category.SPORT);
+
+        String addUrl = "http://localhost:" + port + "/api/user-categories";
+        String getUrl = "http://localhost:" + port + "/api/user-categories";
+
+        // when: 추가 요청
+        mvc.perform(post(addUrl)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(addCategories)))
+                .andExpect(status().isOk());
+
+        // then: 조회 요청 후 추가 확인
+        MvcResult readyResult = mvc.perform(get(getUrl))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // given
         String eventTypeCd = "10";
         String url = "http://localhost:" + port + "/api/main-events/rcmn/" + eventTypeCd;
 
@@ -546,23 +573,25 @@ class EventControllerTest {
         // ⭐ MvcResult.getResponse().getContentAsString() 대신 바이트 배열로 가져와 UTF-8로 명시적 디코딩
         String responseBody = new String(result.getResponse().getContentAsByteArray(), StandardCharsets.UTF_8);
 
-        System.out.println("responseBody : " + responseBody);
         // JSON 응답을 JsonNode로 파싱하여 eventNm만 추출
         JsonNode rootNode = objectMapper.readTree(responseBody);
 
         System.out.println("rootNode : " + rootNode);
         List<String> actualEventNms = new ArrayList<>();
-
-        if (rootNode.isArray()) {
-            for (JsonNode node : rootNode) {
+        JsonNode dataNode2 = rootNode.get("categories").get("PASH");
+        System.out.println("dataNode2 : " + dataNode2);
+        List<String> nearEventIds = new ArrayList<>();
+        System.out.println(dataNode2);
+        if (dataNode2 != null && dataNode2.isArray()) {
+            for (JsonNode node : dataNode2) {
                 if (node.has("eventNm")) {
-                    actualEventNms.add(node.get("eventNm").asText());
+                    nearEventIds.add(node.get("eventNm").asText());
                 }
             }
         }
-        System.out.println("Response Body (eventNm 추출 완료): " + actualEventNms);
+        System.out.println("Response Body (eventNm 추출 완료): " + nearEventIds);
 
-        assertThat(actualEventNms).hasSize(5);
+        assertThat(nearEventIds).hasSize(2);
 
         // ✨ 하드코딩된 예상 조회수 순서를 직접 비교
         // 예상되는 eventId 순서 (가장 큰 값부터 내림차순)
