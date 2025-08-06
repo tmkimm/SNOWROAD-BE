@@ -6,7 +6,6 @@ import com.snowroad.entity.Events;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -78,30 +77,11 @@ public interface EventsRepository extends JpaRepository<Events, Long>, EventsRep
             , nativeQuery = true)
     List<Object[]> getMainRankList(@Param("eventTypeCd") String eventTypeCd);
 
-
-    // 메인페이지 추천 컨텐츠 list 조회 (카테고리 테이블 완성 후 사용자 맞춤 추가작업 진행 필요)
-    @Query(value = "SELECT e.EVNT_ID as eventId, e.EVNT_NM AS eventNm, OPER_STAT_DT as operStatDt, OPER_END_DT as operEndDt, " +
-            "e.CTGY_ID as ctgyId, e.EVNT_TYPE_CD as eventTypeCd, " +
-            "efd.FILE_URL as imageUrl, efd.FILE_THUB_URL as smALLImageUrl " +
-            "from TB_EVNT_M e " +
-            "LEFT OUTER JOIN TB_EVNT_VIEW_D evd ON e.EVNT_ID = evd.EVNT_ID " +
-            "AND (:userId IS NULL OR :userId = eld.USER_ACNT_NO) " + // 조건부 JOIN (로그인X시 :userId null 처리)
-            "LEFT OUTER JOIN TB_EVNT_FILE_M efm ON e.TUMB_FILE_ID = efm.FILE_MST_ID " +
-            "LEFT OUTER JOIN TB_EVNT_FILE_D efd ON efm.FILE_MST_ID = efd.FILE_MST_ID " +
-            "WHERE e.DELT_YN = 'N' AND STR_TO_DATE(e.OPER_END_DT, '%Y%m%d') >= CURDATE() " +
-            "  AND STR_TO_DATE(e.OPER_STAT_DT, '%Y%m%d') <= CURDATE() " +
-            "  AND (:eventTypeCd = 'ALL' OR e.EVNT_TYPE_CD = :eventTypeCd) " +
-            "  AND (:userId IS NULL OR e.CTGY_ID IN (SELECT uct.USER_CTRY_NO FROM TB_USER_CTGY_M uct WHERE uct.USER_ACNT_NO = :userId)) " +
-            "ORDER BY RAND() * 10000, OPER_STAT_DT ASC " + // RAND() * 10000 => 랜덤정렬
-            "LIMIT 10"
-            , nativeQuery = true)
-    List<Object[]> getMainRcmnList(@Param("eventTypeCd") String eventTypeCd, Long userId);
-
     // 메인페이지 오픈임박-상위 9개 조회순
     @Query(value = "SELECT e.EVNT_ID as eventId, e.EVNT_NM AS eventNm, OPER_STAT_DT as operStatDt, OPER_END_DT as operEndDt, " +
             "e.CTGY_ID as ctgyId, e.EVNT_TYPE_CD as eventTypeCd, " +
             "efd.FILE_URL as imageUrl, efd.FILE_THUB_URL as smALLImageUrl, " +
-            "CONCAT('D-', DATEDIFF(STR_TO_DATE(e.OPER_STAT_DT, '%Y%m%d'), CURRENT_DATE())) AS D_DAY " +
+            "CONCAT('D', TIMESTAMPDIFF(DAY, STR_TO_DATE(e.OPER_END_DT, '%Y%m%d'), CURRENT_DATE())) AS D_DAY " +
             "from TB_EVNT_M e " +
             "LEFT OUTER JOIN TB_EVNT_VIEW_D evd ON e.EVNT_ID = evd.EVNT_ID " +
             "LEFT OUTER JOIN TB_EVNT_FILE_M efm ON e.TUMB_FILE_ID = efm.FILE_MST_ID " +
@@ -117,7 +97,7 @@ public interface EventsRepository extends JpaRepository<Events, Long>, EventsRep
     @Query(value = "SELECT e.EVNT_ID as eventId, e.EVNT_NM AS eventNm, OPER_STAT_DT as operStatDt, OPER_END_DT as operEndDt, " +
             "e.CTGY_ID as ctgyId, e.EVNT_TYPE_CD as eventTypeCd, " +
             "efd.FILE_URL as imageUrl, efd.FILE_THUB_URL as smALLImageUrl, " +
-            "CONCAT('D-', DATEDIFF(STR_TO_DATE(e.OPER_END_DT, '%Y%m%d'), CURRENT_DATE())) AS D_DAY " +
+            "CONCAT('D', TIMESTAMPDIFF(DAY, STR_TO_DATE(e.OPER_END_DT, '%Y%m%d'), CURRENT_DATE())) AS D_DAY " +
             "from TB_EVNT_M e " +
             "LEFT OUTER JOIN TB_EVNT_VIEW_D evd ON e.EVNT_ID = evd.EVNT_ID " +
             "LEFT OUTER JOIN TB_EVNT_FILE_M efm ON e.TUMB_FILE_ID = efm.FILE_MST_ID " +
