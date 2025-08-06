@@ -40,7 +40,6 @@ public class EventController {
         return events;
     }
 
-
     @Operation(summary="메인 추천 리스트 조회", description = "(이벤트) 메인 팝업, 전시 리스트 추천 항목을 조회합니다. ARG : ALL, 10, 20")
     @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = HomeEventsResponseDto.class)))
     @GetMapping("/api/main-events/rcmn/{eventTypeCd}")
@@ -50,7 +49,6 @@ public class EventController {
             throw new UnauthorizedException("로그인되지 않았습니다.");
         }
         else {
-//          List<HomeEventsResponseDto> events = eventService.getMainRcmnList(eventTypeCd, userDetails);
             Map<String, Object> events = eventService.getMainRcmnList(eventTypeCd, userDetails);
             return ResponseEntity.ok(events);
         }
