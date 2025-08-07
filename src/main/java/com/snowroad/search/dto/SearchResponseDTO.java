@@ -4,10 +4,12 @@ import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Id;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class SearchResponseDTO {
 
     @Id
@@ -67,11 +69,14 @@ public class SearchResponseDTO {
     @Schema(description = "사용자표시거리")
     private String displayDistance;
 
+    @Schema(description = "좋아요여부")
+    private String likeYn;
+
     @QueryProjection
     public SearchResponseDTO(Long eventId, String eventNm, String eventCntn, String eventAddr, String rads,
                              String lnad, String operStatDt, String operEndDt, String operDttmCntn,
                              String ctgyId, String eventTypeCd, Double addrLttd, Double addrLotd,
-                             String ldcd, String imageUrl, Long evntFileId, int viewNmvl) {
+                             String ldcd, String imageUrl, Long evntFileId, int viewNmvl, String likeYn) {
         this.eventId = eventId;
         this.eventNm = eventNm;
         this.eventCntn = eventCntn;
@@ -89,5 +94,6 @@ public class SearchResponseDTO {
         this.ldcd = ldcd;
         this.evntFileId = evntFileId;
         this.viewNmvl = viewNmvl;
+        this.likeYn = likeYn;
     }
 }

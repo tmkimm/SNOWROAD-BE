@@ -1,7 +1,7 @@
 package com.snowroad.search.service;
 
+import com.snowroad.search.dto.PopularSearch;
 import com.snowroad.search.dto.PopularSearchResponse;
-import com.snowroad.search.entity.PopularSearch;
 import com.snowroad.search.interfaces.PopularSearchInterface;
 import org.springframework.stereotype.Service;
 

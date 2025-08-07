@@ -18,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Repository;
-
 import java.util.*;
 
 /**
@@ -50,8 +49,8 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
         QEventFilesMst qTumbFileMst = new QEventFilesMst("qTumbFileMst");
         QEventFilesDtl qTumbFileDtl = new QEventFilesDtl("qTumbFileDtl");
         QEventFilesMst qEventFile = new QEventFilesMst("eventFile");
+        QMark qMark = new QMark("mark");
         QEventView qEventView = QEventView.eventView;
-
         BooleanBuilder builder = setSearchCondition(qEvents, searchRequest);
         JPAQuery<SearchResponseDTO> searchQuery = queryFactory
                 .select(new QSearchResponseDTO(
@@ -71,13 +70,19 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
                         qEvents.ldcd,
                         qTumbFileDtl.fileUrl,
                         qEventFile.fileMstId,
-                        qEventView.viewNmvl
+                        qEventView.viewNmvl,
+                        qMark.likeYn
                 ))
                 .from(qEvents)
                 .leftJoin(qEvents.eventTumbfile, qTumbFileMst) // 이벤트 → 썸네일 마스터
                 .leftJoin(qTumbFileMst.eventFilesDtlList, qTumbFileDtl)
                 .leftJoin(qEvents.eventFiles, qEventFile)
                 .leftJoin(qEvents.eventView, qEventView)
+                .leftJoin(qEvents.mark, qMark)
+                .leftJoin(qMark).on(
+                        qMark.eventId.eq(qEvents.eventId)
+                                .and(qMark.eventId.eq(searchRequest.getUserAcntNo()))
+                )
                 .where(builder);
 
         String sortType = searchRequest.getSortType();

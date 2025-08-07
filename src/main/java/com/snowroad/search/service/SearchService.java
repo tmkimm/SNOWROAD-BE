@@ -11,6 +11,7 @@ import com.snowroad.search.dto.SearchResponseDTO;
 import com.snowroad.search.repository.SearchRepository;
 import com.snowroad.search.dto.SearchRequestDTO;
 import com.snowroad.search.interfaces.SearchInterface;
+import com.snowroad.search.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -80,6 +81,12 @@ public class SearchService implements SearchInterface {
             filteredEventIds = keywordEventIds;
         } else if (locationEventIds != null) {
             filteredEventIds = locationEventIds;
+        }
+
+        //사용자 설정
+        if (SecurityUtil.getCurrentUserId() != null) {
+            long userId = SecurityUtil.getCurrentUserId();
+            searchRequestDTO.setUserAcntNo(userId);
         }
 
         // 검색 조건 설정
