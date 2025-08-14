@@ -1,9 +1,6 @@
 package com.snowroad.MorphemeAnalyzer.komoran.domain;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 /**
  *
@@ -18,6 +15,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
+@AllArgsConstructor
 public class KomoranDTO {
     private String token;
     private String posCode;

@@ -1,6 +1,7 @@
 package com.snowroad.search.web;
 
 import com.snowroad.entity.Events;
+import com.snowroad.search.annotation.SearchIndexing;
 import com.snowroad.search.dto.PopularSearchResponse;
 import com.snowroad.search.dto.SearchPagedResponse;
 import com.snowroad.search.dto.SearchRequestDTO;
@@ -17,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -32,6 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
+@Validated
 @Tag(name = "검색 API", description = "검색과 관련된 API")
 public class SearchController {
 
@@ -46,6 +49,7 @@ public class SearchController {
      * @param searchRequestDTO 이벤트 검색 DTO
      * @return List
      */
+    @SearchIndexing(entity = Events.class)
     @Operation(
         summary="이벤트 검색"
         , description = "설정된 조회 조건으로 이벤트를 조회합니다."

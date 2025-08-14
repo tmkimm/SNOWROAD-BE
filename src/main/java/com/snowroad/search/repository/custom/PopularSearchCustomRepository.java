@@ -1,5 +1,10 @@
 package com.snowroad.search.repository.custom;
 
+import com.snowroad.search.dto.PopularSearch;
+
+import java.time.Duration;
+import java.util.List;
+
 /**
  *
  * 인기검색어 커스텀 레포지토리
@@ -10,5 +15,5 @@ package com.snowroad.search.repository.custom;
  *
  */
 public interface PopularSearchCustomRepository {
-
+    List<PopularSearch> findTopPopularKeywords(int limit, Duration duration);
 }
