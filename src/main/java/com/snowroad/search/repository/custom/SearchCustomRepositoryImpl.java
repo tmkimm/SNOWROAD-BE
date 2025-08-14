@@ -52,6 +52,12 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
         QMark qMark = new QMark("mark");
         QEventView qEventView = QEventView.eventView;
         BooleanBuilder builder = setSearchCondition(qEvents, searchRequest);
+
+        Long userAcntNo = searchRequest.getUserAcntNo();
+        BooleanExpression userFilter =
+                (userAcntNo != null) ? qMark.userAcntNo.eq(userAcntNo)
+                        : Expressions.TRUE.isTrue();
+
         JPAQuery<SearchResponseDTO> searchQuery = queryFactory
                 .select(new QSearchResponseDTO(
                         qEvents.eventId,
@@ -78,11 +84,7 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
                 .leftJoin(qTumbFileMst.eventFilesDtlList, qTumbFileDtl)
                 .leftJoin(qEvents.eventFiles, qEventFile)
                 .leftJoin(qEvents.eventView, qEventView)
-                .leftJoin(qEvents.mark, qMark)
-                .leftJoin(qMark).on(
-                        qMark.eventId.eq(qEvents.eventId)
-                                .and(qMark.eventId.eq(searchRequest.getUserAcntNo()))
-                )
+                .leftJoin(qEvents.mark, qMark).on(userFilter)
                 .where(builder);
 
         String sortType = searchRequest.getSortType();
