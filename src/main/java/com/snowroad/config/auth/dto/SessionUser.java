@@ -14,9 +14,11 @@ import java.io.Serializable;
 public class SessionUser implements Serializable {
     private String nickName;
     private Long id;
+    private String joinYn;
 
     public SessionUser(User user) {
         this.nickName = user.getNickname();
         this.id = user.getUserAccountNo();
+        this.joinYn = user.getJoinYn();
     }
 }
