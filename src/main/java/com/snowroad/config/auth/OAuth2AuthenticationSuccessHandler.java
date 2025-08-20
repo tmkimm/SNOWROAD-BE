@@ -38,21 +38,51 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         String refreshToken = jwtTokenProvider.generateRefreshToken(String.valueOf(sessionUser.getId()));
 
         // 쿠키에 JWT 저장
-        addCookie(response, "access_token", accessToken, ACCESS_TOKEN_COOKIE_EXPIRY);
-        addCookie(response, "refresh_token", refreshToken, REFRESH_TOKEN_COOKIE_EXPIRY);
+        addCookie(request, response, "access_token", accessToken, ACCESS_TOKEN_COOKIE_EXPIRY);
+        addCookie(request, response, "refresh_token", refreshToken, REFRESH_TOKEN_COOKIE_EXPIRY);
+
+        System.out.println(sessionUser.getJoinYn());
+        String targetUrl = redirectUrl;
+        if ("N".equals(sessionUser.getJoinYn())) {
+            targetUrl = redirectUrl + "/register";
+        }
         // 로그인 후 리다이렉트
-        response.sendRedirect(redirectUrl);
+        response.sendRedirect(targetUrl);
     }
 
-    private void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
-        ResponseCookie cookie = ResponseCookie.from(name, value)
+    private void addCookie(HttpServletRequest request, HttpServletResponse response, String name, String value, int maxAge) {
+        String serverName = request.getServerName();  // ex: localhost, api.noongil.org
+
+        boolean isLocal = serverName.equals("localhost") || serverName.equals("127.0.0.1");
+
+        ResponseCookie.ResponseCookieBuilder cookieBuilder = ResponseCookie.from(name, value)
                 .path("/")
                 .httpOnly(true)
-                .secure(true)
-                .sameSite("None")
-                .maxAge(maxAge)
-                .domain(".noongil.org")
-                .build();
+                .maxAge(maxAge);
+
+        if (isLocal) {
+            // 로컬 개발 환경
+            cookieBuilder.sameSite("Lax");      // 로컬에서는 Lax로도 충분
+            cookieBuilder.secure(false);        // HTTPS 사용 안 하므로 false
+        } else {
+            // 운영 환경
+            cookieBuilder.sameSite("None");     // cross-site 쿠키 허용
+            cookieBuilder.secure(true);         // HTTPS 필수
+            cookieBuilder.domain(".noongil.org");
+        }
+
+        ResponseCookie cookie = cookieBuilder.build();
         response.addHeader("Set-Cookie", cookie.toString());
     }
+//    private void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
+//        ResponseCookie cookie = ResponseCookie.from(name, value)
+//                .path("/")
+//                .httpOnly(true)
+//                .secure(true)
+//                .sameSite("None")
+//                .maxAge(maxAge)
+//                .domain(".noongil.org")
+//                .build();
+//        response.addHeader("Set-Cookie", cookie.toString());
+//    }
 }
