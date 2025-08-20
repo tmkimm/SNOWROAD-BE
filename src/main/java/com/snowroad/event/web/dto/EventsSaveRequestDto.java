@@ -76,6 +76,7 @@ public class EventsSaveRequestDto {
                 .rads(rads)
                 .lnad(lnad)
                 .eventDetailUrl(eventDetailUrl)
+                .ldcd(ldcd)
                 .build();
     }
 }

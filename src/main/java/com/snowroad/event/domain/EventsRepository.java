@@ -1,8 +1,11 @@
 package com.snowroad.event.domain;
 
+import com.snowroad.admin.web.dto.EventSimpleListResponseDto;
 import com.snowroad.config.auth.dto.CustomUserDetails;
 import com.snowroad.entity.Events;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -35,11 +38,17 @@ public interface EventsRepository extends JpaRepository<Events, Long>, EventsRep
     // 메인페이지 최상단 배너 컨텐츠 조회
     // 현재는 가장 최근 등록된 컨텐츠순 조회, 추후 해당 배너 활용방법 따라 재조정 필요
     @Query(value = "SELECT e.EVNT_ID as eventId, e.EVNT_NM AS eventNm, OPER_STAT_DT as operStatDt, OPER_END_DT as operEndDt, " +
-            "e.CTGY_ID as ctgyId, e.EVNT_TYPE_CD as eventTypeCd, IFNULL(CONCAT(eld.LIKE_YN), 'N') AS LIKE_YN, " +
+            "e.CTGY_ID as ctgyId, e.EVNT_TYPE_CD as eventTypeCd, " +
+            "CASE " +
+            "    WHEN e.lnad LIKE '%동%' THEN LEFT(e.lnad, CHAR_LENGTH(e.lnad) - LOCATE('동', REVERSE(e.lnad)) + 1) " +
+            "    WHEN e.lnad LIKE '%구%' THEN LEFT(e.lnad, CHAR_LENGTH(e.lnad) - LOCATE('구', REVERSE(e.lnad)) + 1) " +
+            "    WHEN e.lnad LIKE '%시%' THEN LEFT(e.lnad, CHAR_LENGTH(e.lnad) - LOCATE('시', REVERSE(e.lnad)) + 1) " +
+            "    WHEN e.lnad LIKE '%도%' THEN LEFT(e.lnad, CHAR_LENGTH(e.lnad) - LOCATE('도', REVERSE(e.lnad)) + 1) " +
+            "    ELSE e.lnad " +
+            "END AS land, " +
             "efd.FILE_URL as imageUrl, efd.FILE_THUB_URL as smALLImageUrl " +
             "from TB_EVNT_M e " +
             "LEFT OUTER JOIN TB_EVNT_VIEW_D evd ON e.EVNT_ID = evd.EVNT_ID " +
-            "LEFT OUTER JOIN TB_EVNT_LIKE_D eld ON e.EVNT_ID = eld.EVNT_ID " +
             "LEFT OUTER JOIN TB_EVNT_FILE_M efm ON e.TUMB_FILE_ID = efm.FILE_MST_ID " +
             "LEFT OUTER JOIN TB_EVNT_FILE_D efd ON efm.FILE_MST_ID = efd.FILE_MST_ID " +
             "WHERE STR_TO_DATE(e.OPER_END_DT, '%Y%m%d') >= CURDATE() " +
@@ -55,11 +64,10 @@ public interface EventsRepository extends JpaRepository<Events, Long>, EventsRep
 
     // 메인페이지 인기 컨텐츠 list 조회
     @Query(value = "SELECT e.EVNT_ID as eventId, e.EVNT_NM AS eventNm, OPER_STAT_DT as operStatDt, OPER_END_DT as operEndDt, " +
-            "e.CTGY_ID as ctgyId, e.EVNT_TYPE_CD as eventTypeCd, IFNULL(CONCAT(eld.LIKE_YN), 'N') AS LIKE_YN, " +
+            "e.CTGY_ID as ctgyId, e.EVNT_TYPE_CD as eventTypeCd, " +
             "efd.FILE_URL as imageUrl, efd.FILE_THUB_URL as smALLImageUrl " +
             "from TB_EVNT_M e " +
             "LEFT OUTER JOIN TB_EVNT_VIEW_D evd ON e.EVNT_ID = evd.EVNT_ID " +
-            "LEFT OUTER JOIN TB_EVNT_LIKE_D eld ON e.EVNT_ID = eld.EVNT_ID " +
             "LEFT OUTER JOIN TB_EVNT_FILE_M efm ON e.TUMB_FILE_ID = efm.FILE_MST_ID " +
             "LEFT OUTER JOIN TB_EVNT_FILE_D efd ON efm.FILE_MST_ID = efd.FILE_MST_ID " +
             "WHERE e.DELT_YN = 'N' AND STR_TO_DATE(e.OPER_END_DT, '%Y%m%d') >= CURDATE() " +
@@ -69,34 +77,13 @@ public interface EventsRepository extends JpaRepository<Events, Long>, EventsRep
             , nativeQuery = true)
     List<Object[]> getMainRankList(@Param("eventTypeCd") String eventTypeCd);
 
-
-    // 메인페이지 추천 컨텐츠 list 조회 (카테고리 테이블 완성 후 사용자 맞춤 추가작업 진행 필요)
-    @Query(value = "SELECT e.EVNT_ID as eventId, e.EVNT_NM AS eventNm, OPER_STAT_DT as operStatDt, OPER_END_DT as operEndDt, " +
-            "e.CTGY_ID as ctgyId, e.EVNT_TYPE_CD as eventTypeCd, IFNULL(CONCAT(eld.LIKE_YN), 'N') AS LIKE_YN, " +
-            "efd.FILE_URL as imageUrl, efd.FILE_THUB_URL as smALLImageUrl " +
-            "from TB_EVNT_M e " +
-            "LEFT OUTER JOIN TB_EVNT_VIEW_D evd ON e.EVNT_ID = evd.EVNT_ID " +
-            "LEFT OUTER JOIN TB_EVNT_LIKE_D eld ON e.EVNT_ID = eld.EVNT_ID " +
-            "AND (:userId IS NULL OR :userId = eld.USER_ACNT_NO) " + // 조건부 JOIN (로그인X시 :userId null 처리)
-            "LEFT OUTER JOIN TB_EVNT_FILE_M efm ON e.TUMB_FILE_ID = efm.FILE_MST_ID " +
-            "LEFT OUTER JOIN TB_EVNT_FILE_D efd ON efm.FILE_MST_ID = efd.FILE_MST_ID " +
-            "WHERE e.DELT_YN = 'N' AND STR_TO_DATE(e.OPER_END_DT, '%Y%m%d') >= CURDATE() " +
-            "  AND STR_TO_DATE(e.OPER_STAT_DT, '%Y%m%d') <= CURDATE() " +
-            "  AND (:eventTypeCd = 'ALL' OR e.EVNT_TYPE_CD = :eventTypeCd) " +
-            "  AND (:userId IS NULL OR e.CTGY_ID IN (SELECT uct.USER_CTRY_NO FROM TB_USER_CTGY_M uct WHERE uct.USER_ACNT_NO = :userId)) " +
-            "ORDER BY RAND() * 10000, OPER_STAT_DT ASC " + // RAND() * 10000 => 랜덤정렬
-            "LIMIT 10"
-            , nativeQuery = true)
-    List<Object[]> getMainRcmnList(@Param("eventTypeCd") String eventTypeCd, Long userId);
-
     // 메인페이지 오픈임박-상위 9개 조회순
     @Query(value = "SELECT e.EVNT_ID as eventId, e.EVNT_NM AS eventNm, OPER_STAT_DT as operStatDt, OPER_END_DT as operEndDt, " +
-            "e.CTGY_ID as ctgyId, e.EVNT_TYPE_CD as eventTypeCd, IFNULL(CONCAT(eld.LIKE_YN), 'N') AS LIKE_YN, " +
+            "e.CTGY_ID as ctgyId, e.EVNT_TYPE_CD as eventTypeCd, " +
             "efd.FILE_URL as imageUrl, efd.FILE_THUB_URL as smALLImageUrl, " +
-            "CONCAT('D-', DATEDIFF(STR_TO_DATE(e.OPER_STAT_DT, '%Y%m%d'), CURRENT_DATE())) AS D_DAY " +
+            "CONCAT('D', TIMESTAMPDIFF(DAY, STR_TO_DATE(e.OPER_END_DT, '%Y%m%d'), CURRENT_DATE())) AS D_DAY " +
             "from TB_EVNT_M e " +
             "LEFT OUTER JOIN TB_EVNT_VIEW_D evd ON e.EVNT_ID = evd.EVNT_ID " +
-            "LEFT OUTER JOIN TB_EVNT_LIKE_D eld ON e.EVNT_ID = eld.EVNT_ID " +
             "LEFT OUTER JOIN TB_EVNT_FILE_M efm ON e.TUMB_FILE_ID = efm.FILE_MST_ID " +
             "LEFT OUTER JOIN TB_EVNT_FILE_D efd ON efm.FILE_MST_ID = efd.FILE_MST_ID " +
             "WHERE e.DELT_YN = 'N' AND STR_TO_DATE(e.OPER_STAT_DT, '%Y%m%d') >= CURDATE() " +
@@ -108,12 +95,11 @@ public interface EventsRepository extends JpaRepository<Events, Long>, EventsRep
 
     // 종료임박-상위 9개 조회순
     @Query(value = "SELECT e.EVNT_ID as eventId, e.EVNT_NM AS eventNm, OPER_STAT_DT as operStatDt, OPER_END_DT as operEndDt, " +
-            "e.CTGY_ID as ctgyId, e.EVNT_TYPE_CD as eventTypeCd, IFNULL(CONCAT(eld.LIKE_YN), 'N') AS LIKE_YN, " +
+            "e.CTGY_ID as ctgyId, e.EVNT_TYPE_CD as eventTypeCd, " +
             "efd.FILE_URL as imageUrl, efd.FILE_THUB_URL as smALLImageUrl, " +
-            "CONCAT('D-', DATEDIFF(STR_TO_DATE(e.OPER_END_DT, '%Y%m%d'), CURRENT_DATE())) AS D_DAY " +
+            "CONCAT('D', TIMESTAMPDIFF(DAY, STR_TO_DATE(e.OPER_END_DT, '%Y%m%d'), CURRENT_DATE())) AS D_DAY " +
             "from TB_EVNT_M e " +
             "LEFT OUTER JOIN TB_EVNT_VIEW_D evd ON e.EVNT_ID = evd.EVNT_ID " +
-            "LEFT OUTER JOIN TB_EVNT_LIKE_D eld ON e.EVNT_ID = eld.EVNT_ID " +
             "LEFT OUTER JOIN TB_EVNT_FILE_M efm ON e.TUMB_FILE_ID = efm.FILE_MST_ID " +
             "LEFT OUTER JOIN TB_EVNT_FILE_D efd ON efm.FILE_MST_ID = efd.FILE_MST_ID " +
             "WHERE e.DELT_YN = 'N' AND STR_TO_DATE(e.OPER_END_DT, '%Y%m%d') >= CURDATE() " +
@@ -135,31 +121,12 @@ public interface EventsRepository extends JpaRepository<Events, Long>, EventsRep
             "ORDER BY eld.DATA_EDIT_DTTM DESC ", nativeQuery = true)
     List<Object[]> findEvntMarkedList();
 
-    // 리스트 페이지 컨텐츠 목록 조회
-    @Query(value = "SELECT e.EVNT_ID as eventId, e.EVNT_NM AS eventNm, e.EVNT_CNTN as eventCntn, " +
-            "e.EVNT_ADDR AS eventAddr, " +
-            "OPER_STAT_DT as operStatDt, OPER_END_DT as operEndDt, " +
-            "e.CTGY_ID as ctgyId, e.EVNT_TYPE_CD as eventTypeCd , IFNULL(CONCAT(eld.LIKE_YN), 'N') AS LIKE_YN, " +
-            "efd.FILE_URL as imageUrl, efd.FILE_THUB_URL as smALLImageUrl " +
-            "from TB_EVNT_M e " +
-            "LEFT OUTER JOIN TB_EVNT_VIEW_D evd ON e.EVNT_ID = evd.EVNT_ID " +
-            "LEFT OUTER JOIN TB_EVNT_LIKE_D eld ON e.EVNT_ID = eld.EVNT_ID " +
-            "LEFT OUTER JOIN TB_EVNT_FILE_M efm ON e.TUMB_FILE_ID = efm.FILE_MST_ID " +
-            "LEFT OUTER JOIN TB_EVNT_FILE_D efd ON efm.FILE_MST_ID = efd.FILE_MST_ID " +
-            "WHERE e.DELT_YN = 'N' " +
-            "ORDER BY CASE " +
-            "WHEN :sortType = '10' THEN evd.VIEW_NMVL " +
-            "WHEN :sortType = '20' THEN e.OPER_STAT_DT " +
-            "WHEN :sortType = '30' THEN e.OPER_END_DT " +
-            "ELSE e.OPER_STAT_DT END"
-            , nativeQuery = true)
-    List<Object[]> getEvntList(@Param("sortType") String sortType);
-
 
     // 리스트 페이지 컨텐츠 목록 조회
     @Query(value = "SELECT " +
             "   TRC.RGNT_CD " +
             "   ,TRC.RGNT_NM " +
+            "   ,TRC.RGNT_TYPE_CD " +
             "   ,COUNT(TLC.LDCD_NM) AS CNT " +
             "   ,GROUP_CONCAT(TLC.LDCD_NM) AS LDCD_NM " +
             "FROM TB_RGNT_C AS TRC " +
@@ -168,8 +135,18 @@ public interface EventsRepository extends JpaRepository<Events, Long>, EventsRep
             "WHERE  TLC.RGNT_CD = TRC.RGNT_CD " +
             "GROUP BY TRC.RGNT_CD "
             , nativeQuery = true)
-    List<Object[]> getEventGeoFilter(@Param("rgntTypeCd") String rgntTypeCd);
+    List<Object[]> getEventGeoFilter();
 
-
+    @Query("""
+        SELECT new com.snowroad.admin.web.dto.EventSimpleListResponseDto(
+            e.eventId, e.eventNm, e.eventCntn, e.eventAddr, e.rads, e.lnad,
+            e.operStatDt, e.operEndDt, e.operDttmCntn, e.ctgyId,
+            e.eventTypeCd, e.addrLttd, e.addrLotd, e.deleteYn,
+            e.ldcd, e.eventDetailUrl
+        )
+        FROM Events e
+        ORDER BY e.eventId DESC
+    """)
+    Page<EventSimpleListResponseDto> findSimpleEvents(Pageable pageable);
 
 }

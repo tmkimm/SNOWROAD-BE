@@ -1,5 +1,7 @@
 package com.snowroad.geodata.util;
 
+import lombok.extern.slf4j.Slf4j;
+
 /**
  *
  * 하버사인 공식
@@ -9,6 +11,7 @@ package com.snowroad.geodata.util;
  * @since 2025-01-09
  *
  */
+@Slf4j
 public class HaversineFormula {
 
     private static final double EARTH_RADIUS_KM = 6371.0; // 지구 반지름 (킬로미터)
@@ -27,10 +30,10 @@ public class HaversineFormula {
     public static double calculateDistance(double baseLat, double baseLon, double targetLat, double targetLon) {
 
         // 좌표에 대한 입력 값 검증
-        // 범위 초과시 에러 반환
+        // 범위 초과시 로그
         if (baseLat < -90 || baseLat > 90 || targetLat < -90 || targetLat > 90
                 || baseLon < -180 || baseLon > 180 || targetLon < -180 || targetLon > 180) {
-            throw new IllegalArgumentException("Invalid latitude or longitude values");
+            log.warn("Invalid latitude or longitude values");
         }
 
         double baseLatRad = Math.toRadians(baseLat);

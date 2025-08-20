@@ -1,8 +1,11 @@
 package com.snowroad.search.web;
 
 import com.snowroad.entity.Events;
+import com.snowroad.search.annotation.SearchIndexing;
+import com.snowroad.search.dto.PopularSearchResponse;
 import com.snowroad.search.dto.SearchPagedResponse;
 import com.snowroad.search.dto.SearchRequestDTO;
+import com.snowroad.search.interfaces.PopularSearchInterface;
 import com.snowroad.search.interfaces.SearchInterface;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -15,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -30,10 +34,12 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
+@Validated
 @Tag(name = "검색 API", description = "검색과 관련된 API")
 public class SearchController {
 
     private final SearchInterface searchInterface;
+    private final PopularSearchInterface popularSearchInterface;
 
     /**
      *
@@ -43,13 +49,14 @@ public class SearchController {
      * @param searchRequestDTO 이벤트 검색 DTO
      * @return List
      */
+    @SearchIndexing(entity = Events.class)
     @Operation(
         summary="이벤트 검색"
         , description = "설정된 조회 조건으로 이벤트를 조회합니다."
         , responses = {
             @ApiResponse(
                 responseCode = "200"
-                , description = "Map Custom Markers Search Successful"
+                , description = "Search Success"
                 , content = @Content(schema = @Schema(implementation = Events.class))
             )
             , @ApiResponse(
@@ -64,7 +71,34 @@ public class SearchController {
             @Parameter(description = "검색")
             @Valid
             @ParameterObject SearchRequestDTO searchRequestDTO) {
-        // Search-step.1 검색 시행
         return ResponseEntity.ok(searchInterface.getEvents(searchRequestDTO));
+    }
+
+    /**
+     *
+     * 인기검색목록 조회
+     *
+     * @author hyo298, 김재효
+     * @return List
+     */
+    @Operation(
+            summary="인기검색목록 조회"
+            , description = "인기검색목록을 조회합니다."
+            , responses = {
+                @ApiResponse(
+                        responseCode = "200"
+                        , description = "Popular Search Success"
+                        , content = @Content(schema = @Schema(implementation = Events.class))
+                )
+                , @ApiResponse(
+                responseCode = "500"
+                , description = "Server Error"
+                , content = @Content()
+                )
+            }
+    )
+    @GetMapping(value = "/api/search/popular")
+    public ResponseEntity<PopularSearchResponse> getPopularSearch() {
+        return ResponseEntity.ok(popularSearchInterface.getPopularSearch());
     }
 }

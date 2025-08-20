@@ -3,9 +3,11 @@ package com.snowroad.event.impl;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.snowroad.common.exception.EventNotFoundException;
 import com.snowroad.config.auth.dto.CustomUserDetails;
@@ -24,6 +26,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -74,7 +77,7 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
                         e.deleteYn.eq("N"),
                         e.operEndDt.goe(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))),
                         e.operStatDt.loe(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))),
-                        eventTypeCd.equals("ALL") ? null : e.eventTypeCd.eq(eventTypeCd),
+                        eventTypeCd.equalsIgnoreCase("ALL") ? null : e.eventTypeCd.eq(eventTypeCd),
                         userId == null ? null : e.ctgyId.in(
                                 queryFactory
                                         .select(uct.category.stringValue())
@@ -119,6 +122,13 @@ public class EventsRepositoryImpl implements EventsRepositoryCustom {
         // WHERE 조건 동적 추가
         BooleanBuilder whereCondition = new BooleanBuilder();
         whereCondition.and(e.deleteYn.eq("N")); // 기본 조건 유지 (삭제여부)
+
+        // eventTypeCd 조건 생성
+        Predicate eventTypePredicate = null;
+        if (!eventTypeCd.equalsIgnoreCase("ALL")) {
+            eventTypePredicate = e.eventTypeCd.eq(eventTypeCd);
+            whereCondition.and(eventTypePredicate);
+        }
 
         // categoryList 값이 존재할 때만 IN 조건 추가
         if (ctgyId != null && !ctgyId.isEmpty()) {
@@ -214,60 +224,100 @@ public EventContentsResponseDto findEvntData(Long evntId, Long userId){
     QEvents e = QEvents.events;
     QMark mark = QMark.mark;
     QView view = QView.view;
-    QEventFilesMst fileMst = QEventFilesMst.eventFilesMst;
-    QEventFilesDtl fileDtl = QEventFilesDtl.eventFilesDtl;
+
+    // 썸네일 파일 관련 별칭 생성 (서브쿼리용)
+    QEventFilesMst subFileMstThumb = new QEventFilesMst("subFileMstThumb");
+    QEventFilesDtl subFileDtlThumb = new QEventFilesDtl("subFileDtlThumb");
+
+    // 메인 파일 관련 별칭 생성 (메인 쿼리 조인용)
+    QEventFilesMst fileMstMain = new QEventFilesMst("fileMstMain");
+    QEventFilesDtl fileDtlMain = new QEventFilesDtl("fileDtlMain");
 
     BooleanExpression likeCondition;
     if (userId != null) {
         likeCondition = mark.userAcntNo.eq(userId);
-    }
-    else {
-        // userId가 null이면 좋아요 정보는 가져오지 않도록 조건을 FALSE로
-        // 이렇게 해야 LEFT JOIN 시 userAcntNo = null 조건이 아닌 항상 FALSE로 처리
-        likeCondition = Expressions.FALSE; // 기존 로직 유지
+    } else {
+        likeCondition = Expressions.FALSE;
     }
 
-
-    EventContentsResponseDto resultDto = queryFactory
+    // 쿼리 결과가 여러 행으로 나올 수 있으므로, fetch()를 사용하고 Tuple로 받습니다.
+    List<Tuple> results = queryFactory
             .select(
-                    Projections.constructor(EventContentsResponseDto.class, // DTO 생성자를 사용한 프로젝션
-                            e.eventId,           // eventId
-                            e.eventNm,           // eventNm
-                            e.eventCntn,         // eventCntn
-                            e.eventAddr,         // eventAddr
-                            e.rads,              // rads
-                            e.lnad,              // lnad
-                            e.operStatDt,        // operStatDt
-                            e.operEndDt,         // operEndDt
-                            e.operDttmCntn,      // operDttmCntn
-                            e.ctgyId,            // ctgyId
-                            e.eventTypeCd,       // eventTypeCd
-                            Expressions.cases()  // likeYn 필드에 매핑
-                                    .when(mark.likeYn.isNotNull()).then(mark.likeYn.stringValue())
-                                    .otherwise("N"),
-                            view.viewNwvl.coalesce(0), // viewNwvl 필드에 매핑 (null이면 0)
-                            fileDtl.fileUrl,       // imageUrl 필드에 매핑
-                            fileDtl.fileThumbUrl   // smallImageUrl 필드에 매핑
-                    )
+                    e, // Events 엔티티 전체를 가져옵니다 (기본 정보를 쉽게 매핑하기 위함)
+                    Expressions.cases() // likeYn 필드에 매핑
+                            .when(mark.likeYn.isNotNull()).then(mark.likeYn.stringValue())
+                            .otherwise("N"),
+                    view.viewNwvl.coalesce(0), // viewNwvl 필드에 매핑 (null이면 0)
+                    fileDtlMain.fileUrl,       // 메인 이미지 URL (리스트로 만들 값)
+                    // smallImageUrl 필드는 썸네일 파일 마스터 ID를 참조하여 서브쿼리로 단일 값으로 가져옵니다.
+                    JPAExpressions.select(subFileDtlThumb.fileUrl) // 썸네일 URL 필드 선택
+                            .from(subFileMstThumb)
+                            .join(subFileDtlThumb).on(subFileMstThumb.fileMstId.eq(subFileDtlThumb.fileMst.fileMstId))
+                            .where(subFileMstThumb.fileMstId.eq(e.eventTumbfile.fileMstId)) // 썸네일 마스터 ID 조건만 사용
+                            .orderBy(subFileDtlThumb.fileDtlId.asc()) // 여러개일 경우 첫 번째 상세 레코드 선택
+                            .limit(1)
             )
             .from(e)
             .leftJoin(view).on(e.eventId.eq(view.eventId)) // JOIN TB_EVNT_VIEW_D
-            // userId가 null이 아니면 해당 userAcntNo로, null이면 항상 FALSE 조건을 사용
             .leftJoin(mark).on(e.eventId.eq(mark.eventId).and(likeCondition))
-            .leftJoin(fileMst).on(e.eventTumbfile.fileMstId.eq(fileMst.fileMstId)) // JOIN TB_EVNT_FILE_M
-            .leftJoin(fileDtl).on(fileMst.fileMstId.eq(fileDtl.fileMst.fileMstId)) // JOIN TB_EVNT_FILE_D
+            // 메인 파일 조인 경로 (e.eventFiles는 메인 파일 마스터를 참조)
+            .leftJoin(fileMstMain).on(e.eventFiles.fileMstId.eq(fileMstMain.fileMstId))
+            .leftJoin(fileDtlMain).on(fileMstMain.fileMstId.eq(fileDtlMain.fileMst.fileMstId))
+            // 만약 메인 이미지 Dtl에도 특정 fileType으로 구분해야 한다면 여기에 추가
+            // .where(fileDtlMain.fileType.eq("MAIN_IMAGE"))
             .where(
                     e.eventId.eq(evntId)
             )
-            .fetchOne(); // 결과가 하나임을 기대하므로 fetchOne 사용
+            .fetch();
 
-    // 결과가 null인 경우 예외 발생
-    if (resultDto == null) {
-        throw new EventNotFoundException("해당하는 컨텐츠가 존재하지 않습니다.");
-        // 또는 JPA를 사용한다면 javax.persistence.EntityNotFoundException 등을 사용할 수도 있습니다.
+    if (results.isEmpty()) {
+        return null; // 결과가 없으면 null 반환
     }
 
-    // DTO 객체가 바로 반환되므로 별도의 매핑 과정이 필요 없습니다.
+    // Tuple 결과를 순회하며 DTO를 만들고 이미지 URL 리스트를 채웁니다.
+    EventContentsResponseDto resultDto = null;
+    List<String> imageUrls = new ArrayList<>();
+
+    for (Tuple row : results) {
+        // 첫 번째 행에서 Event 기본 정보와 단일 필드들을 추출하여 DTO를 초기화합니다.
+        if (resultDto == null) {
+            Events eventEntity = row.get(e); // Events 엔티티 자체를 가져옴
+            String likeYnValue = row.get(1, String.class); // likeYn
+            Integer viewNwvlValue = row.get(2, Integer.class); // viewNwvl
+            String smallImageUrlValue = row.get(4, String.class); // 썸네일 URL은 5번째 컬럼 (인덱스 4)
+
+            resultDto = new EventContentsResponseDto(
+                    eventEntity.getEventId(),
+                    eventEntity.getEventNm(),
+                    eventEntity.getEventCntn(),
+                    eventEntity.getEventAddr(),
+                    eventEntity.getRads(),
+                    eventEntity.getLnad(),
+                    eventEntity.getOperStatDt(),
+                    eventEntity.getOperEndDt(),
+                    eventEntity.getOperDttmCntn(),
+                    eventEntity.getCtgyId(),
+                    eventEntity.getEventTypeCd(),
+                    likeYnValue,
+                    viewNwvlValue,
+                    smallImageUrlValue,
+                    eventEntity.getEventDetailUrl()
+            );
+        }
+
+        // 모든 행에서 fileDtlMain.fileUrl을 수집합니다.
+        String currentFileUrl = row.get(3, String.class); // fileUrl은 4번째 컬럼 (인덱스 3)
+        if (currentFileUrl != null && !imageUrls.contains(currentFileUrl)) { // 중복 방지
+            imageUrls.add(currentFileUrl);
+        }
+    }
+
+    // DTO에 이미지 URL 리스트를 설정합니다.
+    if (resultDto != null) {
+        resultDto.setImageUrls(imageUrls);
+    }
+
+    System.out.println("Result DTO: " + resultDto);
     return resultDto;
 }
 
@@ -296,41 +346,7 @@ public EventContentsResponseDto findEvntData(Long evntId, Long userId){
 
         // 사진파일등 연관 데이터를 가져오기 위한 queryDsl 처리
         QEvents e = QEvents.events;
-        QMark mark = QMark.mark; // QMark 추가
-        QEventFilesMst fileMst = QEventFilesMst.eventFilesMst;
-        QEventFilesDtl fileDtl = QEventFilesDtl.eventFilesDtl;
-        
-//        List<HomeEventsResponseDto> nearEventsResponseList = geoDataList.stream()
-//                .filter(geoData -> targetEventTypeCd.equals(geoData.getEventTypeCd())) // eventTypeCd 일치
-//                .filter(geoData -> !eventId.equals(geoData.getEventId())) // eventId가 일치하는 데이터 제외
-//                .filter(geoData -> {
-//                    String operEndDtStr = geoData.getOperEndDt();
-//                    if (operEndDtStr != null && operEndDtStr.length() == 8) {
-//                        try {
-//                            LocalDate endDate = LocalDate.parse(operEndDtStr, dateFormatter);
-//                            return !endDate.isBefore(today); // 종료일이 오늘 이후인 데이터만
-//                        } catch (DateTimeParseException e) {
-//                            System.err.println("operEndDt format error: " + operEndDtStr + " for event ID: " + geoData.getEventId());
-//                            return false;
-//                        }
-//                    }
-//                    return false; // operEndDt가 null이거나 형식이 맞지 않으면 제외
-//                })
-//                .map(geoData -> {
-//                    HomeEventsResponseDto dto = new HomeEventsResponseDto();
-//                    // Events 엔티티에서 필요한 정보를 HomeEventsResponseDto에 매핑
-//                    dto.setEventId(geoData.getEventId());
-//                    dto.setEventNm(geoData.getEventNm());
-//                    dto.setOperStatDt(geoData.getOperStatDt());
-//                    dto.setOperEndDt(geoData.getOperEndDt());
-//                    dto.setCtgyId(geoData.getCtgyId());
-//                    dto.setEventTypeCd(geoData.getEventTypeCd());
-//                    dto.setImageUrl(geoData.getEventFiles().toString());
-//                    dto.setSmallImageUrl(geoData.getEventTumbfile().toString());
-//                    return dto;
-//                })
-//                .limit(10) // 최대 10개의 결과만 가져오기
-//                .collect(Collectors.toList());
+        QMark mark = QMark.mark;
 
         List<HomeEventsResponseDto> nearEventsResponseList = geoDataList.stream()
                 .filter(geoData -> targetEventTypeCd.equals(geoData.getEventTypeCd())) // eventTypeCd 일치
@@ -357,20 +373,25 @@ public EventContentsResponseDto findEvntData(Long evntId, Long userId){
                     dto.setCtgyId(geoData.getCtgyId());
                     dto.setEventTypeCd(geoData.getEventTypeCd());
 
-                    // 이미지 URL 및 썸네일 URL 추가 조회 (각 이벤트별로 쿼리 실행)
-                    if (geoData.getEventTumbfile() != null) { // NullPointerException 방지
-                        Tuple fileInfo = queryFactory
-                                .select(fileDtl.fileUrl, fileDtl.fileThumbUrl)
-                                .from(fileMst)
-                                .leftJoin(fileDtl).on(fileMst.fileMstId.eq(fileDtl.fileMst.fileMstId))
-                                .where(fileMst.fileMstId.eq(geoData.getEventTumbfile().getFileMstId()))
-                                .fetchOne();
+                    // Q-클래스 별칭을 맵 내부에서 선언
+                    QEventFilesMst subFileMst = new QEventFilesMst("subFileMst");
+                    QEventFilesDtl subFileDtl = new QEventFilesDtl("subFileDtl");
 
-                        if (fileInfo != null) {
-                            dto.setImageUrl(fileInfo.get(fileDtl.fileUrl));
-                            dto.setSmallImageUrl(fileInfo.get(fileDtl.fileThumbUrl));
-                        }
+                    // 썸네일 파일 정보를 가져옵니다.
+                    if (geoData.getEventTumbfile() != null) { // NullPointerException 방지
+                        // 썸네일 URL만 가져오는 서브쿼리
+                        String smallImageUrl = queryFactory
+                                .select(subFileDtl.fileUrl) // 썸네일 URL 필드 선택 (fileUrl 사용)
+                                .from(subFileMst)
+                                .leftJoin(subFileDtl).on(subFileMst.fileMstId.eq(subFileDtl.fileMst.fileMstId))
+                                .where(subFileMst.fileMstId.eq(geoData.getEventTumbfile().getFileMstId())) // 썸네일 마스터 ID 조건만 사용
+                                .orderBy(subFileDtl.fileDtlId.asc()) // 여러 개일 경우 어떤 것을 선택할지 기준
+                                .limit(1) // 반드시 단일 값만 가져오도록 제한
+                                .fetchOne(); // 이제 안전하게 fetchOne() 사용 가능
+
+                        dto.setSmallImageUrl(smallImageUrl);
                     }
+                    // imageUrl (메인 이미지)는 HomeEventsResponseDto에서 필요 없으므로 설정하지 않습니다.
 
                     return dto;
                 })

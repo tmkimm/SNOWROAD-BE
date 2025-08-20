@@ -1,5 +1,6 @@
 package com.snowroad.file.service;
 
+import com.snowroad.common.exception.BadRequestException;
 import com.snowroad.entity.Events;
 import com.snowroad.event.domain.EventsRepository;
 import com.snowroad.entity.EventFilesDtl;
@@ -34,18 +35,29 @@ public class FileService {
 
     // detail에 파일 추가
     @Transactional
-    public void addFileDetail(Long id, MultipartFile image) throws IOException {
-        // 이미지 검색
-        Events event = eventsRepository.findById(id).orElseThrow(() -> new RuntimeException("Event not found"));
+    public void addFileDetail(Long id, MultipartFile[] images) throws IOException {
+        // 이벤트 조회
+        Events event = eventsRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Event not found"));
+
         EventFilesMst detailFileMst = event.getEventFiles();
-        if(detailFileMst == null) {
+        if (detailFileMst == null) {
             detailFileMst = this.saveEventFilesMst();
             event.updateEventFile(detailFileMst);
         }
-        // 고유한 UUID로 파일 이름 생성
-        String uniqueFileName = FileNameGenerator.generateUniqueFileName(image);
-        String imagePath = s3Service.upload(image, filePath, uniqueFileName);
-        this.saveEventFilesDtl(detailFileMst, filePath, imagePath, image, uniqueFileName);
+
+        for (MultipartFile image : images) {
+            if (image.isEmpty()) continue;
+
+            // 고유한 UUID로 파일 이름 생성
+            String uniqueFileName = FileNameGenerator.generateUniqueFileName(image);
+
+            // S3 업로드
+            String imagePath = s3Service.upload(image, filePath, uniqueFileName);
+
+            // 파일 정보 저장
+            this.saveEventFilesDtl(detailFileMst, filePath, imagePath, image, uniqueFileName);
+        }
     }
 
     // 메인 파일 추가
@@ -57,6 +69,11 @@ public class FileService {
         if(tumbFileMst == null) {
             tumbFileMst = this.saveEventFilesMst();
             event.updateTumbFile(tumbFileMst);
+        }
+
+        boolean existsDtl = filesDtlRepository.existsByFileMst(tumbFileMst);
+        if (existsDtl) {
+            throw new BadRequestException("대표 파일은 이미 업로드되어 있습니다.");
         }
 
         // 고유한 UUID로 파일 이름 생성

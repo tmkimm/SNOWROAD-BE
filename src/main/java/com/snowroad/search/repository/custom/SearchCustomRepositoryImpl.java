@@ -9,21 +9,16 @@ import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.snowroad.entity.Events;
-import com.snowroad.entity.QEvents;
+import com.snowroad.entity.*;
 import com.snowroad.geodata.util.HaversineFormula;
 import com.snowroad.search.dto.QSearchResponseDTO;
 import com.snowroad.search.dto.SearchRequestDTO;
 import com.snowroad.search.dto.SearchResponseDTO;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Repository;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Stream;
+import java.util.*;
 
 /**
  *
@@ -34,6 +29,7 @@ import java.util.stream.Stream;
  * @since 2025-05-05
  *
  */
+@Slf4j
 @Repository
 @RequiredArgsConstructor
 public class SearchCustomRepositoryImpl implements SearchCustomRepository {
@@ -43,17 +39,25 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
     /**
      * 이벤트 데이터 검색을 수행한다.
      *
-     * @param requestDTO 검색 조건
+     * @param searchRequest 검색 조건
      * @return List<Long>
      * @author hyo298, 김재효
      */
     @Override
-    public Page<SearchResponseDTO> findSearchEventDataList(SearchRequestDTO requestDTO) {
-        // Search-step.5 이벤트 조건 설정
+    public Page<SearchResponseDTO> findSearchEventDataList(SearchRequestDTO searchRequest) {
         QEvents qEvents = QEvents.events;
-        BooleanBuilder builder = setSearchCondition(qEvents, requestDTO);
+        QEventFilesMst qTumbFileMst = new QEventFilesMst("qTumbFileMst");
+        QEventFilesDtl qTumbFileDtl = new QEventFilesDtl("qTumbFileDtl");
+        QEventFilesMst qEventFile = new QEventFilesMst("eventFile");
+        QMark qMark = new QMark("mark");
+        QEventView qEventView = QEventView.eventView;
+        BooleanBuilder builder = setSearchCondition(qEvents, searchRequest);
 
-        // Search-step.6 공통 쿼리 구성
+        Long userAcntNo = searchRequest.getUserAcntNo();
+        BooleanExpression userFilter =
+                (userAcntNo != null) ? qMark.userAcntNo.eq(userAcntNo)
+                        : Expressions.TRUE.isTrue();
+
         JPAQuery<SearchResponseDTO> searchQuery = queryFactory
                 .select(new QSearchResponseDTO(
                         qEvents.eventId,
@@ -70,98 +74,74 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
                         qEvents.addrLttd,
                         qEvents.addrLotd,
                         qEvents.ldcd,
-                        qEvents.eventTumbfile.fileMstId,
-                        qEvents.eventFiles.fileMstId,
-                        qEvents.eventView.viewNmvl
+                        qTumbFileDtl.fileUrl,
+                        qEventFile.fileMstId,
+                        qEventView.viewNmvl,
+                        qMark.likeYn
                 ))
                 .from(qEvents)
+                .leftJoin(qEvents.eventTumbfile, qTumbFileMst) // 이벤트 → 썸네일 마스터
+                .leftJoin(qTumbFileMst.eventFilesDtlList, qTumbFileDtl)
+                .leftJoin(qEvents.eventFiles, qEventFile)
+                .leftJoin(qEvents.eventView, qEventView)
+                .leftJoin(qEvents.mark, qMark).on(userFilter)
                 .where(builder);
 
-        // Search-step.7 정렬 설정
-        String sortType;
-        if (requestDTO.hasSortType()) {
-            sortType = requestDTO.getSortType();
-        } else {
-            sortType = "최신순";
-        }
-        
+        String sortType = searchRequest.getSortType();
         Sort sort = switch (sortType) {
             case "인기순" -> Sort.by(Sort.Direction.DESC, "eventView.viewNmvl");
             case "마감순" -> Sort.by(Sort.Direction.DESC, "operEndDt");
             default -> Sort.by(Sort.Direction.DESC, "operStatDt");
         };
-        Pageable pageable = PageRequest.of(requestDTO.getPage(), 12, sort);
+        int page = searchRequest.getPage();
+        Pageable pageable = PageRequest.of(page, 12, sort);
+
+        boolean isDistanceSort = "거리순".equalsIgnoreCase(searchRequest.getSortType());
+        if (!isDistanceSort) {
+            searchQuery.orderBy(getSearchOrderSpecifiers(pageable.getSort()))
+                    .offset(pageable.getOffset())
+                    .limit(pageable.getPageSize());
+        }
 
         List<SearchResponseDTO> events = searchQuery.fetch();
-        Stream<SearchResponseDTO> eventStream = events.stream();
-
-        // Search-step.7-1 거리순 정렬 설정
-        boolean isDistanceSort = "거리순".equalsIgnoreCase(sortType);
-        if (!isDistanceSort) {
-            processDefaultSort(searchQuery, pageable);
-        }
-
-        // Search-step.8 거리 값 처리
-        if (requestDTO.hasCoordinate()) {
-            double latitude = requestDTO.getLatitude();
-            double longitude = requestDTO.getLongitude();
-            eventStream = eventStream
-                .filter(dto -> dto.getAddrLttd() != null && dto.getAddrLotd() != null)
-                .peek(dto -> {
-                    double dist = HaversineFormula.calculateDistance(latitude, longitude, dto.getAddrLttd(), dto.getAddrLotd());
+        if (searchRequest.hasCoordinate()) {
+            for (SearchResponseDTO dto : events) {
+                if (dto.getAddrLttd() != null && dto.getAddrLotd() != null) {
+                    double dist = HaversineFormula.calculateDistance(
+                            searchRequest.getLatitude(),
+                            searchRequest.getLongitude(),
+                            dto.getAddrLttd(),
+                            dto.getAddrLotd()
+                    );
                     dto.setDistanceKm(dist);
-
-                    // Search-step.8-1 사용자 표시 거리 표기
-                    String displayDistance;
-                    if (dist < 1.0) {
-                        displayDistance = Math.round(dist * 1000) + "m";
-                    } else {
-                        displayDistance = Math.round(dist * 10) / 10.0 + "km";
-                    }
-                    dto.setDisplayDistance(displayDistance);
-                });
+                    dto.setDisplayDistance(dist < 1.0 ? Math.round(dist * 1000) + "m" : Math.round(dist * 10) / 10.0 + "km");
+                }
+            }
         }
 
-        // Search-step.7-2, 8-2 거리순 정렬 조건인 경우 필터 적용
-        // 7-1과 연계 로직
         if (isDistanceSort) {
-            eventStream = eventStream
-                // 기본 거리 표준 필터 해제
-                // .filter(dto -> dto.getDistance() <= SearchMapEnum.MAP_DISTANCE_STANDARD.getRate())
-                .sorted(Comparator.comparingDouble(SearchResponseDTO::getDistanceKm).reversed());
-        }
+            List<SearchResponseDTO> sortedList = events.stream()
+                    .filter(dto -> dto.getDistanceKm() != null)
+                    .sorted(Comparator.comparingDouble(SearchResponseDTO::getDistanceKm).reversed())
+                    .toList();
 
-        // Search-step.9 결과 반환
-        List<SearchResponseDTO> sortedList = eventStream.toList();
-        if (isDistanceSort) {
             int start = Math.min((int) pageable.getOffset(), sortedList.size());
             int end = Math.min(start + pageable.getPageSize(), sortedList.size());
             List<SearchResponseDTO> pagedList = sortedList.subList(start, end);
             return new PageImpl<>(pagedList, pageable, sortedList.size());
         } else {
-            long totalCount = Optional.ofNullable(
-                    queryFactory
-                            .select(qEvents.count())
-                            .from(qEvents)
-                            .where(builder)
-                            .fetchOne()
-            ).orElse(0L);
-            return new PageImpl<>(sortedList, pageable, totalCount);
+            long totalCount = countSearchEvents(qEvents, builder);
+            return new PageImpl<>(events, pageable, totalCount);
         }
     }
 
-    /**
-     *
-     * 거리순 Stream 처리
-     *
-     * @author hyo298, 김재효
-     * @param query JPA 쿼리
-     * @param pageable 페이징
-     */
-    private void processDefaultSort(JPAQuery<SearchResponseDTO> query, Pageable pageable) {
-        query.orderBy(getSearchOrderSpecifiers(pageable.getSort()))
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize());
+    private long countSearchEvents(QEvents qEvents, BooleanBuilder builder) {
+        return Optional.ofNullable(
+                queryFactory.select(qEvents.count())
+                        .from(qEvents)
+                        .where(builder)
+                        .fetchOne()
+        ).orElse(0L);
     }
 
     /**
@@ -177,12 +157,19 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
     private BooleanBuilder setSearchCondition(QEvents qEvents, SearchRequestDTO searchRequestDTO) {
         BooleanBuilder builder = new BooleanBuilder();
 
-        // step.1 사전 데이터 in 구성(Text 검색, 거리표준)
+        // 사전 데이터 in 구성(Text 검색, 거리표준)
         if (searchRequestDTO.hasKeyword()) {
-            builder.and(qEvents.eventId.in(searchRequestDTO.getEventIds()));
+            builder.and(eventIdInIfPresent(qEvents, searchRequestDTO.getEventIds()));
+
+            String keyword = searchRequestDTO.getKeyword();
+            BooleanBuilder orBuilder = new BooleanBuilder();
+            orBuilder.or(qEvents.eventNm.contains(keyword));
+            orBuilder.or(qEvents.eventCntn.contains(keyword));
+            orBuilder.or(qEvents.eventAddr.contains(keyword));
+            builder.and(orBuilder);
         }
 
-        // step.2 시작일자, 종료일자
+        // 시작일자, 종료일자
         if (searchRequestDTO.hasDateAllBoolean()) {
             BooleanExpression statCondition = qEvents.operStatDt.loe(searchRequestDTO.getOperEndDt());
             BooleanExpression endCondition = qEvents.operEndDt.goe(searchRequestDTO.getOperStatDt());
@@ -190,20 +177,20 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
             builder.and(dateGroupedCondition);
         }
 
-        // step.3 이벤트 구분 코드
-        if (searchRequestDTO.hasEventTypeCd()) {
+        // 이벤트 구분 코드
+        if (searchRequestDTO.hasEventTypeCd() && !Objects.equals(searchRequestDTO.getEventTypeCd(), "all")) {
             builder.and(qEvents.eventTypeCd.eq(searchRequestDTO.getEventTypeCd()));
         }
 
-        // step.4 이벤트 삭제 여부
+        // 이벤트 삭제 여부
         builder.and(qEvents.deleteYn.eq("N"));
 
-        // step.5 카테고리
+        // 카테고리
         if (searchRequestDTO.hasCategories()) {
             builder.and(qEvents.ctgyId.in(searchRequestDTO.getCategories()));
         }
 
-        // step.6 지역그룹단위필터
+        // 지역그룹단위필터
         if (searchRequestDTO.hasRegionGroups()) {
             //builder.and(qEvents.ctgyId.in(searchRequestDTO.getRegionGroups()));
         }
@@ -245,5 +232,9 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
         );
 
         return orderSpecifiers.toArray(new OrderSpecifier<?>[0]);
+    }
+
+    private BooleanExpression eventIdInIfPresent(QEvents qEvents, List<Long> ids) {
+        return (ids == null || ids.isEmpty()) ? null : qEvents.eventId.in(ids);
     }
 }

@@ -11,6 +11,7 @@ import com.snowroad.search.dto.SearchResponseDTO;
 import com.snowroad.search.repository.SearchRepository;
 import com.snowroad.search.dto.SearchRequestDTO;
 import com.snowroad.search.interfaces.SearchInterface;
+import com.snowroad.search.util.SecurityUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -51,19 +52,25 @@ public class SearchService implements SearchInterface {
     @Override
     @Transactional(readOnly = true)
     public SearchPagedResponse getEvents(SearchRequestDTO searchRequestDTO) {
-        // Search-step.2 : Text 검색
+
+        // 조회 값 보정
+        if(!searchRequestDTO.hasSortType()) {
+            searchRequestDTO.setSortType("최신순");
+        }
+        
+        // Text 검색
         List<Long> keywordEventIds = null;
         if(searchRequestDTO.getKeyword() != null && !searchRequestDTO.getKeyword().trim().isEmpty()) {
             keywordEventIds = getKeywordSearchResult(searchRequestDTO);
         }
 
-        // Search-step.3 : 거리 표준
+        // 거리 표준
         List<Long> locationEventIds = null;
         if(searchRequestDTO.getLatitude() != null && searchRequestDTO.getLongitude() != null) {
             locationEventIds = getMapDistance(searchRequestDTO);
         }
 
-        // Search-step.4 : 교집합 구성
+        // 교집합 구성
         // Text 검색과 거리표준에서 중복된 부분을 제거한다
         List<Long> filteredEventIds = null;
         if (keywordEventIds != null && locationEventIds != null) {
@@ -76,11 +83,17 @@ public class SearchService implements SearchInterface {
             filteredEventIds = locationEventIds;
         }
 
-        // Search-step.5 : 검색 조건 설정
+        //사용자 설정
+        if (SecurityUtil.getCurrentUserId() != null) {
+            long userId = SecurityUtil.getCurrentUserId();
+            searchRequestDTO.setUserAcntNo(userId);
+        }
+
+        // 검색 조건 설정
         searchRequestDTO.setEventIds(filteredEventIds);
         Page<SearchResponseDTO> events = searchRepository.findSearchEventDataList(searchRequestDTO);
 
-        // Search-step.10 : 반환
+        //  반환
         // 데이터, 전체 페이지수, 전체 데이터 건수
         return new SearchPagedResponse(
                 events.getContent(),

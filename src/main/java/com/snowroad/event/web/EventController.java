@@ -40,7 +40,6 @@ public class EventController {
         return events;
     }
 
-
     @Operation(summary="메인 추천 리스트 조회", description = "(이벤트) 메인 팝업, 전시 리스트 추천 항목을 조회합니다. ARG : ALL, 10, 20")
     @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = HomeEventsResponseDto.class)))
     @GetMapping("/api/main-events/rcmn/{eventTypeCd}")
@@ -50,7 +49,6 @@ public class EventController {
             throw new UnauthorizedException("로그인되지 않았습니다.");
         }
         else {
-//          List<HomeEventsResponseDto> events = eventService.getMainRcmnList(eventTypeCd, userDetails);
             Map<String, Object> events = eventService.getMainRcmnList(eventTypeCd, userDetails);
             return ResponseEntity.ok(events);
         }
@@ -76,9 +74,9 @@ public class EventController {
 
     @Operation(summary="리스트 필터링-지역", description = "(이벤트) 리스트페이지의 지역 필터링 선택 항목. 현재 작업중으로 서울 8개 지역만 return중")
     @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = HomeEventsResponseDto.class)))
-    @GetMapping("/api/main-events/list/geoData/{geoTypeCd}")
-    public List<EventsGeoFilterDto> getEventGeoFilter(@RequestParam(defaultValue = "0") int page, @RequestParam(required = false) String geoTypeCd) {
-        List<EventsGeoFilterDto> events = eventService.getEventGeoFilter(geoTypeCd);
+    @GetMapping("/api/main-events/list/geoData")
+    public Map<String, List<EventsGeoFilterDto>> getEventGeoFilter(@RequestParam(defaultValue = "0") int page) {
+        Map<String, List<EventsGeoFilterDto>> events = eventService.getEventGeoFilter();
         return events;
     }
 

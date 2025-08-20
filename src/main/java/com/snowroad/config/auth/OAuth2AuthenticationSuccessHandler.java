@@ -72,17 +72,7 @@ public class OAuth2AuthenticationSuccessHandler implements AuthenticationSuccess
         }
 
         ResponseCookie cookie = cookieBuilder.build();
+             
         response.addHeader("Set-Cookie", cookie.toString());
     }
-//    private void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
-//        ResponseCookie cookie = ResponseCookie.from(name, value)
-//                .path("/")
-//                .httpOnly(true)
-//                .secure(true)
-//                .sameSite("None")
-//                .maxAge(maxAge)
-//                .domain(".noongil.org")
-//                .build();
-//        response.addHeader("Set-Cookie", cookie.toString());
-//    }
 }

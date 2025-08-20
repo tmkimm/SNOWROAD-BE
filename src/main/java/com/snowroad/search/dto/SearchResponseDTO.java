@@ -2,12 +2,17 @@ package com.snowroad.search.dto;
 
 import com.querydsl.core.annotations.QueryProjection;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.persistence.Id;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class SearchResponseDTO {
+
+    @Id
     private Long eventId;
 
     @Schema(description = "이벤트명")
@@ -49,8 +54,8 @@ public class SearchResponseDTO {
     @Schema(description = "법정동코드")
     private String ldcd;
 
-    @Schema(description = "썸네일")
-    private Long tumbFileId;
+    @Schema(description = "이미지 URL")
+    private String imageUrl;
 
     @Schema(description = "파일")
     private Long evntFileId;
@@ -64,11 +69,14 @@ public class SearchResponseDTO {
     @Schema(description = "사용자표시거리")
     private String displayDistance;
 
+    @Schema(description = "좋아요여부")
+    private String likeYn;
+
     @QueryProjection
     public SearchResponseDTO(Long eventId, String eventNm, String eventCntn, String eventAddr, String rads,
-                        String lnad, String operStatDt, String operEndDt, String operDttmCntn,
-                        String ctgyId, String eventTypeCd, Double addrLttd, Double addrLotd,
-                        String ldcd, Long tumbFileId, Long evntFileId, int viewNmvl) {
+                             String lnad, String operStatDt, String operEndDt, String operDttmCntn,
+                             String ctgyId, String eventTypeCd, Double addrLttd, Double addrLotd,
+                             String ldcd, String imageUrl, Long evntFileId, int viewNmvl, String likeYn) {
         this.eventId = eventId;
         this.eventNm = eventNm;
         this.eventCntn = eventCntn;
@@ -82,9 +90,10 @@ public class SearchResponseDTO {
         this.eventTypeCd = eventTypeCd;
         this.addrLttd = addrLttd;
         this.addrLotd = addrLotd;
+        this.imageUrl = imageUrl;
         this.ldcd = ldcd;
-        this.tumbFileId = tumbFileId;
         this.evntFileId = evntFileId;
         this.viewNmvl = viewNmvl;
+        this.likeYn = likeYn;
     }
 }
