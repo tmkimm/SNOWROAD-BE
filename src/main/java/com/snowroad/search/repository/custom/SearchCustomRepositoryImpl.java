@@ -93,8 +93,11 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
             case "마감순" -> Sort.by(Sort.Direction.DESC, "operEndDt");
             default -> Sort.by(Sort.Direction.DESC, "operStatDt");
         };
+
         int page = searchRequest.getPage();
-        Pageable pageable = PageRequest.of(page, 12, sort);
+        int pageSize = searchRequest.getPageSize();
+
+        Pageable pageable = PageRequest.of(page, pageSize, sort);
 
         boolean isDistanceSort = "거리순".equalsIgnoreCase(searchRequest.getSortType());
         if (!isDistanceSort) {
