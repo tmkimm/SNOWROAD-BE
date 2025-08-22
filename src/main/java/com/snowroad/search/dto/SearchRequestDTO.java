@@ -28,12 +28,18 @@ public class SearchRequestDTO {
     @Schema(description = "검색 키워드" , nullable = true)
     private String keyword;
 
-    @Schema(description = "정렬 유형" , nullable = true)
+    @Schema(description = "정렬 유형 (값이 없거나 지정 값이 아닌 경우 오픈일자로 정렬됩니다)" , nullable = true, example = "인기순, 마감순, 거리순")
     private String sortType;
 
+    @NotBlank
     @Min(0)
-    @Schema(description = "페이지", example = "0")
+    @Schema(description = "페이지", example = "0", defaultValue = "0")
     private Integer page;
+
+    @NotBlank
+    @Min(0)
+    @Schema(description = "페이지 사이즈", example = "12", defaultValue = "12")
+    private Integer pageSize;
 
     @Schema(description = "위도" , nullable = true , example = "37.527097226615")
     private Double latitude;  //위도
