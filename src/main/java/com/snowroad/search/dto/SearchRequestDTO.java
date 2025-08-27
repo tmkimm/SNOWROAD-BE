@@ -39,7 +39,7 @@ public class SearchRequestDTO {
     @NotBlank
     @Min(0)
     @Schema(description = "페이지 사이즈", example = "12", defaultValue = "12")
-    private Integer pageSize;
+    private Integer pageSize = 12;
 
     @Schema(description = "위도" , nullable = true , example = "37.527097226615")
     private Double latitude;  //위도
