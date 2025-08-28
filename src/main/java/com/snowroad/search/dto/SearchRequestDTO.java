@@ -34,7 +34,7 @@ public class SearchRequestDTO {
     @NotBlank
     @Min(0)
     @Schema(description = "페이지", example = "0", defaultValue = "0")
-    private Integer page;
+    private Integer page = 0;
 
     @NotBlank
     @Min(0)
