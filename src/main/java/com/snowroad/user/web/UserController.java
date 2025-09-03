@@ -10,6 +10,7 @@ import com.snowroad.config.auth.dto.CustomUserDetails;
 import com.snowroad.user.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -45,7 +46,7 @@ public class UserController {
             summary = "회원탈퇴"
     )
     @DeleteMapping("")
-    public ResponseEntity<String> deleteUser(@CurrentUser CustomUserDetails userDetails, HttpServletResponse response) {
+    public ResponseEntity<String> deleteUser(@CurrentUser CustomUserDetails userDetails, HttpServletRequest request, HttpServletResponse response) {
         if (userDetails == null) {
             throw new UnauthorizedException("인증 정보가 존재하지 않습니다. 로그인이 필요합니다.");
         }
@@ -53,7 +54,7 @@ public class UserController {
         userService.deleteUser(userDetails.getUserId());
 
         // 인증 관련 쿠키 클리어
-        cookieUtil.clearCookies(response);
+        cookieUtil.clearCookies(request, response);
         return ResponseEntity.ok("회원 탈퇴가 완료되었습니다.");
     }
 }

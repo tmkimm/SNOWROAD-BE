@@ -256,9 +256,9 @@ public class AdminController {
             description = "자동 로그인을 해제하며 로그아웃합니다."
     )
     @DeleteMapping("/api/admin/logout")
-    public ResponseEntity<Void> logout(HttpServletResponse response) {
+    public ResponseEntity<Void> logout(HttpServletRequest request, HttpServletResponse response) {
         // 인증 관련 쿠키 클리어
-        cookieUtil.clearCookiesAdmin(response);
+        cookieUtil.clearCookiesAdmin(request, response);
         return ResponseEntity.noContent().build();
     }
 }
