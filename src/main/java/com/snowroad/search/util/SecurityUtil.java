@@ -8,10 +8,18 @@ public class SecurityUtil {
 
     public static CustomUserDetails getCurrentUser() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println(auth);
         if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
             return null;
         }
-        return (CustomUserDetails) auth.getPrincipal();
+
+        Object principal = auth.getPrincipal();
+
+        if (principal instanceof CustomUserDetails) {
+            return (CustomUserDetails) principal;
+        }
+
+        return null;
     }
 
     public static Long getCurrentUserId() {
