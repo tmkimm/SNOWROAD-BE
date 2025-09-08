@@ -17,6 +17,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -196,12 +199,18 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
             BooleanExpression endCondition = qEvents.operEndDt.goe(searchRequestDTO.getOperStatDt());
             BooleanTemplate dateGroupedCondition = Expressions.booleanTemplate("(({0}) AND ({1}))", statCondition, endCondition);
             builder.and(dateGroupedCondition);
+        } else {
+            //이벤트 서버 시간
+            String today = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);
+            builder.and(qEvents.operEndDt.goe(today));
         }
 
         // 이벤트 구분 코드
         if (searchRequestDTO.hasEventTypeCd() && !Objects.equals(searchRequestDTO.getEventTypeCd(), "all")) {
             builder.and(qEvents.eventTypeCd.eq(searchRequestDTO.getEventTypeCd()));
         }
+
+
 
         // 이벤트 삭제 여부
         builder.and(qEvents.deleteYn.eq("N"));
