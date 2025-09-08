@@ -28,7 +28,7 @@ public class SearchRequestDTO {
     @Schema(description = "검색 키워드" , nullable = true)
     private String keyword;
 
-    @Schema(description = "정렬 유형 (값이 없거나 지정 값이 아닌 경우 오픈일자로 정렬됩니다)" , nullable = true, example = "인기순, 마감순, 거리순")
+    @Schema(description = "정렬 유형 (값이 없거나 지정 값이 아닌 경우 오픈일자로 정렬됩니다)" , nullable = true, example = "10")
     private String sortType;
 
     @NotBlank

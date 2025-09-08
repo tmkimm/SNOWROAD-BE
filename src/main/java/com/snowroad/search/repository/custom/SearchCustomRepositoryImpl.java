@@ -1,12 +1,11 @@
 package com.snowroad.search.repository.custom;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.BooleanTemplate;
-import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.PathBuilder;
+import com.querydsl.core.types.dsl.*;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.snowroad.entity.*;
@@ -45,18 +44,36 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
      */
     @Override
     public Page<SearchResponseDTO> findSearchEventDataList(SearchRequestDTO searchRequest) {
+
         QEvents qEvents = QEvents.events;
         QEventFilesMst qTumbFileMst = new QEventFilesMst("qTumbFileMst");
         QEventFilesDtl qTumbFileDtl = new QEventFilesDtl("qTumbFileDtl");
         QEventFilesMst qEventFile = new QEventFilesMst("eventFile");
+
         QMark qMark = new QMark("mark");
         QEventView qEventView = QEventView.eventView;
         BooleanBuilder builder = setSearchCondition(qEvents, searchRequest);
 
         Long userAcntNo = searchRequest.getUserAcntNo();
-        BooleanExpression userFilter =
-                (userAcntNo != null) ? qMark.userAcntNo.eq(userAcntNo)
-                        : Expressions.TRUE.isTrue();
+        Expression<String> likeYnExpr;
+        if (userAcntNo != null) {
+            BooleanExpression likedExists =
+                    JPAExpressions.selectOne()
+                            .from(qMark)
+                            .where(
+                                    qMark.eventId.eq(qEvents.eventId)      // ← 역방향 매핑 없으니 컬럼으로 연결
+                                            .and(qMark.userAcntNo.eq(userAcntNo))  // 사용자 한정
+                                            .and(qMark.likeYn.eq("Y"))
+                            )
+                            .exists();
+
+            likeYnExpr = new CaseBuilder()
+                    .when(likedExists).then("Y")
+                    .otherwise("N");
+        } else {
+            // 정책에 맞게 null 또는 "N"
+            likeYnExpr = Expressions.constant("N");
+        }
 
         JPAQuery<SearchResponseDTO> searchQuery = queryFactory
                 .select(new QSearchResponseDTO(
@@ -77,20 +94,21 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
                         qTumbFileDtl.fileUrl,
                         qEventFile.fileMstId,
                         qEventView.viewNmvl,
-                        qMark.likeYn
+                        likeYnExpr
                 ))
                 .from(qEvents)
                 .leftJoin(qEvents.eventTumbfile, qTumbFileMst) // 이벤트 → 썸네일 마스터
                 .leftJoin(qTumbFileMst.eventFilesDtlList, qTumbFileDtl)
                 .leftJoin(qEvents.eventFiles, qEventFile)
                 .leftJoin(qEvents.eventView, qEventView)
-                .leftJoin(qEvents.mark, qMark).on(userFilter)
                 .where(builder);
 
         String sortType = searchRequest.getSortType();
         Sort sort = switch (sortType) {
-            case "인기순" -> Sort.by(Sort.Direction.DESC, "eventView.viewNmvl");
-            case "마감순" -> Sort.by(Sort.Direction.DESC, "operEndDt");
+            //case "인기순" -> Sort.by(Sort.Direction.DESC, "eventView.viewNmvl");
+            //조회순, 최신순, 마감순
+            case "10" -> Sort.by(Sort.Direction.DESC, "operStatDt");
+            case "30" -> Sort.by(Sort.Direction.DESC, "operEndDt");
             default -> Sort.by(Sort.Direction.DESC, "operStatDt");
         };
 
