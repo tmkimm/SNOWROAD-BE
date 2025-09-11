@@ -81,7 +81,10 @@ public interface EventsRepository extends JpaRepository<Events, Long>, EventsRep
     @Query(value = "SELECT e.EVNT_ID as eventId, e.EVNT_NM AS eventNm, OPER_STAT_DT as operStatDt, OPER_END_DT as operEndDt, " +
             "e.CTGY_ID as ctgyId, e.EVNT_TYPE_CD as eventTypeCd, " +
             "efd.FILE_URL as imageUrl, efd.FILE_THUB_URL as smALLImageUrl, " +
-            "CONCAT('D', TIMESTAMPDIFF(DAY, STR_TO_DATE(e.OPER_END_DT, '%Y%m%d'), CURRENT_DATE())) AS D_DAY " +
+            "CASE " +
+            "WHEN TIMESTAMPDIFF(DAY, STR_TO_DATE(e.OPER_STAT_DT, '%Y%m%d'), CURRENT_DATE()) = 0 THEN 'D-day' " +
+            "ELSE CONCAT('D', TIMESTAMPDIFF(DAY, STR_TO_DATE(e.OPER_STAT_DT, '%Y%m%d'), CURRENT_DATE())) " +
+            "END AS D_DAY " +
             "from TB_EVNT_M e " +
             "LEFT OUTER JOIN TB_EVNT_VIEW_D evd ON e.EVNT_ID = evd.EVNT_ID " +
             "LEFT OUTER JOIN TB_EVNT_FILE_M efm ON e.TUMB_FILE_ID = efm.FILE_MST_ID " +
@@ -97,7 +100,9 @@ public interface EventsRepository extends JpaRepository<Events, Long>, EventsRep
     @Query(value = "SELECT e.EVNT_ID as eventId, e.EVNT_NM AS eventNm, OPER_STAT_DT as operStatDt, OPER_END_DT as operEndDt, " +
             "e.CTGY_ID as ctgyId, e.EVNT_TYPE_CD as eventTypeCd, " +
             "efd.FILE_URL as imageUrl, efd.FILE_THUB_URL as smALLImageUrl, " +
-            "CONCAT('D', TIMESTAMPDIFF(DAY, STR_TO_DATE(e.OPER_END_DT, '%Y%m%d'), CURRENT_DATE())) AS D_DAY " +
+            "CASE " +
+            "WHEN TIMESTAMPDIFF(DAY, STR_TO_DATE(e.OPER_END_DT, '%Y%m%d'), CURRENT_DATE()) = 0 THEN 'D-day' " +
+            "ELSE CONCAT('D', TIMESTAMPDIFF(DAY, STR_TO_DATE(e.OPER_END_DT, '%Y%m%d'), CURRENT_DATE())) END AS D_DAY " +
             "from TB_EVNT_M e " +
             "LEFT OUTER JOIN TB_EVNT_VIEW_D evd ON e.EVNT_ID = evd.EVNT_ID " +
             "LEFT OUTER JOIN TB_EVNT_FILE_M efm ON e.TUMB_FILE_ID = efm.FILE_MST_ID " +
