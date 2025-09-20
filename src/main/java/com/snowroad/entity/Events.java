@@ -95,6 +95,11 @@ public class Events extends BaseTimeEntity {
     @JoinColumn(name = "EVNT_ID")
     private EventView eventView; // EventView와 1:1 관계 설정
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "LDCD", referencedColumnName = "LDCD",
+            insertable = false, updatable = false)
+    private LocalDistrict localDistrict;
+
     @Builder
     public Events(Long eventId, String eventNm, String eventCntn, String eventAddr, String operStatDt, String operEndDt, String operDttmCntn, String ctgyId, String eventTypeCd, Double addrLttd, Double addrLotd, String ldcd, String rads, String lnad, String eventDetailUrl) {
         this.eventId = eventId;
