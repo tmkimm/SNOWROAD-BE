@@ -108,9 +108,9 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
 
         String sortType = searchRequest.getSortType();
         Sort sort = switch (sortType) {
-            //case "인기순" -> Sort.by(Sort.Direction.DESC, "eventView.viewNmvl");
             //조회순, 최신순, 마감순
-            case "10" -> Sort.by(Sort.Direction.DESC, "operStatDt");
+            case "10" -> Sort.by(Sort.Direction.DESC, "eventView.viewNmvl");
+            case "20" -> Sort.by(Sort.Direction.DESC, "operStatDt");
             case "30" -> Sort.by(Sort.Direction.DESC, "operEndDt");
             default -> Sort.by(Sort.Direction.DESC, "operStatDt");
         };
@@ -182,35 +182,37 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
         BooleanBuilder builder = new BooleanBuilder();
 
         // 사전 데이터 in 구성(Text 검색, 거리표준)
+        BooleanBuilder keywordOr = new BooleanBuilder();
         if (searchRequestDTO.hasKeyword()) {
             builder.and(eventIdInIfPresent(qEvents, searchRequestDTO.getEventIds()));
 
             String keyword = searchRequestDTO.getKeyword();
-            BooleanBuilder orBuilder = new BooleanBuilder();
-            orBuilder.or(qEvents.eventNm.contains(keyword));
-            orBuilder.or(qEvents.eventCntn.contains(keyword));
-            orBuilder.or(qEvents.eventAddr.contains(keyword));
-            builder.and(orBuilder);
+            keywordOr.or(qEvents.eventNm.contains(keyword))
+                     .or(qEvents.eventCntn.contains(keyword));
         }
 
         // 시작일자, 종료일자
         if (searchRequestDTO.hasDateAllBoolean()) {
             BooleanExpression statCondition = qEvents.operStatDt.loe(searchRequestDTO.getOperEndDt());
             BooleanExpression endCondition = qEvents.operEndDt.goe(searchRequestDTO.getOperStatDt());
-            BooleanTemplate dateGroupedCondition = Expressions.booleanTemplate("(({0}) AND ({1}))", statCondition, endCondition);
-            builder.and(dateGroupedCondition);
+            builder.and(statCondition.and(endCondition));
         } else {
             //이벤트 서버 시간
             String today = LocalDate.now().format(DateTimeFormatter.BASIC_ISO_DATE);
             builder.and(qEvents.operEndDt.goe(today));
         }
 
+        //검색 보정
+        //LIKE 문
+        //임시처리
+        if (keywordOr.hasValue()) {
+            builder.and(keywordOr);
+        }
+
         // 이벤트 구분 코드
         if (searchRequestDTO.hasEventTypeCd() && !Objects.equals(searchRequestDTO.getEventTypeCd(), "all")) {
             builder.and(qEvents.eventTypeCd.eq(searchRequestDTO.getEventTypeCd()));
         }
-
-
 
         // 이벤트 삭제 여부
         builder.and(qEvents.deleteYn.eq("N"));
