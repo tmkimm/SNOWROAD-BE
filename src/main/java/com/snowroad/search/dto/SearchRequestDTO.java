@@ -58,7 +58,7 @@ public class SearchRequestDTO {
         regexp = "^(19|20)\\d{2}(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])$",
         message = "날짜는 YYYYMMDD 형식이어야 하며, 유효한 날짜만 입력 가능합니다."
     )
-    @Schema(description = "종료일자 (YYYYMMDD 형식)", nullable = true , example = "20250331")
+    @Schema(description = "종료일자 (YYYYMMDD 형식)", nullable = true , example = "20251231")
     private String operEndDt;
 
     @NotBlank

@@ -224,7 +224,7 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
 
         // 지역그룹단위필터
         if (searchRequestDTO.hasRegionGroups()) {
-            //builder.and(qEvents.ctgyId.in(searchRequestDTO.getRegionGroups()));
+            builder.and(qEvents.localDistrict.ldcd.in(searchRequestDTO.getRegionGroups()));
         }
 
         return builder;
