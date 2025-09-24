@@ -18,4 +18,5 @@ public interface EventsRepositoryCustom{
     EventContentsResponseDto findEvntData(Long eventId, Long userId);
 
     List<HomeEventsResponseDto> getNearEvntList(Long eventId);
+
 }
