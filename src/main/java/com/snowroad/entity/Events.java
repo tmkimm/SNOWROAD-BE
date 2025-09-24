@@ -97,7 +97,7 @@ public class Events extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "LDCD", referencedColumnName = "LDCD",
-            insertable = false, updatable = false)
+            insertable = false, updatable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private LocalDistrict localDistrict;
 
     @Builder
