@@ -128,18 +128,26 @@ public interface EventsRepository extends JpaRepository<Events, Long>, EventsRep
 
 
     // 리스트 페이지 컨텐츠 목록 조회
-    @Query(value = "SELECT " +
-            "   TRC.RGNT_CD " +
-            "   ,TRC.RGNT_NM " +
-            "   ,TRC.RGNT_TYPE_CD " +
-            "   ,COUNT(TLC.LDCD_NM) AS CNT " +
-            "   ,GROUP_CONCAT(TLC.LDCD_NM) AS LDCD_NM " +
-            "FROM TB_RGNT_C AS TRC " +
-            "INNER JOIN TB_LDCD_C AS TLC " +
-            "ON TLC.RGNT_CD = TRC.RGNT_CD " +
-            "WHERE  TLC.RGNT_CD = TRC.RGNT_CD " +
-            "GROUP BY TRC.RGNT_CD "
-            , nativeQuery = true)
+    // 리스트 페이지 컨텐츠 목록 조회 (마스터 집계를 디테일에 매핑)
+    @Query(value =
+            "SELECT " +
+                    "  TRC.RGNT_CD, " +
+                    "  TRC.RGNT_NM, " +
+                    "  TRC.RGNT_TYPE_CD, " +
+                    "  TRD.RGNT_DELT_CD, " +
+                    "  TRD.RGNT_DELT_NM, " +
+                    "  COUNT(TLC.LDCD) AS CNT, " +
+                    "  COALESCE(GROUP_CONCAT(TLC.LDCD_NM), '') AS LDCD_NM " +
+                    "FROM TB_RGNT_C TRC " +
+                    "JOIN TB_RGNT_DELT_C TRD " +
+                    "  ON TRD.RGNT_CD = TRC.RGNT_CD " +
+                    "LEFT JOIN TB_LDCD_C TLC " +
+                    "  ON TLC.RGNT_DELT_CD = TRD.RGNT_DELT_CD " +
+                    "GROUP BY " +
+                    "  TRC.RGNT_CD, TRC.RGNT_NM, TRC.RGNT_TYPE_CD, " +
+                    "  TRD.RGNT_DELT_CD, TRD.RGNT_DELT_NM " +
+                    "ORDER BY TRC.RGNT_CD, TRD.RGNT_DELT_CD",
+            nativeQuery = true)
     List<Object[]> getEventGeoFilter();
 
     @Query("""

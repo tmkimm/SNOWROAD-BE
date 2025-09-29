@@ -221,16 +221,14 @@ public class EventService {
         // Object[]에서 데이터를 추출하여 필요한 형태로 가공
         Map<String, List<EventsGeoFilterDto>> eventGeoFilterData = result.stream().map(row -> {
                     EventsGeoFilterDto evntGeoList = new EventsGeoFilterDto();
-                    evntGeoList.setRgntCd((String) row[0]);
-                    evntGeoList.setRegionName((String) row[1]);
+                    evntGeoList.setRgntCd((String) row[3]);
+                    evntGeoList.setRegionName((String) row[4]);
                     evntGeoList.setRgntTypeCd((String) row[2]);
-                    evntGeoList.setCnt((Long) row[3]);
-                    evntGeoList.setLcdcNm((String) row[4]);
+                    evntGeoList.setCnt((Long)  row[5]);
+                    evntGeoList.setLcdcNm((String) row[6]);
                     return evntGeoList;
                 })
                 .collect(Collectors.groupingBy(EventsGeoFilterDto::getRgntTypeCd));
-
-
         return eventGeoFilterData;
 
     }
