@@ -91,9 +91,8 @@ public class Events extends BaseTimeEntity {
     @Column(name = "EVNT_DTL_URL", length = 2000)
     private String eventDetailUrl;
 
-    @OneToOne
-    @JoinColumn(name = "EVNT_ID")
-    private EventView eventView; // EventView와 1:1 관계 설정
+    @OneToOne(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private EventView eventView;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "LDCD", referencedColumnName = "LDCD",
@@ -142,5 +141,11 @@ public class Events extends BaseTimeEntity {
 
     public void updateEventFile(EventFilesMst eventFilesMst) {
         this.eventFiles = eventFilesMst;
+    }
+
+    // 연관관계 편의 메서드
+    public void setEventView(EventView eventView) {
+        this.eventView = eventView;
+        eventView.setEvent(this);
     }
 }
