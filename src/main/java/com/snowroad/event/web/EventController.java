@@ -72,12 +72,11 @@ public class EventController {
         return new PagedResponseDto<>(events, 10);
     }
 
-    @Operation(summary="리스트 필터링-지역", description = "(이벤트) 리스트페이지의 지역 필터링 선택 항목. 현재 작업중으로 서울 8개 지역만 return중")
+    @Operation(summary="리스트 필터링-지역", description = "(이벤트) 리스트페이지의 지역 필터링 선택 항목")
     @ApiResponse(responseCode = "200", description = "조회 성공", content = @Content(schema = @Schema(implementation = HomeEventsResponseDto.class)))
     @GetMapping("/api/main-events/list/geoData")
-    public Map<String, List<EventsGeoFilterDto>> getEventGeoFilter(@RequestParam(defaultValue = "0") int page) {
-        Map<String, List<EventsGeoFilterDto>> events = eventService.getEventGeoFilter();
-        return events;
+    public Map<String, List<EventsGeoFilterDto>> getEventGeoFilter() {
+        return eventService.getEventGeoFilter();
     }
 
     @Operation(summary="리스트 팝업/전시 조회", description = "(이벤트) 리스트페이지 등록된 팝업, 전시 리스트를 조회합니다.<br>" +
