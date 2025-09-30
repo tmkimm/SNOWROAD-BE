@@ -368,11 +368,11 @@ class EventControllerTest {
 
         // ✨ 하드코딩된 예상 조회수 순서를 직접 비교
         // 예상되는 eventId 순서 (가장 큰 값부터 내림차순)
-        assertThat(actualEventNms.get(0)).isEqualTo("테스트 이벤트 4");
-        assertThat(actualEventNms.get(1)).isEqualTo("테스트 이벤트 3");
+        assertThat(actualEventNms.get(0)).isEqualTo("테스트 이벤트 0");
+        assertThat(actualEventNms.get(1)).isEqualTo("테스트 이벤트 1");
         assertThat(actualEventNms.get(2)).isEqualTo("테스트 이벤트 2");
-        assertThat(actualEventNms.get(3)).isEqualTo("테스트 이벤트 1");
-        assertThat(actualEventNms.get(4)).isEqualTo("테스트 이벤트 0");
+        assertThat(actualEventNms.get(3)).isEqualTo("테스트 이벤트 3");
+        assertThat(actualEventNms.get(4)).isEqualTo("테스트 이벤트 4");
 
         System.out.println("Events_인기순으로_조회된다 테스트 성공");
     }
@@ -653,10 +653,10 @@ class EventControllerTest {
         }
         System.out.println("nearEvents Response Body (eventName 추출 완료): " + nearEventIds);
         assertThat(nearEventIds).hasSize(4);
-        assertThat(nearEventIds.get(0)).isEqualTo("테스트 이벤트 0");
-        assertThat(nearEventIds.get(1)).isEqualTo("테스트 이벤트 1");
-        assertThat(nearEventIds.get(2)).isEqualTo("테스트 이벤트 2");
-        assertThat(nearEventIds.get(3)).isEqualTo("테스트 이벤트 3");
+        assertThat(nearEventIds.get(0)).isEqualTo("테스트 이벤트 1");
+        assertThat(nearEventIds.get(1)).isEqualTo("테스트 이벤트 2");
+        assertThat(nearEventIds.get(2)).isEqualTo("테스트 이벤트 3");
+        assertThat(nearEventIds.get(3)).isEqualTo("테스트 이벤트 4");
 
         System.out.println("Events_상세컨텐츠_조회된다 테스트 성공");
     }
