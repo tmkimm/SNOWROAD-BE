@@ -1,5 +1,6 @@
 package com.snowroad.event.web.dto;
 
+import com.snowroad.entity.EventView;
 import com.snowroad.entity.Events;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
@@ -62,7 +63,7 @@ public class EventsSaveRequestDto {
 
 
     public Events toEntity() {
-        return Events.builder()
+        Events event = Events.builder()
                 .eventNm(eventNm)
                 .eventCntn(eventCntn)
                 .eventAddr(eventAddr)
@@ -78,5 +79,15 @@ public class EventsSaveRequestDto {
                 .eventDetailUrl(eventDetailUrl)
                 .ldcd(ldcd)
                 .build();
+
+        // 조회수는 신규 등록 시 0으로 초기화
+        EventView eventView = EventView.builder()
+                .viewNmvl(0)
+                .build();
+
+        // 연관관계 편의 메서드 사용
+        event.setEventView(eventView);
+
+        return event;
     }
 }

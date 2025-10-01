@@ -16,21 +16,29 @@ public class EventView extends BaseTimeEntity {
     @Schema(description = "이벤트ID")
     @Column(name = "EVNT_ID")
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long eventId;
+
+    @OneToOne
+    @MapsId // Event의 PK를 그대로 사용
+    @JoinColumn(name = "EVNT_ID")
+    private Events event;
 
     @Schema(description = "조회수")
     @Column(name = "VIEW_NMVL")
     private int viewNmvl;
 
+
     @Builder
-    public EventView(Long eventId, int viewNmvl) {
-        this.eventId = eventId;
+    public EventView(int viewNmvl) {
         this.viewNmvl = viewNmvl;
     }
 
-    public void update(Long eventId, int viewNmvl) {
-        this.eventId = eventId;
+    protected void setEvent(Events event) {
+        this.event = event;
+        this.eventId = event.getEventId();
+    }
+
+    public void updateViewCount(int viewNmvl) {
         this.viewNmvl = viewNmvl;
     }
 }
