@@ -111,7 +111,7 @@ public class SearchCustomRepositoryImpl implements SearchCustomRepository {
             //조회순, 최신순, 마감순
             case "10" -> Sort.by(Sort.Direction.DESC, "eventView.viewNmvl");
             case "20" -> Sort.by(Sort.Direction.DESC, "operStatDt");
-            case "30" -> Sort.by(Sort.Direction.DESC, "operEndDt");
+            case "30" -> Sort.by(Sort.Direction.ASC, "operEndDt");
             default -> Sort.by(Sort.Direction.DESC, "operStatDt");
         };
 

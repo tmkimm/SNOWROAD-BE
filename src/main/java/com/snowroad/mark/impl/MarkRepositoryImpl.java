@@ -67,7 +67,7 @@ public class MarkRepositoryImpl implements MarkRepository {
                 .leftJoin(view).on(e.eventId.eq(view.eventId)) // JOIN TB_EVNT_VIEW_D
                 .join(mark).on(e.eventId.eq(mark.eventId)) // JOIN TB_EVNT_LIKE_D
                 .leftJoin(fileMst).on(e.eventTumbfile.fileMstId.eq(fileMst.fileMstId)) // JOIN TB_EVNT_FILE_M
-                .leftJoin(fileDtl).on(fileMst.fileMstId.eq(fileDtl.fileDtlId)) // JOIN TB_EVNT_FILE_D
+                .leftJoin(fileDtl).on(fileMst.fileMstId.eq(fileDtl.fileMst.fileMstId)) // JOIN TB_EVNT_FILE_D
                 .where(
                         mark.userAcntNo.eq(userId),
                         mark.likeYn.eq("Y")
