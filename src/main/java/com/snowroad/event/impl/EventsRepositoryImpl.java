@@ -317,7 +317,6 @@ public EventContentsResponseDto findEvntData(Long evntId, Long userId){
         resultDto.setImageUrls(imageUrls);
     }
 
-    System.out.println("Result DTO: " + resultDto);
     return resultDto;
 }
 
