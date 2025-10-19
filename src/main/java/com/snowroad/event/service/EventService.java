@@ -214,6 +214,7 @@ public class EventService {
                     evntRankList.setEventTypeCd((String) row[5]);
                     evntRankList.setImageUrl((String) row[6]);
                     evntRankList.setSmallImageUrl((String) row[7]);
+                    evntRankList.setViewNmvl((Long) row[8]);
                     return evntRankList;
                 })
                 .collect(Collectors.toList());

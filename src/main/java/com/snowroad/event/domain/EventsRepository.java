@@ -67,7 +67,8 @@ public interface EventsRepository extends JpaRepository<Events, Long>, EventsRep
     // 메인페이지 인기 컨텐츠 list 조회
     @Query(value = "SELECT e.EVNT_ID as eventId, e.EVNT_NM AS eventNm, OPER_STAT_DT as operStatDt, OPER_END_DT as operEndDt, " +
             "e.CTGY_ID as ctgyId, e.EVNT_TYPE_CD as eventTypeCd, " +
-            "efd.FILE_URL as imageUrl, efd.FILE_THUB_URL as smALLImageUrl " +
+            "efd.FILE_URL as imageUrl, efd.FILE_THUB_URL as smALLImageUrl, " +
+            "evd.VIEW_NMVL as viewNmvl " +
             "from TB_EVNT_M e " +
             "LEFT OUTER JOIN TB_EVNT_VIEW_D evd ON e.EVNT_ID = evd.EVNT_ID " +
             "LEFT OUTER JOIN TB_EVNT_FILE_M efm ON e.TUMB_FILE_ID = efm.FILE_MST_ID " +
