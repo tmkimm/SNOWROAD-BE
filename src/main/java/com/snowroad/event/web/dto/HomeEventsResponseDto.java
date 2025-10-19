@@ -40,6 +40,9 @@ public class HomeEventsResponseDto {
     @Schema(description = "D-DAY")
     private String dDay;
 
+    @Schema(description = "이벤트 조회수")
+    private Long viewNmvl;
+
     @Schema(description = "이벤트 시/동 주소")
     private String lnad;
 }
